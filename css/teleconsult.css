@@ -1,0 +1,313 @@
+/* ==========================================================================
+   ClinicOS: Telehealth Video Consultation Suite — Premium Dark Glass UI
+   ========================================================================== */
+
+.teleconsult-container {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.25rem;
+  height: calc(100vh - 180px);
+  min-height: 600px;
+}
+
+.teleconsult-main {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, #01232D 0%, #012030 60%, #001520 100%);
+  border: 1px solid rgba(11,188,212,0.3);
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 40px rgba(11,188,212,0.15), 0 20px 50px rgba(0,0,0,0.3);
+}
+.teleconsult-main::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #0BBCD4, #7C3AED, #0BBCD4, transparent);
+  z-index: 10;
+}
+
+/* Video Stream Grid */
+.video-stream-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  background: radial-gradient(ellipse at 30% 30%, #01303F 0%, #001520 100%);
+  position: relative;
+}
+.video-stream-grid.pip-mode { grid-template-columns: 1fr; }
+
+.video-tile {
+  position: relative;
+  background: linear-gradient(135deg, #013545 0%, #011E2B 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(11,188,212,0.35);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  transition: border-color 0.3s ease;
+}
+.video-tile:hover { border-color: rgba(11,188,212,0.65); }
+.video-tile video { width: 100%; height: 100%; object-fit: cover; }
+
+.video-tile.local-pip {
+  position: absolute;
+  bottom: 24px; right: 24px;
+  width: 220px; height: 140px;
+  z-index: 10;
+  border: 2px solid #F97316;
+  box-shadow: 0 0 20px rgba(249,115,22,0.4), 0 8px 24px rgba(0,0,0,0.5);
+  border-radius: 12px;
+}
+
+/* Video Participant Badge */
+.video-participant-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--apollo-blue-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.video-quality-tag {
+  font-size: 0.68rem;
+  color: var(--apollo-blue-chill);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+/* In-Call HUD Overlay */
+.video-hud-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.call-timer-badge {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(224, 36, 36, 0.35);
+  color: #E02424;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.recording-dot {
+  width: 8px;
+  height: 8px;
+  background: #E02424;
+  border-radius: 50%;
+  animation: pulseGlow 1.2s infinite;
+}
+
+.patient-live-vitals-pill {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-glow);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--apollo-blue-dark);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Bottom Call Action Controls */
+.teleconsult-controls-bar {
+  height: 76px;
+  background: #FFFFFF;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
+}
+
+.call-ctrl-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #F4F8FA;
+  border: 1px solid var(--border-subtle);
+  color: var(--apollo-blue-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-sm);
+}
+
+.call-ctrl-btn:hover {
+  background: #EBF4F7;
+  border-color: var(--apollo-blue-chill);
+  color: var(--apollo-orange);
+  transform: translateY(-2px);
+}
+
+.call-ctrl-btn.active-off {
+  background: #FEF2F2;
+  border-color: rgba(224, 36, 36, 0.5);
+  color: #E02424;
+}
+
+.call-ctrl-btn.end-call {
+  background: #E02424;
+  color: #FFFFFF;
+  width: 52px;
+  height: 52px;
+  box-shadow: 0 4px 14px rgba(224, 36, 36, 0.4);
+}
+
+.call-ctrl-btn.end-call:hover {
+  background: #C81E1E;
+  transform: scale(1.05);
+}
+
+/* Right Sidebar: Tabs for Chat, EHR Vitals, Live Rx Pad */
+.teleconsult-sidebar {
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.teleconsult-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #F4F8FA;
+}
+
+.tele-tab-btn {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  transition: var(--transition-smooth);
+  border-bottom: 2px solid transparent;
+}
+
+.tele-tab-btn:hover {
+  color: var(--apollo-orange);
+}
+
+.tele-tab-btn.active {
+  color: var(--apollo-blue-dark);
+  border-bottom-color: var(--apollo-orange);
+  background: rgba(9, 120, 149, 0.08);
+}
+
+.tele-tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: none;
+  flex-direction: column;
+  color: var(--text-main);
+}
+
+.tele-tab-content.active {
+  display: flex;
+}
+
+/* In-Call Chat Stream */
+.chat-messages-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+  margin-bottom: 0.75rem;
+  padding-right: 4px;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.chat-bubble.doctor {
+  align-self: flex-start;
+  background: #EDF4F7;
+  border: 1px solid var(--border-subtle);
+  color: var(--apollo-blue-dark);
+}
+
+.chat-bubble.patient {
+  align-self: flex-end;
+  background: rgba(9, 120, 149, 0.12);
+  border: 1px solid var(--border-subtle);
+  color: var(--apollo-blue-dark);
+}
+
+.chat-bubble-sender {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--apollo-blue-dark);
+  margin-bottom: 2px;
+}
+
+.chat-input-bar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chat-input-bar input {
+  flex: 1;
+  padding: 0.55rem 0.85rem;
+  border-radius: 8px;
+  background: #F4F8FA;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1024px) {
+  .teleconsult-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .teleconsult-main {
+    height: 480px;
+  }
+}
