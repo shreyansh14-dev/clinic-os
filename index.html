@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ClinicOS — Digital Health Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ── Apollo 247 Design System Tokens ── */
+:root{
+  --bg:#F7F8F9;
+  --surface:#FFFFFF;
+  --surface2:#F0F4F7;
+  --surface3:#E8EEF3;
+  --border:#E5E7EB;
+  --border2:#D0D7DE;
+  --teal:#02475E;
+  --teal-dark:#01384B;
+  --teal-light:#EAF3F6;
+  --orange:#FC9916;
+  --orange-dark:#FB8C00;
+  --orange-light:#FFF5E8;
+  --green:#00B38E;
+  --green-light:#F0FDF4;
+  --red:#E53935;
+  --red-light:#FFF1F0;
+  --text:#1A2D3E;
+  --text2:#576271;
+  --text3:#9CA3AF;
+  --radius:12px;
+  --radius-sm:8px;
+  --radius-lg:16px;
+  --shadow:0 4px 16px rgba(2,71,94,.08);
+  --shadow-lg:0 12px 32px rgba(2,71,94,.12);
+}
+
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ════════════════════════════════════════
+   VIEW CONTAINERS
+════════════════════════════════════════ */
+#auth-view{min-height:100vh;display:flex;align-items:stretch;background:var(--bg)}
+#app-view{display:none;min-height:100vh;overflow:hidden}
+
+/* ════════════════════════════════════════
+   APOLLO 24/7 AUTH VIEW (SPLIT SCREEN)
+════════════════════════════════════════ */
+.auth-hero{width:45%;min-height:100vh;background:linear-gradient(160deg,var(--teal) 0%,var(--teal-dark) 60%,#001E2B 100%);display:flex;flex-direction:column;justify-content:center;padding:60px 48px;position:relative;overflow:hidden}
+.auth-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.04)}
+.auth-hero::after{content:'';position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;border-radius:50%;background:rgba(252,153,22,.06)}
+.hero-logo{display:flex;align-items:center;gap:12px;margin-bottom:40px}
+.hero-logo-icon{width:48px;height:48px;border-radius:12px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 24px rgba(252,153,22,.4)}
+.hero-logo-text{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.hero-logo-text span{color:var(--orange)}
+.hero-headline{font-size:36px;font-weight:800;color:#fff;line-height:1.25;margin-bottom:16px;letter-spacing:-.5px}
+.hero-headline span{color:var(--orange)}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:40px}
+.hero-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:24px;font-weight:800;color:var(--orange)}
+.hero-stat .lab{font-size:11px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px}
+.hero-divider{width:1px;background:rgba(255,255,255,.15);height:36px;align-self:center}
+
+.auth-form-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 32px;background:#fff;overflow-y:auto}
+.auth-card{width:100%;max-width:420px}
+.auth-header{margin-bottom:24px}
+.auth-header h2{font-size:24px;font-weight:800;color:var(--text);margin-bottom:4px}
+.auth-header p{font-size:13.5px;color:var(--text2)}
+
+.auth-tabs{display:flex;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:20px;border:1.5px solid var(--border)}
+.auth-tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--text3);transition:all .2s}
+.auth-tab.active{background:var(--teal);color:#fff;box-shadow:0 4px 12px rgba(2,71,94,.25)}
+
+.form-group{margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
+input,select,textarea{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:13.5px;font-family:'Inter',sans-serif;outline:none;transition:all .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(2,71,94,.08)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.btn-primary{width:100%;padding:13px;border-radius:10px;border:none;cursor:pointer;background:var(--orange);color:#fff;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;transition:all .2s;box-shadow:0 4px 16px rgba(252,153,22,.35)}
+.btn-primary:hover{background:var(--orange-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(252,153,22,.45)}
+
+.demo-pills{background:var(--teal-light);border:1.5px solid rgba(2,71,94,.15);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.demo-pills p{font-size:12px;color:var(--text2);line-height:1.7}
+.demo-pills strong{color:var(--teal)}
+
+.role-pills{display:flex;gap:10px;margin-bottom:6px}
+.role-pill{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;text-align:center;font-size:13px;color:var(--text2);transition:all .2s;font-family:'Inter',sans-serif;font-weight:600}
+.role-pill.selected{border-color:var(--teal);background:var(--teal-light);color:var(--teal)}
+
+.auth-features{display:flex;gap:14px;margin-top:24px;padding-top:20px;border-top:1.5px solid var(--border)}
+.auth-feat{flex:1;text-align:center}
+.auth-feat-icon{font-size:20px;margin-bottom:4px}
+.auth-feat-text{font-size:10.5px;color:var(--text3);font-weight:500}
+
+/* ════════════════════════════════════════
+   MAIN APP LAYOUT (APOLLO 24/7 LIGHT)
+════════════════════════════════════════ */
+.sidebar{width:240px;min-height:100vh;background:var(--teal);border-right:none;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;box-shadow:4px 0 20px rgba(2,71,94,.15)}
+.sidebar-logo{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.sidebar-logo .icon{width:38px;height:38px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(252,153,22,.4)}
+.sidebar-logo .name{font-size:19px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.sidebar-logo .name span{color:var(--orange)}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;color:rgba(255,255,255,.7);font-size:13.5px;font-weight:500;transition:all .18s;margin-bottom:3px;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.15);color:#fff;font-weight:700}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--orange);border-radius:0 3px 3px 0}
+.nav-item .icon{font-size:17px;width:22px;text-align:center}
+.sidebar-user{padding:16px 12px;border-top:1px solid rgba(255,255,255,.1)}
+.user-card{background:rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:10px 12px;display:flex;align-items:center;gap:10px}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.user-info .name{font-size:13px;font-weight:600;color:#fff}
+.user-info .role{font-size:11px;color:rgba(255,255,255,.6);text-transform:capitalize}
+.btn-logout{width:100%;margin-top:8px;padding:8px;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-logout:hover{background:rgba(229,57,53,.2);border-color:rgba(229,57,53,.5);color:#fff}
+
+.main{margin-left:240px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(2,71,94,.06)}
+.topbar-title{font-size:17px;font-weight:700;color:var(--text);flex:1}
+.topbar-search{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;width:280px}
+.topbar-search input{background:none;border:none;outline:none;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;width:100%}
+.topbar-search input::placeholder{color:var(--text3)}
+.content{flex:1;padding:28px;overflow-y:auto;max-height:calc(100vh - 60px)}
+
+/* ════════════════════════════════════════
+   CARDS & GRIDS
+════════════════════════════════════════ */
+.page-header{margin-bottom:24px}
+.page-header h1{font-size:24px;font-weight:800;color:var(--text);margin-bottom:4px}
+.page-header p{font-size:14px;color:var(--text2)}
+
+.card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:0 1px 6px rgba(2,71,94,.06)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+.stat-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(2,71,94,.06)}
+.stat-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;opacity:.08}
+.stat-card.blue::before{background:var(--teal)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.yellow::before{background:var(--orange)}
+.stat-card.purple::before{background:#7C4DFF}
+.stat-icon{font-size:28px;margin-bottom:12px}
+.stat-value{font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px}
+.stat-label{font-size:12.5px;color:var(--text2);font-weight:500}
+.stat-change{font-size:11px;margin-top:6px;font-weight:600}
+.stat-change.up{color:var(--green)}
+.stat-change.neutral{color:var(--text3)}
+
+.btn{padding:10px 20px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--teal-light);border-color:var(--teal);color:var(--teal)}
+.btn-green{background:linear-gradient(135deg,#00897B,var(--green));color:#fff}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-lg{padding:14px 28px;font-size:15px}
+
+/* Specialty & Doctor Cards */
+.specialty-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.spec-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:22px 16px;text-align:center;cursor:pointer;transition:all .22s;box-shadow:0 1px 4px rgba(2,71,94,.06)}
+.spec-card:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:0 8px 24px rgba(2,71,94,.12)}
+.spec-icon{font-size:36px;margin-bottom:10px}
+.spec-name{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px}
+.spec-desc{font-size:11px;color:var(--text3)}
+
+.doctor-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;gap:16px;cursor:pointer;transition:all .2s;box-shadow:0 1px 4px rgba(2,71,94,.06)}
+.doctor-card:hover{border-color:var(--teal);box-shadow:0 6px 20px rgba(2,71,94,.12)}
+.doc-avatar{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--teal),var(--green));flex-shrink:0}
+.doc-info{flex:1}
+.doc-name{font-size:15.5px;font-weight:700;color:var(--text);margin-bottom:4px}
+.doc-spec{font-size:12px;color:var(--teal);font-weight:600;background:var(--teal-light);border-radius:20px;display:inline-block;padding:2px 10px;margin-bottom:8px}
+.doc-meta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;font-size:11.5px;color:var(--text2)}
+.stars{color:var(--orange)}
+.doc-fee{font-size:16px;font-weight:800;color:var(--teal)}
+
+.slots-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.slot-btn{padding:10px 8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12.5px;font-weight:500;cursor:pointer;text-align:center;transition:all .18s;font-family:'Inter',sans-serif}
+.slot-btn:hover{border-color:var(--teal);background:var(--teal-light);color:var(--teal)}
+.slot-btn.selected{background:var(--teal);color:#fff;border-color:transparent}
+
+.date-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.date-chip{flex-shrink:0;padding:10px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;text-align:center;min-width:68px;background:#fff;transition:all .18s}
+.date-chip .day{font-size:10px;color:var(--text3);text-transform:uppercase;font-weight:600}
+.date-chip .num{font-size:20px;font-weight:800;color:var(--text);margin:2px 0}
+.date-chip .mon{font-size:10px;color:var(--text2);font-weight:600}
+.date-chip:hover,.date-chip.selected{border-color:var(--teal);background:var(--teal-light)}
+.date-chip.selected .num{color:var(--teal)}
+
+/* Medicines */
+.med-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:all .2s;position:relative;box-shadow:0 1px 4px rgba(2,71,94,.05)}
+.med-card:hover{border-color:var(--teal);box-shadow:0 6px 18px rgba(2,71,94,.1)}
+.med-emoji{font-size:36px;margin-bottom:10px}
+.med-name{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:3px}
+.med-generic{font-size:11px;color:var(--text3);margin-bottom:8px}
+.med-cat{font-size:10.5px;font-weight:600;background:var(--teal-light);color:var(--teal);border-radius:20px;padding:2px 9px;display:inline-block;margin-bottom:10px}
+.med-price{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.med-price .price{font-size:17px;font-weight:800;color:var(--teal)}
+.med-price .mrp{font-size:12px;color:var(--text3);text-decoration:line-through}
+.med-price .disc{font-size:11px;font-weight:700;color:var(--orange)}
+.cat-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.cat-chip{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif}
+.cat-chip.active,.cat-chip:hover{border-color:var(--teal);background:var(--teal-light);color:var(--teal)}
+
+/* Appointments & Prescriptions */
+.appt-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;align-items:center;gap:16px;transition:all .2s;margin-bottom:12px;box-shadow:0 1px 4px rgba(2,71,94,.05)}
+.appt-card:hover{border-color:var(--teal);box-shadow:0 4px 14px rgba(2,71,94,.1)}
+.appt-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--green));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0}
+.status-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.status-confirmed{background:rgba(0,179,142,.1);color:#00897B;border:1px solid rgba(0,179,142,.25)}
+.status-completed{background:#F0F4F7;color:#576271;border:1px solid var(--border)}
+
+/* Cart */
+.cart-sidebar{position:fixed;right:0;top:0;bottom:0;width:340px;background:#fff;border-left:1.5px solid var(--border);z-index:200;transform:translateX(100%);transition:transform .3s;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(2,71,94,.1)}
+.cart-sidebar.open{transform:translateX(0)}
+.cart-header{padding:20px 20px 16px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:12px}
+.cart-header h3{flex:1;font-size:16px;font-weight:700}
+.cart-close{width:32px;height:32px;border-radius:8px;background:var(--surface2);border:none;cursor:pointer;color:var(--text2);font-size:18px;display:flex;align-items:center;justify-content:center}
+.cart-items{flex:1;overflow-y:auto;padding:16px}
+.cart-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:10px;border:1px solid var(--border)}
+.cart-footer{padding:16px 20px;border-top:1.5px solid var(--border)}
+.cart-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cart-total .amount{font-size:20px;font-weight:800;color:var(--teal)}
+.cart-icon-btn{position:fixed;bottom:28px;right:28px;width:58px;height:58px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;font-size:24px;box-shadow:0 8px 24px rgba(252,153,22,.4);z-index:150;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cart-icon-btn:hover{transform:scale(1.08)}
+.cart-count{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;border-radius:50%;width:22px;height:22px;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+
+/* Vaccination */
+.baby-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(2,71,94,.05)}
+.vaccine-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius-sm);margin-bottom:8px;border:1.5px solid var(--border);background:#fff}
+.vaccine-status{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.v-done{background:rgba(0,179,142,.12);color:var(--green);font-weight:800}
+.v-pending{background:#F0F4F7;color:var(--text3)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(2,71,94,.3);backdrop-filter:blur(4px);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:32px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(2,71,94,.15)}
+.modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+
+/* Video Room */
+.video-room{position:fixed;inset:0;background:#000;z-index:500;display:none;flex-direction:column}
+.video-header{padding:16px 24px;background:rgba(0,0,0,.6);display:flex;align-items:center;gap:14px;position:absolute;top:0;left:0;right:0;z-index:10;color:#fff}
+.video-main{flex:1;position:relative;background:#0a0f1a;display:flex;align-items:center;justify-content:center}
+#remoteVideo{width:100%;height:100%;object-fit:cover}
+#localVideo{position:absolute;bottom:100px;right:24px;width:180px;height:130px;border-radius:14px;object-fit:cover;border:2px solid rgba(255,255,255,.3);background:#111}
+.video-controls{position:absolute;bottom:0;left:0;right:0;padding:20px 24px;background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;justify-content:center;gap:16px;z-index:10}
+.vc-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff}
+.vc-btn.end{background:var(--red)}
+
+.info-banner{background:var(--teal-light);border:1.5px solid rgba(2,71,94,.2);border-radius:var(--radius-sm);padding:12px 16px;display:flex;align-items:center;gap:10px;color:var(--teal);font-size:13px;font-weight:500;margin-bottom:16px}
+.qr-box{text-align:center;padding:20px;background:var(--surface2);border-radius:var(--radius);border:1.5px solid var(--border)}
+.qr-box .qr-img{background:#fff;padding:12px;border-radius:12px;display:inline-block;margin-bottom:10px;border:1.5px solid var(--border)}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:600}
+.tag-blue{background:var(--teal-light);color:var(--teal)}
+.section-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:18px;padding:7px 12px;border-radius:var(--radius-sm);transition:all .2s}
+.back-btn:hover{background:var(--teal-light);color:var(--teal)}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-state .icon{font-size:48px;margin-bottom:12px;opacity:.6}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     VIEW 1: AUTH SCREEN (APOLLO 24/7 HERO)
+════════════════════════════════════════ -->
+<div id="auth-view">
+  <div class="auth-hero">
+    <div class="hero-logo">
+      <div class="hero-logo-icon">🏥</div>
+      <div class="hero-logo-text">Clinic<span>OS</span></div>
+    </div>
+    <div class="hero-headline">Healthcare at<br>Your <span>Fingertips</span></div>
+    <p class="hero-sub">Consult India's top doctors, order genuine medicines, book lab tests & track newborn vaccinations anytime, anywhere.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">5000+</div><div class="lab">Top Doctors</div></div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat"><div class="num">18+</div><div class="lab">Specialties</div></div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat"><div class="num">24/7</div><div class="lab">Available</div></div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat"><div class="num">100%</div><div class="lab">Verified</div></div>
+    </div>
+  </div>
+
+  <div class="auth-form-wrap">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Welcome to ClinicOS 👋</h2>
+        <p>Sign in or create an account to access health services</p>
+      </div>
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" id="tab-reg" onclick="switchAuthTab('reg')">Create Account</div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="demo-pills">
+          <p>🔐 <strong>Quick Demo Credentials:</strong></p>
+          <p>Patient: <strong>patient@demo.com</strong> (or any email)</p>
+          <p>Doctor: <strong>doctor@demo.com</strong></p>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="login-email" value="patient@demo.com" placeholder="name@example.com" required/>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-pwd" value="Password@123" placeholder="••••••••" required/>
+        </div>
+        <button type="submit" class="btn-primary">Sign In to ClinicOS →</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-reg" style="display:none" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Account Type</label>
+          <div class="role-pills">
+            <button type="button" class="role-pill selected" id="rp-patient" onclick="selectRole('patient')">🏥 Patient</button>
+            <button type="button" class="role-pill" id="rp-doctor" onclick="selectRole('doctor')">👨‍⚕️ Doctor</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="John Doe" required/></div>
+          <div class="form-group"><label>Phone</label><input type="tel" id="reg-phone" placeholder="+91 98765 43210"/></div>
+        </div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="reg-email" placeholder="name@example.com" required/></div>
+        <div class="form-group"><label>Password</label><input type="password" id="reg-pwd" placeholder="Min 6 characters" required/></div>
+        <button type="submit" class="btn-primary">Create Free Account →</button>
+      </form>
+
+      <div class="auth-features">
+        <div class="auth-feat"><div class="auth-feat-icon">🔒</div><div class="auth-feat-text">100% Secure</div></div>
+        <div class="auth-feat"><div class="auth-feat-icon">⚡</div><div class="auth-feat-text">Instant Video</div></div>
+        <div class="auth-feat"><div class="auth-feat-icon">💊</div><div class="auth-feat-text">Home Delivery</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     VIEW 2: CLINICOS SPA DASHBOARD
+════════════════════════════════════════ -->
+<div id="app-view">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="icon">🏥</div>
+      <div class="name">Clinic<span>OS</span></div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <div class="nav-item active" id="nav-dashboard" onclick="navTo('dashboard')"><span class="icon">🏠</span>Dashboard</div>
+      <div class="nav-item" id="nav-find-doctor" onclick="navTo('find-doctor')"><span class="icon">👨‍⚕️</span>Find a Doctor</div>
+      <div class="nav-item" id="nav-appointments" onclick="navTo('appointments')"><span class="icon">📅</span>Appointments</div>
+      <div class="nav-item" id="nav-medicines" onclick="navTo('medicines')"><span class="icon">💊</span>Medicine Store</div>
+      <div class="nav-item" id="nav-prescriptions" onclick="navTo('prescriptions')"><span class="icon">📋</span>Prescriptions</div>
+      <div class="nav-item" id="nav-vaccination" onclick="navTo('vaccination')"><span class="icon">💉</span>Vaccination</div>
+      <div class="nav-item" id="nav-profile" onclick="navTo('profile')"><span class="icon">👤</span>My Profile</div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-card">
+        <div class="user-avatar" id="u-avatar">P</div>
+        <div class="user-info">
+          <div class="name" id="u-name">Patient</div>
+          <div class="role" id="u-role">Patient</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">🚪 Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-search">
+        <span>🔍</span>
+        <input type="text" placeholder="Search doctors, medicines…" oninput="handleGlobalSearch(this.value)"/>
+      </div>
+      <div style="font-size:20px;cursor:pointer">🔔</div>
+    </header>
+    <div class="content" id="main-content"></div>
+  </main>
+</div>
+
+<!-- CART FAB -->
+<button class="cart-icon-btn" onclick="toggleCart()" id="cart-fab">
+  🛒<span class="cart-count" id="cart-count">0</span>
+</button>
+
+<!-- CART DRAWER -->
+<div class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <h3>🛒 My Pharmacy Cart</h3>
+    <button class="cart-close" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items-list"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Subtotal:</span><span class="amount" id="cart-total-amt">₹0</span></div>
+    <button class="btn btn-primary" style="width:100%" onclick="checkoutCart()">Checkout Now →</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- VIDEO ROOM -->
+<div class="video-room" id="video-room">
+  <div class="video-header">
+    <div>📞</div>
+    <div>
+      <h3 id="vc-doc-name">Dr. Priya Sharma</h3>
+      <p style="font-size:12px;color:rgba(255,255,255,.7)">Apollo Teleconsultation in Progress</p>
+    </div>
+    <div style="margin-left:auto;font-size:18px;font-weight:700" id="vc-timer">00:00</div>
+  </div>
+  <div class="video-main">
+    <div style="text-align:center;color:#fff">
+      <div style="font-size:72px;margin-bottom:12px">👨‍⚕️</div>
+      <h2>Doctor Video Feed Connected</h2>
+      <p style="color:rgba(255,255,255,.6);margin-top:6px">WebRTC Peer-to-Peer Encrypted Stream</p>
+    </div>
+    <video id="localVideo" autoplay playsinline muted></video>
+  </div>
+  <div class="video-controls">
+    <button class="vc-btn" onclick="showToast('🎤 Mic toggled')">🎤</button>
+    <button class="vc-btn" onclick="showToast('📹 Camera toggled')">📹</button>
+    <button class="vc-btn end" onclick="endCall()">📵 End</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     IN-BROWSER MOCK DATABASE & LOGIC
+════════════════════════════════════════ -->
+<script>
+// Mock Data Seeds
+const SEED_SPECIALTIES = [
+  {id:'cardiology', name:'Cardiology', icon:'❤️', desc:'Heart & blood vessels'},
+  {id:'dermatology', name:'Dermatology', icon:'✨', desc:'Skin, hair & nails'},
+  {id:'paediatrics', name:'Paediatrics', icon:'👶', desc:'Child & infant care'},
+  {id:'neurology', name:'Neurology', icon:'🧠', desc:'Brain & nerves'},
+  {id:'general', name:'General Medicine', icon:'🩺', desc:'Fever, cold, health'},
+  {id:'orthopedics', name:'Orthopedics', icon:'🦴', desc:'Bones & joints'},
+  {id:'ent', name:'ENT Specialist', icon:'👂', desc:'Ear, nose & throat'},
+  {id:'psychiatry', name:'Psychiatry', icon:'🧩', desc:'Mental health'},
+];
+
+const SEED_DOCTORS = [
+  {id:1, name:'Dr. Priya Sharma', specialty:'Cardiology', exp:12, fee:499, rating:4.9, hospital:'Apollo Hospitals, Delhi'},
+  {id:2, name:'Dr. Rajesh Kumar', specialty:'Dermatology', exp:9, fee:399, rating:4.8, hospital:'Apollo Clinic, Mumbai'},
+  {id:3, name:'Dr. Ananya Reddy', specialty:'Paediatrics', exp:14, fee:599, rating:4.95, hospital:'Apollo Children Hospital'},
+  {id:4, name:'Dr. Vikram Mehta', specialty:'Neurology', exp:18, fee:799, rating:4.85, hospital:'Apollo Super Speciality'},
+  {id:5, name:'Dr. Sunita Patel', specialty:'General Medicine', exp:8, fee:299, rating:4.75, hospital:'Apollo 24|7 Virtual Care'},
+  {id:6, name:'Dr. Amit Verma', specialty:'Orthopedics', exp:15, fee:599, rating:4.9, hospital:'Apollo Ortho Centre'},
+];
+
+const SEED_MEDICINES = [
+  {id:1, name:'Paracetamol 650mg', category:'Pain Relief', price:32, mrp:40, emoji:'💊', generic:'Acetaminophen'},
+  {id:2, name:'Amoxicillin 500mg', category:'Antibiotics', price:118, mrp:140, emoji:'🧪', generic:'Amoxicillin'},
+  {id:3, name:'Azithromycin 500mg', category:'Antibiotics', price:125, mrp:150, emoji:'💊', generic:'Azithromycin'},
+  {id:4, name:'Metformin 500mg', category:'Diabetes', price:45, mrp:55, emoji:'💉', generic:'Metformin HCl'},
+  {id:5, name:'Atorvastatin 10mg', category:'Cardiac', price:88, mrp:110, emoji:'❤️', generic:'Atorvastatin'},
+  {id:6, name:'Vitamin C + Zinc', category:'Vitamins', price:95, mrp:120, emoji:'🍊', generic:'Ascorbic Acid'},
+  {id:7, name:'Pantoprazole 40mg', category:'Gastro', price:75, mrp:90, emoji:'💊', generic:'Pantoprazole'},
+  {id:8, name:'Cetirizine 10mg', category:'Allergy', price:28, mrp:35, emoji:'🌸', generic:'Cetirizine HCl'},
+];
+
+const SEED_VACCINES = [
+  {name:'BCG', ageDue:'At Birth', status:'Completed', date:'10-Jan-2026'},
+  {name:'OPV-0', ageDue:'At Birth', status:'Completed', date:'10-Jan-2026'},
+  {name:'Hepatitis B-1', ageDue:'At Birth', status:'Completed', date:'10-Jan-2026'},
+  {name:'Pentavalent 1', ageDue:'6 Weeks', status:'Pending', date:''},
+  {name:'Rotavirus 1', ageDue:'6 Weeks', status:'Pending', date:''},
+  {name:'IPV 1', ageDue:'6 Weeks', status:'Pending', date:''},
+  {name:'MMR 1', ageDue:'9 Months', status:'Pending', date:''},
+];
+
+// App State
+let currentUser = JSON.parse(localStorage.getItem('clinicos_user')) || null;
+let currentRole = 'patient';
+let cart = JSON.parse(localStorage.getItem('clinicos_cart')) || [];
+let appointments = JSON.parse(localStorage.getItem('clinicos_appts')) || [
+  {id:101, doctor_name:'Dr. Priya Sharma', specialty:'Cardiology', date:'Tomorrow', slot:'10:30 AM', status:'confirmed'}
+];
+let prescriptions = JSON.parse(localStorage.getItem('clinicos_rx')) || [
+  {id:501, doctor:'Dr. Priya Sharma', date:'Yesterday', diagnosis:'Mild Arrhythmia & Fatigue', meds:['Atorvastatin 10mg - 1 at night','Vitamin C 500mg - 1 daily']}
+];
+let babies = JSON.parse(localStorage.getItem('clinicos_babies')) || [
+  {id:1, name:'Aarav Sharma', gender:'Male', dob:'10-Jan-2026', weight:3.2, vaccines:SEED_VACCINES}
+];
+
+let selectedDoc = null;
+let selectedDateStr = 'Tomorrow';
+let selectedSlotStr = '10:30 AM';
+let callTimer = null, callSec = 0;
+
+// ── Auth Handling ──
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-reg').classList.toggle('active', tab==='reg');
+  document.getElementById('form-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('form-reg').style.display = tab==='reg'?'block':'none';
+}
+
+function selectRole(r) {
+  currentRole = r;
+  document.getElementById('rp-patient').classList.toggle('selected', r==='patient');
+  document.getElementById('rp-doctor').classList.toggle('selected', r==='doctor');
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const role = email.includes('doctor') ? 'doctor' : 'patient';
+  const name = role==='doctor' ? 'Dr. Robert Chen' : (email.split('@')[0] || 'Patient');
+  
+  currentUser = {name, email, role, phone:'+91 98765 43210', dob:'1995-05-15', blood:'O+'};
+  localStorage.setItem('clinicos_user', JSON.stringify(currentUser));
+  enterApp();
+}
+
+function handleRegister(e) {
+  e.preventDefault();
+  const name = document.getElementById('reg-name').value;
+  const email = document.getElementById('reg-email').value;
+  currentUser = {name, email, role:currentRole, phone:document.getElementById('reg-phone').value, dob:'1998-08-20', blood:'B+'};
+  localStorage.setItem('clinicos_user', JSON.stringify(currentUser));
+  enterApp();
+}
+
+function handleLogout() {
+  localStorage.removeItem('clinicos_user');
+  currentUser = null;
+  document.getElementById('app-view').style.display = 'none';
+  document.getElementById('auth-view').style.display = 'flex';
+  showToast('👋 You have been logged out');
+}
+
+function enterApp() {
+  document.getElementById('auth-view').style.display = 'none';
+  document.getElementById('app-view').style.display = 'flex';
+  document.getElementById('u-name').textContent = currentUser.name;
+  document.getElementById('u-role').textContent = currentUser.role==='doctor'?'👨‍⚕️ Doctor':'🏥 Patient';
+  document.getElementById('u-avatar').textContent = currentUser.name[0];
+  updateCartBadge();
+  navTo('dashboard');
+}
+
+// ── Navigation ──
+function navTo(view) {
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('nav-'+view)?.classList.add('active');
+  const titles = {'dashboard':'Dashboard','find-doctor':'Find a Doctor','appointments':'Appointments','medicines':'Pharmacy','prescriptions':'Prescriptions','vaccination':'Vaccination Tracker','profile':'My Profile'};
+  document.getElementById('topbar-title').textContent = titles[view] || view;
+
+  const c = document.getElementById('main-content');
+  if (view === 'dashboard') renderDashboard();
+  else if (view === 'find-doctor') renderFindDoctor();
+  else if (view === 'appointments') renderAppointments();
+  else if (view === 'medicines') renderMedicines();
+  else if (view === 'prescriptions') renderPrescriptions();
+  else if (view === 'vaccination') renderVaccination();
+  else if (view === 'profile') renderProfile();
+}
+
+// ── Views ──
+function renderDashboard() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h1>Hello, ${currentUser.name.split(' ')[0]} 👋</h1>
+      <p>Welcome to Apollo ClinicOS — Digital Healthcare Suite</p>
+    </div>
+    <div class="grid-4" style="margin-bottom:24px">
+      <div class="stat-card blue">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">${appointments.length}</div>
+        <div class="stat-label">Appointments</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">${prescriptions.length}</div>
+        <div class="stat-label">Active Prescriptions</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-icon">💊</div>
+        <div class="stat-value">${cart.length}</div>
+        <div class="stat-label">Cart Items</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon">💉</div>
+        <div class="stat-value">${babies.length}</div>
+        <div class="stat-label">Vaccination Registries</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title">📅 Upcoming Appointments</div>
+        ${appointments.map(a=>`
+          <div class="appt-card">
+            <div class="appt-avatar">🩺</div>
+            <div style="flex:1">
+              <div style="font-weight:700">${a.doctor_name}</div>
+              <div style="font-size:12px;color:var(--teal)">${a.specialty}</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:4px">📅 ${a.date} • 🕐 ${a.slot}</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="startVideoCall('${a.doctor_name}')">📹 Join Call</button>
+          </div>
+        `).join('')}
+      </div>
+      <div class="card">
+        <div class="section-title">⚡ Quick Healthcare Actions</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-primary" onclick="navTo('find-doctor')">👨‍⚕️ Book Doctor Consultation</button>
+          <button class="btn btn-secondary" onclick="navTo('medicines')">💊 Buy Genuine Medicines</button>
+          <button class="btn btn-secondary" onclick="navTo('vaccination')">💉 Track Baby Vaccinations</button>
+          <button class="btn btn-secondary" onclick="navTo('prescriptions')">📋 View Medical Prescriptions</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFindDoctor() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h1>👨‍⚕️ Consult Top Specialists</h1>
+      <p>Select a medical specialty or pick from our top rated doctors</p>
+    </div>
+    <div class="specialty-grid" style="margin-bottom:28px">
+      ${SEED_SPECIALTIES.map(s=>`
+        <div class="spec-card" onclick="filterDoctorBySpec('${s.name}')">
+          <div class="spec-icon">${s.icon}</div>
+          <div class="spec-name">${s.name}</div>
+          <div class="spec-desc">${s.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="section-title">Verified Apollo Doctors</div>
+    <div class="grid-2" id="doc-grid">
+      ${SEED_DOCTORS.map(d=>renderDoctorCard(d)).join('')}
+    </div>
+  `;
+}
+
+function renderDoctorCard(d) {
+  return `
+    <div class="doctor-card" onclick="openBookingModal(${d.id})">
+      <div class="doc-avatar">👨‍⚕️</div>
+      <div class="doc-info">
+        <div class="doc-name">${d.name}</div>
+        <div class="doc-spec">${d.specialty}</div>
+        <div class="doc-meta">
+          <span>⭐ ${d.rating}</span>
+          <span>💼 ${d.exp} yrs exp</span>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">${d.hospital}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="doc-fee">₹${d.fee} <span style="font-size:11px;color:var(--text3)">per consult</span></div>
+          <button class="btn btn-primary btn-sm">Book Slot →</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function filterDoctorBySpec(spec) {
+  const filtered = SEED_DOCTORS.filter(d=>d.specialty.toLowerCase().includes(spec.toLowerCase()));
+  document.getElementById('doc-grid').innerHTML = filtered.map(d=>renderDoctorCard(d)).join('');
+}
+
+function openBookingModal(docId) {
+  selectedDoc = SEED_DOCTORS.find(d=>d.id===docId);
+  showModal(`
+    <h2>📅 Book Appointment</h2>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:18px">${selectedDoc.name} • ${selectedDoc.specialty} (₹${selectedDoc.fee})</p>
+    
+    <label>Select Date</label>
+    <div class="date-row" style="margin-bottom:16px">
+      <div class="date-chip selected" onclick="pickDate(this, 'Tomorrow')"><div class="day">TOM</div><div class="num">22</div><div class="mon">AUG</div></div>
+      <div class="date-chip" onclick="pickDate(this, '23 Aug')"><div class="day">SAT</div><div class="num">23</div><div class="mon">AUG</div></div>
+      <div class="date-chip" onclick="pickDate(this, '24 Aug')"><div class="day">SUN</div><div class="num">24</div><div class="mon">AUG</div></div>
+      <div class="date-chip" onclick="pickDate(this, '25 Aug')"><div class="day">MON</div><div class="num">25</div><div class="mon">AUG</div></div>
+    </div>
+
+    <label>Select Time Slot</label>
+    <div class="slots-grid" style="margin-bottom:20px">
+      <div class="slot-btn selected" onclick="pickSlot(this,'10:30 AM')">10:30 AM</div>
+      <div class="slot-btn" onclick="pickSlot(this,'11:30 AM')">11:30 AM</div>
+      <div class="slot-btn" onclick="pickSlot(this,'02:00 PM')">02:00 PM</div>
+      <div class="slot-btn" onclick="pickSlot(this,'04:30 PM')">04:30 PM</div>
+      <div class="slot-btn" onclick="pickSlot(this,'06:00 PM')">06:00 PM</div>
+      <div class="slot-btn" onclick="pickSlot(this,'07:30 PM')">07:30 PM</div>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%" onclick="openPaymentModal()">Proceed to Pay ₹${selectedDoc.fee} →</button>
+  `);
+}
+
+function pickDate(el, d) {
+  document.querySelectorAll('.date-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDateStr = d;
+}
+
+function pickSlot(el, s) {
+  document.querySelectorAll('.slot-btn').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSlotStr = s;
+}
+
+function openPaymentModal() {
+  showModal(`
+    <h2>💳 Simulated UPI Payment</h2>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px">Consultation Fee: ₹${selectedDoc.fee}</p>
+    <div class="qr-box">
+      <div class="qr-img" id="qr-container"></div>
+      <div style="font-weight:700;color:var(--teal)">UPI ID: clinicos@apollo</div>
+      <p style="font-size:12px;color:var(--text3);margin-top:4px">Scan or click below to simulate instant payment</p>
+    </div>
+    <button class="btn btn-green btn-lg" style="width:100%;margin-top:16px" onclick="confirmAppointmentPayment()">
+      ✅ Simulate Successful Payment (₹${selectedDoc.fee})
+    </button>
+  `);
+  setTimeout(()=>{
+    try {
+      new QRCode(document.getElementById('qr-container'), {
+        text:`upi://pay?pa=clinicos@apollo&pn=ClinicOS&am=${selectedDoc.fee}&cu=INR`,
+        width:140, height:140, colorDark:"#02475E", colorLight:"#ffffff"
+      });
+    } catch(e){}
+  },100);
+}
+
+function confirmAppointmentPayment() {
+  appointments.unshift({
+    id: Date.now(),
+    doctor_name: selectedDoc.name,
+    specialty: selectedDoc.specialty,
+    date: selectedDateStr,
+    slot: selectedSlotStr,
+    status: 'confirmed'
+  });
+  localStorage.setItem('clinicos_appts', JSON.stringify(appointments));
+  closeModal();
+  showToast('🎉 Appointment Confirmed & Video Consultation Unlocked!');
+  navTo('appointments');
+}
+
+function renderAppointments() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h1>📅 My Consultations</h1>
+      <p>Manage your booked doctors and join video calls</p>
+    </div>
+    ${appointments.length===0 ? '<div class="empty-state"><div class="icon">📅</div><p>No appointments booked yet</p></div>' :
+      appointments.map(a=>`
+        <div class="appt-card">
+          <div class="appt-avatar">🩺</div>
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:700">${a.doctor_name}</div>
+            <div style="color:var(--teal);font-size:13px">${a.specialty}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px">📅 ${a.date} • 🕐 ${a.slot}</div>
+          </div>
+          <span class="status-badge status-confirmed">Confirmed</span>
+          <button class="btn btn-primary" onclick="startVideoCall('${a.doctor_name}')">📹 Join Video Call</button>
+        </div>
+      `).join('')
+    }
+  `;
+}
+
+function renderMedicines() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h1>💊 Genuine Medicine Store</h1>
+      <p>100% certified medicines with doorstep express delivery</p>
+    </div>
+    <div class="cat-chips">
+      <div class="cat-chip active" onclick="filterMeds('All', this)">All</div>
+      <div class="cat-chip" onclick="filterMeds('Antibiotics', this)">Antibiotics</div>
+      <div class="cat-chip" onclick="filterMeds('Pain Relief', this)">Pain Relief</div>
+      <div class="cat-chip" onclick="filterMeds('Diabetes', this)">Diabetes</div>
+      <div class="cat-chip" onclick="filterMeds('Cardiac', this)">Cardiac</div>
+      <div class="cat-chip" onclick="filterMeds('Vitamins', this)">Vitamins</div>
+    </div>
+    <div class="grid-4" id="med-grid">
+      ${SEED_MEDICINES.map(m=>renderMedCard(m)).join('')}
+    </div>
+  `;
+}
+
+function renderMedCard(m) {
+  return `
+    <div class="med-card">
+      <div class="med-emoji">${m.emoji}</div>
+      <div class="med-name">${m.name}</div>
+      <div class="med-generic">${m.generic}</div>
+      <div class="med-cat">${m.category}</div>
+      <div class="med-price">
+        <span class="price">₹${m.price}</span>
+        <span class="mrp">₹${m.mrp}</span>
+        <span class="disc">SAVE 20%</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" style="width:100%" onclick="addToCart(${m.id})">+ Add to Cart</button>
+    </div>
+  `;
+}
+
+function filterMeds(cat, el) {
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  const filtered = cat==='All' ? SEED_MEDICINES : SEED_MEDICINES.filter(m=>m.category===cat);
+  document.getElementById('med-grid').innerHTML = filtered.map(m=>renderMedCard(m)).join('');
+}
+
+function addToCart(medId) {
+  const m = SEED_MEDICINES.find(x=>x.id===medId);
+  const existing = cart.find(x=>x.id===medId);
+  if (existing) existing.qty++;
+  else cart.push({...m, qty:1});
+  localStorage.setItem('clinicos_cart', JSON.stringify(cart));
+  updateCartBadge();
+  showToast(`🛒 Added ${m.name} to cart!`);
+}
+
+function updateCartBadge() {
+  const count = cart.reduce((s,i)=>s+i.qty, 0);
+  document.getElementById('cart-count').textContent = count;
+}
+
+function toggleCart() {
+  const drawer = document.getElementById('cart-sidebar');
+  drawer.classList.toggle('open');
+  if (drawer.classList.contains('open')) renderCartDrawer();
+}
+
+function renderCartDrawer() {
+  const list = document.getElementById('cart-items-list');
+  const total = cart.reduce((s,i)=>s+i.price*i.qty, 0);
+  document.getElementById('cart-total-amt').textContent = `₹${total}`;
+  list.innerHTML = cart.length===0 ? '<p style="text-align:center;color:var(--text3);padding:40px 0">Your cart is empty</p>' :
+    cart.map((i,idx)=>`
+      <div class="cart-item">
+        <div style="font-size:24px">${i.emoji}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:13px">${i.name}</div>
+          <div style="color:var(--teal);font-size:12px">₹${i.price} × ${i.qty} = ₹${i.price*i.qty}</div>
+        </div>
+        <button class="btn btn-sm btn-secondary" onclick="removeCart(${idx})">✕</button>
+      </div>
+    `).join('');
+}
+
+function removeCart(idx) {
+  cart.splice(idx,1);
+  localStorage.setItem('clinicos_cart', JSON.stringify(cart));
+  updateCartBadge();
+  renderCartDrawer();
+}
+
+function checkoutCart() {
+  if (cart.length===0) return;
+  cart = [];
+  localStorage.setItem('clinicos_cart', JSON.stringify(cart));
+  updateCartBadge();
+  toggleCart();
+  showToast('📦 Order placed successfully! Delivery in 2 days.');
+}
+
+function renderPrescriptions() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h1>📋 Prescriptions</h1>
+      <p>Digital verified prescriptions issued by Apollo doctors</p>
+    </div>
+    ${prescriptions.map(p=>`
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <h3>${p.doctor}</h3>
+            <p style="font-size:12px;color:var(--text3)">Issued on ${p.date}</p>
+          </div>
+          <span class="tag tag-blue">Rx #${p.id}</span>
+        </div>
+        <div style="margin-bottom:12px"><strong>Diagnosis:</strong> ${p.diagnosis}</div>
+        <div class="section-title" style="font-size:13px">Medications</div>
+        ${p.meds.map(m=>`<div style="padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:6px;font-size:13px">💊 ${m}</div>`).join('')}
+      </div>
+    `).join('')}
+  `;
+}
+
+function renderVaccination() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h1>💉 Newborn Vaccination Registry</h1>
+      <p>National Immunization Schedule (NIS) tracking for infants</p>
+    </div>
+    <button class="btn btn-primary" style="margin-bottom:20px" onclick="openBabyModal()">👶 + Register Newborn Baby</button>
+    ${babies.map((b,bidx)=>`
+      <div class="baby-card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <div style="font-size:36px">👶</div>
+          <div>
+            <div style="font-size:16px;font-weight:700">${b.name} <span class="tag tag-blue">${b.gender}</span></div>
+            <div style="font-size:12px;color:var(--text3)">DOB: ${b.dob} • Birth Weight: ${b.weight} kg</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          ${b.vaccines.map((v,vidx)=>`
+            <div class="vaccine-row">
+              <div class="vaccine-status ${v.status==='Completed'?'v-done':'v-pending'}">${v.status==='Completed'?'✓':'○'}</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">${v.name}</div>
+                <div style="font-size:11px;color:var(--text3)">Due: ${v.ageDue}</div>
+              </div>
+              <button class="btn btn-sm ${v.status==='Completed'?'btn-secondary':'btn-green'}" onclick="toggleVaccine(${bidx},${vidx})">
+                ${v.status==='Completed'?'Done':'Mark Done'}
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function openBabyModal() {
+  showModal(`
+    <h2>👶 Register Newborn</h2>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Auto-generate standard WHO/NIS vaccine schedule</p>
+    <div class="form-group"><label>Baby's Name</label><input type="text" id="nb-name" placeholder="Baby Name" required/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Gender</label><select id="nb-gender"><option>Male</option><option>Female</option></select></div>
+      <div class="form-group"><label>Date of Birth</label><input type="date" id="nb-dob" value="2026-01-15"/></div>
+    </div>
+    <div class="form-group"><label>Birth Weight (kg)</label><input type="number" id="nb-weight" value="3.1" step="0.1"/></div>
+    <button class="btn btn-primary" style="width:100%" onclick="saveNewBaby()">Save & Track Vaccines →</button>
+  `);
+}
+
+function saveNewBaby() {
+  const name = document.getElementById('nb-name').value;
+  if (!name) return;
+  babies.push({
+    id: Date.now(),
+    name,
+    gender: document.getElementById('nb-gender').value,
+    dob: document.getElementById('nb-dob').value,
+    weight: document.getElementById('nb-weight').value,
+    vaccines: JSON.parse(JSON.stringify(SEED_VACCINES))
+  });
+  localStorage.setItem('clinicos_babies', JSON.stringify(babies));
+  closeModal();
+  showToast('👶 Newborn registered with immunization schedule!');
+  renderVaccination();
+}
+
+function toggleVaccine(bidx, vidx) {
+  const v = babies[bidx].vaccines[vidx];
+  v.status = v.status==='Completed' ? 'Pending' : 'Completed';
+  localStorage.setItem('clinicos_babies', JSON.stringify(babies));
+  renderVaccination();
+}
+
+function renderProfile() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h1>👤 My Health Profile</h1>
+      <p>Manage your medical information & contact details</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="form-group"><label>Full Name</label><input type="text" id="p-name" value="${currentUser.name}"/></div>
+        <div class="form-group"><label>Email</label><input type="email" id="p-email" value="${currentUser.email}" readonly style="background:var(--surface2)"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="tel" id="p-phone" value="${currentUser.phone||''}"/></div>
+          <div class="form-group"><label>Blood Group</label><input type="text" id="p-blood" value="${currentUser.blood||'O+'}"/></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">💾 Save Profile Changes</button>
+      </div>
+      <div class="card">
+        <div class="section-title">🏥 Apollo Health ID</div>
+        <p style="color:var(--text2);font-size:13px;line-height:1.7">ABDM Health ID: <strong>91-8822-4411-9921</strong></p>
+        <p style="color:var(--text2);font-size:13px;line-height:1.7">Emergency Contact: <strong>108 (National Ambulance)</strong></p>
+      </div>
+    </div>
+  `;
+}
+
+function saveProfile() {
+  currentUser.name = document.getElementById('p-name').value;
+  currentUser.phone = document.getElementById('p-phone').value;
+  currentUser.blood = document.getElementById('p-blood').value;
+  localStorage.setItem('clinicos_user', JSON.stringify(currentUser));
+  document.getElementById('u-name').textContent = currentUser.name;
+  showToast('✅ Profile updated!');
+}
+
+// ── Video Call ──
+function startVideoCall(docName) {
+  document.getElementById('vc-doc-name').textContent = docName;
+  document.getElementById('video-room').style.display = 'flex';
+  navigator.mediaDevices?.getUserMedia({video:true, audio:true}).then(stream=>{
+    document.getElementById('localVideo').srcObject = stream;
+  }).catch(()=>{});
+  callSec = 0;
+  callTimer = setInterval(()=>{
+    callSec++;
+    const m = String(Math.floor(callSec/60)).padStart(2,'0');
+    const s = String(callSec%60).padStart(2,'0');
+    document.getElementById('vc-timer').textContent = `${m}:${s}`;
+  },1000);
+}
+
+function endCall() {
+  clearInterval(callTimer);
+  document.getElementById('video-room').style.display = 'none';
+  const v = document.getElementById('localVideo');
+  if (v.srcObject) v.srcObject.getTracks().forEach(t=>t.stop());
+  showToast('📞 Consultation ended. Doctor has submitted your digital prescription.');
+}
+
+// ── Global Helpers ──
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = `<button class="modal-close" onclick="closeModal()">✕</button>${html}`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.remove('open');
+}
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#02475E;color:#fff;padding:12px 24px;border-radius:30px;font-weight:600;font-size:13.5px;box-shadow:0 8px 24px rgba(2,71,94,.3);z-index:9999;font-family:Inter,sans-serif';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+function handleGlobalSearch(q) {
+  if (q.length>2) {
+    if (q.toLowerCase().includes('doc')) navTo('find-doctor');
+    else if (q.toLowerCase().includes('med')) navTo('medicines');
+    else if (q.toLowerCase().includes('vac')) navTo('vaccination');
+  }
+}
+
+// ── Boot ──
+if (currentUser) enterApp();
+</script>
+</body>
+</html>
