@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apollo 24|7 ClinicOS - Online Doctor Consultation, Lab Tests & Smart Health Portal</title>
-  <meta name="description" content="Apollo 24|7 smart healthcare management system with instant 24/7 video doctor consultations, home lab test booking, digital prescriptions, continuous vitals telemetry, and AI triage.">
+  <title>ClinicOS - Smart Healthcare Management System</title>
+  <meta name="description" content="ClinicOS: Unified smart healthcare platform with instant 24/7 video doctor consultations, newborn baby vaccination registration, home lab test booking, digital prescriptions, and continuous vitals telemetry.">
   
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="css/main.css">
@@ -26,7 +26,7 @@
   <div class="telemetry-bar">
     <div class="telemetry-left">
       <div class="telemetry-item">
-        <i data-lucide="map-pin" style="width:13px; color:var(--apollo-orange);"></i>
+        <i data-lucide="map-pin" style="width:13px; color:var(--primary);"></i>
         <span>Deliver to: <strong>New Delhi 110001</strong></span>
       </div>
       <div class="telemetry-item">
@@ -35,7 +35,7 @@
       </div>
       <div class="telemetry-item">
         <i data-lucide="shield-check" style="width:13px; color:#38bdf8;"></i>
-        <span>HIPAA / ABDM / NABH: <strong>VERIFIED</strong></span>
+        <span>Universal Child Immunization & ABDM: <strong>VERIFIED</strong></span>
       </div>
     </div>
 
@@ -64,25 +64,25 @@
       </div>
       <div style="display:flex; flex-direction:column;">
         <div style="display:flex; align-items:center; gap:0.4rem;">
-          <span class="brand-name">Apollo<span>24|7</span></span>
-          <span class="brand-badge">ClinicOS</span>
+          <span class="brand-name">Clinic<span>OS</span></span>
+          <span class="brand-badge">Smart Health</span>
         </div>
       </div>
     </div>
 
-    <!-- Apollo Global Search Bar with Autosuggestions -->
+    <!-- Global Healthcare Search Bar with Autosuggestions -->
     <div class="apollo-search-wrapper">
       <i data-lucide="search" class="apollo-search-icon"></i>
-      <input type="text" id="global-search-input" class="apollo-search-input" placeholder="Search for Doctors, Specialties, Medicines, Lab Tests...">
+      <input type="text" id="global-search-input" class="apollo-search-input" placeholder="Search for Doctors, Newborn Vaccination, Medicines, Lab Tests...">
       
       <!-- Dropdown with Quick Suggestion Chips -->
       <div class="search-dropdown-menu" id="search-dropdown-menu">
         <div style="font-size:0.75rem; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Popular Health Searches</div>
         <div class="search-chip-group">
+          <span class="search-chip" onclick="window.app.handleSearchChipClick('Newborn Vaccination')">👶 Newborn Vaccination</span>
           <span class="search-chip" onclick="window.app.handleSearchChipClick('Cardiologist')">🩺 Cardiologist</span>
           <span class="search-chip" onclick="window.app.handleSearchChipClick('General Physician')">👨‍⚕️ General Physician</span>
           <span class="search-chip" onclick="window.app.handleSearchChipClick('Full Body Checkup')">🧪 Full Body Checkup</span>
-          <span class="search-chip" onclick="window.app.handleSearchChipClick('Paracetamol')">💊 Paracetamol</span>
           <span class="search-chip" onclick="window.app.handleSearchChipClick('ClinicoAI Triage')">🤖 ClinicoAI Triage</span>
         </div>
       </div>
@@ -93,6 +93,11 @@
       <li>
         <button class="nav-item-btn active" data-route="landing" onclick="window.router.navigate('landing')">
           <i data-lucide="home"></i> Home
+        </button>
+      </li>
+      <li>
+        <button class="nav-item-btn" data-route="patient" onclick="window.router.navigate('patient'); window.patientPanel.switchSubTab('vaccination');">
+          <i data-lucide="baby"></i> Newborn Vaccination
         </button>
       </li>
       <li>
@@ -157,7 +162,7 @@
   <!-- Notification Dropdown Drawer -->
   <div class="notification-drawer" id="notification-drawer">
     <div class="drawer-header">
-      <div style="font-weight:700; font-size:0.88rem; color:var(--apollo-navy);">Healthcare Alerts & Updates</div>
+      <div style="font-weight:700; font-size:0.88rem; color:var(--text-navy);">Healthcare Alerts & Updates</div>
       <button class="btn btn-outline btn-sm" style="font-size:0.7rem; padding:2px 8px;" onclick="window.clinicState.markAllNotificationsRead()">Mark read</button>
     </div>
     <div class="drawer-list" id="drawer-notification-list"></div>
@@ -190,11 +195,35 @@
   <!-- ══ 4. MAIN VIEWS CONTAINER ══ -->
   <main id="app-container">
 
-    <!-- ══ VIEW 1: APOLLO HOMEPAGE / LANDING ══ -->
+    <!-- ══ VIEW 1: CLINICOS HOMEPAGE / OVERVIEW ══ -->
     <section class="page-view active" id="landing-view">
       <div class="main-content-wrapper">
 
-        <!-- ══ A. 4 HERO SERVICES GRID (Apollo 24|7 Signature Cards) ══ -->
+        <!-- ══ 0. NEWBORN BABY VACCINATION REGISTRATION HERO BANNER ══ -->
+        <div style="background:linear-gradient(135deg, #02475b 0%, #003647 100%); border-radius:var(--radius-lg); padding:1.5rem 1.75rem; color:#ffffff; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:2rem; box-shadow:0 8px 24px rgba(2,71,91,0.15); border:1px solid rgba(255,255,255,0.1);">
+          <div style="max-width:680px;">
+            <div style="display:inline-flex; align-items:center; gap:0.4rem; background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.4); color:#34d399; font-size:0.72rem; font-weight:800; padding:3px 10px; border-radius:var(--radius-pill); margin-bottom:0.5rem; text-transform:uppercase;">
+              <span class="pulse-dot"></span> NO DOOR-TO-DOOR PAPER SURVEYS NEEDED
+            </div>
+            <h2 style="font-size:1.55rem; font-weight:800; color:#ffffff; line-height:1.25;">
+              👶 Newborn Baby Vaccination & Immunization Portal
+            </h2>
+            <p style="color:#cbd5e1; font-size:0.86rem; margin-top:4px; line-height:1.45;">
+              Register newborn infants online from hospital or home. Automatically generates the full <strong>Universal Pediatric Vaccination Schedule</strong> (Birth to 5 Years), automated WhatsApp dose reminders, and official QR-verified digital immunization certificate!
+            </p>
+          </div>
+
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-lg" onclick="window.patientPanel.openNewbornRegistrationModal()">
+              <i data-lucide="plus-circle"></i> Register Baby Online
+            </button>
+            <button class="btn btn-outline btn-lg" style="color:#ffffff; border-color:rgba(255,255,255,0.4);" onclick="window.router.navigate('patient'); window.patientPanel.switchSubTab('vaccination');">
+              <i data-lucide="calendar"></i> View Vaccine Schedule
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ A. 4 HERO SERVICES GRID ══ -->
         <div class="apollo-services-grid">
           <!-- Card 1: Doctor Consult -->
           <div class="apollo-service-card card-doctors" onclick="window.router.navigate('patient'); window.patientPanel.switchSubTab('booking');">
@@ -202,11 +231,11 @@
               <div class="service-icon-box icon-orange">
                 <i data-lucide="stethoscope"></i>
               </div>
-              <span class="service-tag" style="background:var(--apollo-orange-light); color:var(--apollo-orange);">In 15 Mins</span>
+              <span class="service-tag" style="background:var(--primary-light); color:var(--primary);">In 15 Mins</span>
             </div>
             <div>
               <h3 class="service-card-title">Doctor Consult</h3>
-              <p class="service-card-desc">Consult top Apollo certified doctors online via instant video or book clinic visit.</p>
+              <p class="service-card-desc">Consult top certified doctors online via instant video or book in-clinic visits.</p>
               <div class="service-card-action">Consult Now <i data-lucide="arrow-right" style="width:14px;"></i></div>
             </div>
           </div>
@@ -221,7 +250,7 @@
             </div>
             <div>
               <h3 class="service-card-title">Buy Medicines</h3>
-              <p class="service-card-desc">100% genuine medicines & wellness products delivered to your doorstep.</p>
+              <p class="service-card-desc">100% genuine medicines & health essentials delivered to your doorstep.</p>
               <div class="service-card-action">Order Meds <i data-lucide="arrow-right" style="width:14px;"></i></div>
             </div>
           </div>
@@ -236,7 +265,7 @@
             </div>
             <div>
               <h3 class="service-card-title">Lab Tests at Home</h3>
-              <p class="service-card-desc">Certified phlebotomist sample collection at home with accurate 6-hour digital reports.</p>
+              <p class="service-card-desc">Certified phlebotomist sample collection at home with fast digital reports.</p>
               <div class="service-card-action">Book Test <i data-lucide="arrow-right" style="width:14px;"></i></div>
             </div>
           </div>
@@ -265,7 +294,7 @@
             </div>
             <h2 class="telehealth-banner-title">Need a Doctor Right Now?</h2>
             <p class="telehealth-banner-sub">
-              Connect with an Apollo verified General Physician or Specialist in under <strong>2 minutes</strong> via encrypted WebRTC HD video call. Get your e-prescription instantly.
+              Connect with a verified General Physician or Specialist in under <strong>2 minutes</strong> via encrypted WebRTC HD video call. Get your digital prescription instantly.
             </p>
             <div class="telehealth-features-row">
               <div class="telehealth-feat-item"><i data-lucide="check-circle-2"></i> Free 7-Day Follow-Up</div>
@@ -315,7 +344,7 @@
             <div class="specialty-card" onclick="window.telehealth.startInstantConsultation('Paediatrics')">
               <div class="specialty-icon-circle"><i data-lucide="baby"></i></div>
               <div class="specialty-name">Paediatrics</div>
-              <div class="specialty-meta">Child Health • 70+ Docs</div>
+              <div class="specialty-meta">Child & Infant Care • 70+ Docs</div>
             </div>
 
             <div class="specialty-card" onclick="window.telehealth.startInstantConsultation('Gynaecology')">
@@ -349,7 +378,7 @@
             <div class="package-card">
               <span class="package-top-badge">⭐ Best Seller</span>
               <div>
-                <h3 class="package-title">Apollo ProHealth Full Body Checkup</h3>
+                <h3 class="package-title">ClinicOS ProHealth Full Body Checkup</h3>
                 <p class="package-includes">Comprehensive screening covering vital organ health</p>
                 
                 <ul class="package-test-list">
@@ -374,7 +403,7 @@
 
             <!-- Package 2 -->
             <div class="package-card">
-              <span class="package-top-badge" style="background:var(--apollo-orange-light); color:var(--apollo-orange);">❤️ Cardiac Care</span>
+              <span class="package-top-badge" style="background:var(--primary-light); color:var(--primary);">❤️ Cardiac Care</span>
               <div>
                 <h3 class="package-title">Advanced Cardiac Risk Assessment</h3>
                 <p class="package-includes">Dedicated profile for cardiovascular wellness</p>
@@ -432,10 +461,10 @@
         <div class="card" style="margin-bottom:3rem; background:linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
             <div>
-              <div style="display:inline-flex; align-items:center; gap:0.4rem; color:var(--apollo-orange); font-size:0.72rem; font-weight:800; text-transform:uppercase;">
+              <div style="display:inline-flex; align-items:center; gap:0.4rem; color:var(--primary); font-size:0.72rem; font-weight:800; text-transform:uppercase;">
                 <span class="pulse-dot orange"></span> LIVE 4D HEALTH VAULT
               </div>
-              <h2 style="font-size:1.45rem; font-weight:800; color:var(--apollo-navy); margin-top:2px;">Continuous Telemetry & Bio-Digital Monitoring</h2>
+              <h2 style="font-size:1.45rem; font-weight:800; color:var(--text-navy); margin-top:2px;">Continuous Telemetry & Bio-Digital Monitoring</h2>
             </div>
             <button class="btn btn-outline-orange btn-sm" onclick="window.router.navigate('patient'); window.patientPanel.switchSubTab('vitals');">
               Open Full Telemetry Studio <i data-lucide="arrow-right" style="width:14px;"></i>
@@ -450,15 +479,15 @@
             <div style="display:flex; flex-direction:column; gap:0.75rem;">
               <div style="background:var(--bg-subtle); padding:0.85rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border-card); display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">Resting Heart Rate</span>
-                <span style="font-size:1.1rem; font-weight:800; color:var(--apollo-navy);">74 bpm <span style="font-size:0.7rem; color:#10b981;">(Normal)</span></span>
+                <span style="font-size:1.1rem; font-weight:800; color:var(--text-navy);">74 bpm <span style="font-size:0.7rem; color:#10b981;">(Normal)</span></span>
               </div>
               <div style="background:var(--bg-subtle); padding:0.85rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border-card); display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">Blood Oxygen SpO2</span>
-                <span style="font-size:1.1rem; font-weight:800; color:var(--apollo-navy);">99% <span style="font-size:0.7rem; color:#10b981;">(Optimal)</span></span>
+                <span style="font-size:1.1rem; font-weight:800; color:var(--text-navy);">99% <span style="font-size:0.7rem; color:#10b981;">(Optimal)</span></span>
               </div>
               <div style="background:var(--bg-subtle); padding:0.85rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border-card); display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">Blood Pressure</span>
-                <span style="font-size:1.1rem; font-weight:800; color:var(--apollo-navy);">120/80 <span style="font-size:0.7rem; color:#10b981;">(Standard)</span></span>
+                <span style="font-size:1.1rem; font-weight:800; color:var(--text-navy);">120/80 <span style="font-size:0.7rem; color:#10b981;">(Standard)</span></span>
               </div>
             </div>
           </div>
@@ -467,11 +496,11 @@
         <!-- ══ F. TRUST MILESTONES & CREDENTIALS ══ -->
         <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1.25rem; text-align:center; padding:1rem 0;">
           <div class="card" style="padding:1.25rem;">
-            <div style="font-size:1.8rem; font-weight:800; color:var(--apollo-orange);">40+ Years</div>
-            <div style="font-size:0.8rem; color:var(--text-dim); margin-top:2px;">Clinical Heritage & Trust</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--primary);">Smart OS 4.0</div>
+            <div style="font-size:0.8rem; color:var(--text-dim); margin-top:2px;">Modern Clinical Care</div>
           </div>
           <div class="card" style="padding:1.25rem;">
-            <div style="font-size:1.8rem; font-weight:800; color:var(--apollo-navy);">5,000+</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--text-navy);">5,000+</div>
             <div style="font-size:0.8rem; color:var(--text-dim); margin-top:2px;">Verified Top Doctors</div>
           </div>
           <div class="card" style="padding:1.25rem;">
@@ -501,13 +530,13 @@
 
   </main>
 
-  <!-- ══ 5. APOLLO FOOTER ══ -->
+  <!-- ══ 5. FOOTER ══ -->
   <footer class="apollo-footer">
     <div class="footer-grid">
       <div class="footer-brand">
-        <h3>Apollo 24|7 ClinicOS</h3>
+        <h3>ClinicOS Smart Healthcare</h3>
         <p>
-          Apollo 24|7 is India's leading digital healthcare platform connecting millions of patients with certified specialists, 24/7 instant WebRTC video consultations, doorstep medicine delivery, and NABL accredited home diagnostics.
+          ClinicOS is a unified healthcare operating system connecting patients with certified specialists, 24/7 instant WebRTC video consultations, newborn baby vaccination registration, doorstep medicine delivery, and NABL accredited home diagnostics.
         </p>
       </div>
 
@@ -523,8 +552,9 @@
       </div>
 
       <div class="footer-col">
-        <h4>Health Services</h4>
+        <h4>Child & Health Services</h4>
         <ul class="footer-links">
+          <li><a onclick="window.patientPanel.openNewbornRegistrationModal();">Newborn Vaccination Portal</a></li>
           <li><a onclick="window.router.navigate('patient'); window.patientPanel.switchSubTab('prescriptions');">Online Pharmacy</a></li>
           <li><a onclick="window.router.navigate('patient'); window.patientPanel.switchSubTab('diagnostics');">Lab Tests at Home</a></li>
           <li><a onclick="window.triageEngine.openTriage();">ClinicoAI Symptom Checker</a></li>
@@ -535,17 +565,17 @@
       <div class="footer-col">
         <h4>Hospital Network</h4>
         <ul class="footer-links">
-          <li><a>Apollo Hospital Jubilee Hills</a></li>
-          <li><a>Apollo Hospitals Greams Road</a></li>
-          <li><a>Indraprastha Apollo Hospital</a></li>
-          <li><a>Apollo Hospitals Bannerghatta</a></li>
-          <li><a>Apollo Hospitals Navi Mumbai</a></li>
+          <li><a>ClinicOS Central Hospital</a></li>
+          <li><a>ClinicOS Medical Pavilion</a></li>
+          <li><a>ClinicOS Heart & Specialty Center</a></li>
+          <li><a>ClinicOS Pediatric & Maternity Wing</a></li>
+          <li><a>ClinicOS Diagnostics Center</a></li>
         </ul>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <div>© 2026 Apollo 24|7 ClinicOS. All Rights Reserved. ISO 27001 & HIPAA Certified Healthcare Platform.</div>
+      <div>© 2026 ClinicOS. All Rights Reserved. ISO 27001 & Universal Immunization ABDM Certified.</div>
       <div style="display:flex; gap:1.5rem;">
         <a>Privacy Policy</a>
         <a>Terms & Conditions</a>

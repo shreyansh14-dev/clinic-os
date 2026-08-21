@@ -1,12 +1,14 @@
 /**
- * ClinicOS 24|7: Doctor Workspace & Clinical Panel
- * Patient Consultation Queue, EHR Records, Digital Rx Composer, and Lab Approvals.
+ * ClinicOS: Doctor Workspace & Clinical Panel
+ * Patient Consultation Queue, EHR Records, Pediatric Vaccination Administration,
+ * Digital Rx Composer, and Lab Approvals.
  */
 
 class DoctorPanel {
   constructor() {
-    this.activeSubTab = 'queue'; // queue | ehr | rx-builder | diagnostics-approval | soap-notes
+    this.activeSubTab = 'queue'; // queue | ehr | vaccination-admin | rx-builder | diagnostics-approval | soap-notes
     this.selectedPatientId = 'pat-1';
+    this.selectedBabyId = 'baby-001';
   }
 
   render() {
@@ -17,6 +19,7 @@ class DoctorPanel {
     const state = window.clinicState.data;
     const doctor = (state.doctors && state.doctors.find(d => d.email === user.email)) || state.doctors[0];
     const todayAppointments = (state.appointments || []).filter(a => a.doctorId === doctor.id || a.type === 'Telehealth');
+    const newbornsCount = (state.newborns || []).length;
 
     container.innerHTML = `
       <div class="main-content-wrapper">
@@ -24,19 +27,22 @@ class DoctorPanel {
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; background:var(--bg-surface); border:1px solid var(--border-card); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; box-shadow:var(--shadow-card);">
           <div style="display:flex; align-items:center; gap:1rem;">
             <div style="position:relative;">
-              <img src="${doctor.avatar}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--apollo-orange);">
+              <img src="${doctor.avatar}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);">
               <span style="position:absolute; bottom:0; right:0; width:14px; height:14px; background:#10b981; border-radius:50%; border:2px solid #ffffff;"></span>
             </div>
             <div>
-              <h1 style="font-size:1.6rem; font-weight:800; color:var(--apollo-navy);">${doctor.name}</h1>
-              <p style="font-size:0.85rem; color:var(--apollo-orange); font-weight:600;">
-                ${doctor.title} • <strong>${doctor.department}</strong> • Apollo Telehealth OPD Active
+              <h1 style="font-size:1.6rem; font-weight:800; color:var(--text-navy);">${doctor.name}</h1>
+              <p style="font-size:0.85rem; color:var(--primary); font-weight:600;">
+                ${doctor.title} • <strong>${doctor.department}</strong> • ClinicOS Telehealth OPD Active
               </p>
             </div>
           </div>
           <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
             <span class="badge badge-success"><span class="pulse-dot"></span> On-Duty (Live 24/7 Queue)</span>
-            <button class="btn btn-primary" onclick="window.doctorPanel.openNewPrescriptionModal()">
+            <button class="btn btn-outline-orange btn-sm" onclick="window.doctorPanel.switchSubTab('vaccination-admin')">
+              <i data-lucide="baby"></i> Newborn Registry (${newbornsCount})
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="window.doctorPanel.openNewPrescriptionModal()">
               <i data-lucide="file-plus"></i> New Prescription
             </button>
           </div>
@@ -48,6 +54,9 @@ class DoctorPanel {
             <div class="portal-nav-heading">Physician Workspace</div>
             <div class="portal-nav-link ${this.activeSubTab === 'queue' ? 'active' : ''}" onclick="window.doctorPanel.switchSubTab('queue')">
               <i data-lucide="calendar-check"></i> Patient Queue (${todayAppointments.length})
+            </div>
+            <div class="portal-nav-link ${this.activeSubTab === 'vaccination-admin' ? 'active' : ''}" onclick="window.doctorPanel.switchSubTab('vaccination-admin')">
+              <i data-lucide="baby"></i> Newborn Vaccination Registry
             </div>
             <div class="portal-nav-link ${this.activeSubTab === 'ehr' ? 'active' : ''}" onclick="window.doctorPanel.switchSubTab('ehr')">
               <i data-lucide="folder-heart"></i> Patient EHR Vault
@@ -80,12 +89,94 @@ class DoctorPanel {
   }
 
   renderSubTabContent(doctor, appointments) {
+    const state = window.clinicState.data;
+    const newborns = state.newborns || [];
+
+    // ══ SUBTAB: PEDIATRIC NEWBORN VACCINATION REGISTRY & STAMPING ══
+    if (this.activeSubTab === 'vaccination-admin') {
+      const selectedBaby = newborns.find(b => b.id === this.selectedBabyId) || newborns[0];
+
+      return `
+        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <h2 style="font-size:1.3rem; font-weight:800; color:var(--text-navy);">👶 Pediatric Newborn Vaccination Desk</h2>
+              <p style="font-size:0.82rem; color:var(--text-dim);">Verify online registrations, administer pediatric vaccine batches, and digitally certify immunization records</p>
+            </div>
+            <span class="badge badge-success">✓ Universal Coverage Hub</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 2fr; gap:1.25rem;">
+            <!-- Registered Newborns Queue -->
+            <div class="card" style="padding:1rem;">
+              <h3 style="font-size:0.95rem; font-weight:800; color:var(--text-navy); margin-bottom:0.75rem;">Registered Infants</h3>
+              <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                ${newborns.map(b => `
+                  <div style="padding:0.75rem; border-radius:var(--radius-md); border:1px solid ${b.id === (selectedBaby ? selectedBaby.id : '') ? 'var(--primary)' : 'var(--border-card)'}; background:${b.id === (selectedBaby ? selectedBaby.id : '') ? 'var(--primary-light)' : 'var(--bg-subtle)'}; cursor:pointer;" onclick="window.doctorPanel.selectedBabyId='${b.id}'; window.doctorPanel.render();">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <strong style="font-size:0.88rem; color:var(--text-navy);">${b.babyName}</strong>
+                      <span class="badge badge-primary">${b.gender}</span>
+                    </div>
+                    <div style="font-size:0.75rem; color:var(--text-dim); margin-top:2px;">
+                      DOB: ${b.dob} • Mother: ${b.motherName}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Selected Baby Vaccination Manager -->
+            ${selectedBaby ? `
+              <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:0.75rem; margin-bottom:1rem;">
+                  <div>
+                    <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-navy);">${selectedBaby.babyName}</h3>
+                    <div style="font-size:0.78rem; color:var(--text-dim);">
+                      ID #${selectedBaby.id} • ${selectedBaby.address} • Ph: ${selectedBaby.phone}
+                    </div>
+                  </div>
+                  <span class="badge badge-success">Enrolled Online</span>
+                </div>
+
+                <h4 style="font-size:0.9rem; font-weight:800; color:var(--text-navy); margin-bottom:0.75rem;">Vaccine Doses & Batch Administration:</h4>
+                
+                <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                  ${(selectedBaby.vaccines || []).map(v => {
+                    const isDone = v.status === 'Completed';
+
+                    return `
+                      <div style="background:var(--bg-subtle); padding:0.75rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border-card); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                        <div>
+                          <strong style="color:var(--text-navy); font-size:0.86rem;">${v.name}</strong>
+                          <div style="font-size:0.74rem; color:var(--text-dim);">Due: ${v.ageDue} • ${isDone ? `Administered on ${v.dateAdministered} (Batch: ${v.batchNo})` : 'Pending Shot'}</div>
+                        </div>
+
+                        <div>
+                          ${isDone ? `
+                            <span class="badge badge-success">✓ Administered</span>
+                          ` : `
+                            <button class="btn btn-primary btn-sm" onclick="window.doctorPanel.promptAdministerVaccine('${selectedBaby.id}', '${v.name}')">
+                              <i data-lucide="syringe"></i> Administer & Stamp
+                            </button>
+                          `}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
     if (this.activeSubTab === 'queue') {
       return `
         <div style="display:flex; flex-direction:column; gap:1rem;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <h2 style="font-size:1.3rem; font-weight:800; color:var(--apollo-navy);">Today's Consultation Queue</h2>
+              <h2 style="font-size:1.3rem; font-weight:800; color:var(--text-navy);">Today's Consultation Queue</h2>
               <p style="font-size:0.82rem; color:var(--text-dim);">Live patient roster with instant WebRTC video consultation</p>
             </div>
             <span class="badge badge-info">${appointments.length} Consultations Pending</span>
@@ -101,7 +192,7 @@ class DoctorPanel {
                   <img src="${patient.avatar}" style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--border-subtle);">
                   <div>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
-                      <strong style="font-size:1.05rem; color:var(--apollo-navy);">${patient.name}</strong>
+                      <strong style="font-size:1.05rem; color:var(--text-navy);">${patient.name}</strong>
                       <span class="badge badge-primary">Age ${patient.age || '32'} • ${patient.bloodGroup || 'O+'}</span>
                       <span class="badge ${isCompleted ? 'badge-success' : 'badge-warning'}">${apt.status}</span>
                     </div>
@@ -134,7 +225,7 @@ class DoctorPanel {
             <div style="display:flex; gap:1rem; align-items:center;">
               <img src="${patient.avatar}" style="width:56px; height:56px; border-radius:50%; object-fit:cover;">
               <div>
-                <h2 style="font-size:1.25rem; font-weight:800; color:var(--apollo-navy);">${patient.name} (EHR Record #${patient.id})</h2>
+                <h2 style="font-size:1.25rem; font-weight:800; color:var(--text-navy);">${patient.name} (EHR Record #${patient.id})</h2>
                 <p style="font-size:0.8rem; color:var(--text-dim);">DOB: 1993-04-12 • Blood: ${patient.bloodGroup} • Phone: ${patient.phone || '+91 98765 43210'}</p>
               </div>
             </div>
@@ -158,18 +249,18 @@ class DoctorPanel {
             </div>
             <div style="background:var(--bg-subtle); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-card);">
               <div style="font-size:0.75rem; color:var(--text-dim); font-weight:700; text-transform:uppercase;">Live Baseline Vitals</div>
-              <div style="font-size:0.82rem; font-weight:700; color:var(--apollo-navy); margin-top:0.4rem;">
+              <div style="font-size:0.82rem; font-weight:700; color:var(--text-navy); margin-top:0.4rem;">
                 HR: ${patient.vitals ? patient.vitals.heartRate : 74} bpm • BP: ${patient.vitals ? patient.vitals.bloodPressure : '120/80'} • SpO2: 99%
               </div>
             </div>
           </div>
 
-          <h3 style="font-size:1rem; font-weight:800; color:var(--apollo-navy); margin-bottom:0.75rem;">Past Clinical Consultations</h3>
+          <h3 style="font-size:1rem; font-weight:800; color:var(--text-navy); margin-bottom:0.75rem;">Past Clinical Consultations</h3>
           <div style="display:flex; flex-direction:column; gap:0.6rem;">
             ${(patient.medicalHistory || []).map(h => `
               <div style="background:var(--bg-subtle); padding:0.85rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border-card); display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                  <strong style="font-size:0.88rem; color:var(--apollo-navy);">${h.condition || h.diagnosis}</strong>
+                  <strong style="font-size:0.88rem; color:var(--text-navy);">${h.condition || h.diagnosis}</strong>
                   <div style="font-size:0.76rem; color:var(--text-dim);">Treated by ${h.doctor || 'Dr. Robert Chen'} • ${h.date}</div>
                 </div>
                 <span class="badge badge-success">Resolved</span>
@@ -183,8 +274,8 @@ class DoctorPanel {
     if (this.activeSubTab === 'rx-builder') {
       return `
         <div class="card" style="max-width:700px;">
-          <h2 style="font-size:1.3rem; font-weight:800; color:var(--apollo-navy); margin-bottom:0.35rem;">Digital Rx Composer</h2>
-          <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:1.5rem;">Generate digitally signed Apollo 24|7 e-prescriptions synced to patient app</p>
+          <h2 style="font-size:1.3rem; font-weight:800; color:var(--text-navy); margin-bottom:0.35rem;">Digital Rx Composer</h2>
+          <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:1.5rem;">Generate digitally signed ClinicOS e-prescriptions synced to patient records</p>
 
           <div class="form-group">
             <label class="form-label">Patient</label>
@@ -224,13 +315,13 @@ class DoctorPanel {
     if (this.activeSubTab === 'diagnostics-approval') {
       return `
         <div class="card">
-          <h2 style="font-size:1.3rem; font-weight:800; color:var(--apollo-navy); margin-bottom:0.35rem;">Diagnostic Lab Approvals</h2>
+          <h2 style="font-size:1.3rem; font-weight:800; color:var(--text-navy); margin-bottom:0.35rem;">Diagnostic Lab Approvals</h2>
           <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:1.5rem;">Review and verify NABL certified home collection test results</p>
 
           <div style="display:flex; flex-direction:column; gap:0.85rem;">
             <div style="background:var(--bg-subtle); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-card); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
               <div>
-                <strong style="color:var(--apollo-navy);">12-Lead Continuous ECG Report - Alex Morgan</strong>
+                <strong style="color:var(--text-navy);">12-Lead Continuous ECG Report - Alex Morgan</strong>
                 <div style="font-size:0.76rem; color:var(--text-dim);">Sinus Rhythm 72 bpm • PR: 140ms • QTc: 412ms (Normal)</div>
               </div>
               <div style="display:flex; gap:0.5rem;">
@@ -243,7 +334,7 @@ class DoctorPanel {
 
             <div style="background:var(--bg-subtle); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-card); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
               <div>
-                <strong style="color:var(--apollo-navy);">Comprehensive Lipid Profile - Alex Morgan</strong>
+                <strong style="color:var(--text-navy);">Comprehensive Lipid Profile - Alex Morgan</strong>
                 <div style="font-size:0.76rem; color:var(--text-dim);">Total Cholesterol: 188 mg/dL • HDL: 52 mg/dL • LDL: 112 mg/dL</div>
               </div>
               <div style="display:flex; gap:0.5rem;">
@@ -261,7 +352,7 @@ class DoctorPanel {
     if (this.activeSubTab === 'soap-notes') {
       return `
         <div class="card" style="max-width:750px;">
-          <h2 style="font-size:1.3rem; font-weight:800; color:var(--apollo-navy); margin-bottom:0.35rem;">Clinical SOAP Notes</h2>
+          <h2 style="font-size:1.3rem; font-weight:800; color:var(--text-navy); margin-bottom:0.35rem;">Clinical SOAP Notes</h2>
           <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:1.5rem;">Structured medical encounter documentation for compliance and insurance</p>
 
           <div class="form-group">
@@ -289,6 +380,15 @@ class DoctorPanel {
     }
 
     return '';
+  }
+
+  promptAdministerVaccine(babyId, vaccineName) {
+    const batch = prompt(`Enter vaccine batch number for ${vaccineName}:`, `BATCH-VAC-${Date.now().toString().slice(-4)}`);
+    if (batch) {
+      window.clinicState.administerVaccine(babyId, vaccineName, batch, window.clinicState.getCurrentUser().name);
+      window.toast.show('Vaccine Recorded', `${vaccineName} marked as administered. Digital seal updated.`, 'success');
+      this.render();
+    }
   }
 
   viewPatientEHR(patientId) {
@@ -330,13 +430,13 @@ class DoctorPanel {
       ],
       advice: notes,
       followUp: 'Follow up in 5-7 days if needed',
-      signature: `${doctor.name}, MD (Apollo Verified)`
+      signature: `${doctor.name}, MD (ClinicOS Verified)`
     });
 
     if (window.audioService && window.audioService.playSuccessChime) {
       window.audioService.playSuccessChime();
     }
-    window.toast.show('Rx Issued Successfully', `Prescription synchronized to ${patient.name}'s Apollo portal.`, 'success');
+    window.toast.show('Rx Issued Successfully', `Prescription synchronized to ${patient.name}'s ClinicOS portal.`, 'success');
     this.switchSubTab('queue');
   }
 }

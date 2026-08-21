@@ -1,5 +1,5 @@
 /**
- * ClinicOS 24|7: Telehealth Video Consultation & WebRTC Suite
+ * ClinicOS: Telehealth Video Consultation & WebRTC Suite
  * Live Camera & Mic Access, Doctor Incoming Call Notification & Ringing,
  * Digital Rx Pad, Real-time Vitals HUD, and In-call Chat.
  */
@@ -23,14 +23,14 @@ class TelehealthSuite {
     ];
   }
 
-  // 1-Click Instant Video Call (from Apollo Header, Hero Banner, or Triage)
+  // 1-Click Instant Video Call (from Header, Hero Banner, or Triage)
   startInstantConsultation(doctorSpecialty = 'General Physician') {
     const state = window.clinicState.data;
     const currentUser = window.clinicState.getCurrentUser();
     const isDoctor = currentUser.role === 'DOCTOR';
 
     // Find or assign doctor
-    const doctor = state.doctors.find(d => d.department.toLowerCase().includes(doctorSpecialty.toLowerCase())) || state.doctors[0];
+    const doctor = (state.doctors && state.doctors.find(d => d.department.toLowerCase().includes(doctorSpecialty.toLowerCase()))) || state.doctors[0];
     const patient = state.patients[0];
 
     const newApt = {
@@ -56,9 +56,9 @@ class TelehealthSuite {
 
   startConsultation(appointmentId, callerRole = 'PATIENT') {
     const state = window.clinicState.data;
-    this.activeAppointment = state.appointments.find(a => a.id === appointmentId) || state.appointments[0];
-    const doctor = state.doctors.find(d => d.id === this.activeAppointment.doctorId) || state.doctors[0];
-    const patient = state.patients.find(p => p.id === this.activeAppointment.patientId) || state.patients[0];
+    this.activeAppointment = (state.appointments && state.appointments.find(a => a.id === appointmentId)) || state.appointments[0];
+    const doctor = (state.doctors && state.doctors.find(d => d.id === this.activeAppointment.doctorId)) || state.doctors[0];
+    const patient = (state.patients && state.patients.find(p => p.id === this.activeAppointment.patientId)) || state.patients[0];
 
     this.currentCallData = {
       appointmentId: this.activeAppointment.id,
@@ -178,8 +178,8 @@ class TelehealthSuite {
               <i data-lucide="arrow-left"></i> Exit Room
             </button>
             <div>
-              <h2 style="font-size:1.35rem; font-weight:800; color:var(--apollo-navy);">
-                Apollo 24|7 Telehealth Video Consultation
+              <h2 style="font-size:1.35rem; font-weight:800; color:var(--text-navy);">
+                ClinicOS Telehealth Video Consultation
               </h2>
               <p style="font-size:0.82rem; color:var(--text-dim);">
                 Session with <strong>${isDoctor ? patient.name : doctor.name}</strong> • Apt #${this.activeAppointment ? this.activeAppointment.id : 'Live'} (${this.activeAppointment ? this.activeAppointment.department : 'General Medicine'})
@@ -217,7 +217,7 @@ class TelehealthSuite {
               <div class="video-tile" id="remote-video-tile">
                 <img src="${doctor.avatar}" style="width:100%; height:100%; object-fit:cover;" alt="Doctor Stream">
                 <div class="video-participant-badge">
-                  <i data-lucide="stethoscope" style="width:14px; color:var(--apollo-orange);"></i>
+                  <i data-lucide="stethoscope" style="width:14px; color:var(--primary);"></i>
                   <span>${doctor.name} (${doctor.title})</span>
                   <span class="video-quality-tag">• On-Duty</span>
                 </div>
@@ -294,7 +294,7 @@ class TelehealthSuite {
 
             <!-- Tab 2: Doctor Live Prescription Pad -->
             <div class="tele-tab-content" id="tele-tab-rx">
-              <div style="font-size:0.9rem; font-weight:800; color:var(--apollo-navy); margin-bottom:0.75rem;">
+              <div style="font-size:0.9rem; font-weight:800; color:var(--text-navy); margin-bottom:0.75rem;">
                 Issue Digital Prescription
               </div>
               <div class="form-group">
@@ -322,21 +322,21 @@ class TelehealthSuite {
             <div class="tele-tab-content" id="tele-tab-ehr">
               <div style="display:flex; flex-direction:column; gap:0.75rem;">
                 <div style="background:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-card);">
-                  <strong style="color:var(--apollo-navy); font-size:0.82rem;">Known Allergies:</strong>
+                  <strong style="color:var(--text-navy); font-size:0.82rem;">Known Allergies:</strong>
                   <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
                     ${(patient.allergies || ['Penicillin', 'Dust Mites']).map(a => `<span class="badge badge-danger" style="font-size:0.68rem;">${a}</span>`).join('')}
                   </div>
                 </div>
                 <div style="background:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-card);">
-                  <strong style="color:var(--apollo-navy); font-size:0.82rem;">Chronic Conditions:</strong>
+                  <strong style="color:var(--text-navy); font-size:0.82rem;">Chronic Conditions:</strong>
                   <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
                     ${(patient.chronicConditions || ['Mild Asthmatic Bronchitis']).map(c => `<span class="badge badge-warning" style="font-size:0.68rem;">${c}</span>`).join('')}
                   </div>
                 </div>
                 <div style="background:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-card);">
-                  <strong style="color:var(--apollo-navy); font-size:0.82rem;">Health Insurance:</strong>
+                  <strong style="color:var(--text-navy); font-size:0.82rem;">Health Insurance:</strong>
                   <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">
-                    ${patient.insurance ? patient.insurance.provider : 'Star Health Comprehensive'} (Policy #${patient.insurance ? patient.insurance.policyNumber : 'SH-9921-X'})
+                    ${patient.insurance ? patient.insurance.provider : 'Comprehensive Health Care'} (Policy #${patient.insurance ? patient.insurance.policyNumber : 'CL-9921-X'})
                   </p>
                 </div>
               </div>
@@ -367,8 +367,7 @@ class TelehealthSuite {
         }
       }
     } catch (e) {
-      console.log('Webcam permission note:', e.message);
-      // If hardware camera is not available, graceful fallback is already active
+      console.log('Webcam note:', e.message);
     }
   }
 
@@ -520,7 +519,7 @@ class TelehealthSuite {
       ],
       advice: notes,
       followUp: 'Follow up in 30 days or after telemetry evaluation',
-      signature: `${doctor.name}, MD (Apollo Telehealth Digital Sig)`
+      signature: `${doctor.name}, MD (ClinicOS Telehealth Digital Sig)`
     });
 
     if (window.audioService && window.audioService.playSuccessChime) {

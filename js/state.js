@@ -1,11 +1,11 @@
 /**
- * ClinicOS 24|7: Central State Manager & Audit Logger
+ * ClinicOS: Central State Manager & Audit Logger
  * Manages RBAC, persistent state, subscriptions, compliance logs, and cross-panel video call events.
  */
 
 class ClinicState {
   constructor() {
-    this.storageKey = 'clinicos_apollo_state_v1';
+    this.storageKey = 'clinicos_state_v2';
     this.subscribers = new Map();
     this.init();
   }
@@ -30,7 +30,7 @@ class ClinicState {
         email: 'alex.morgan@example.com',
         role: 'PATIENT', // PATIENT | DOCTOR | ADMIN
         avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
-        token: 'jwt_apollo_token_pat_1'
+        token: 'jwt_clinicos_token_pat_1'
       };
     }
   }
@@ -43,7 +43,7 @@ class ClinicState {
       email: 'alex.morgan@example.com',
       role: 'PATIENT',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
-      token: 'jwt_apollo_token_pat_1'
+      token: 'jwt_clinicos_token_pat_1'
     };
     this.data.notifications = [
       {
@@ -102,7 +102,7 @@ class ClinicState {
       this.data.currentUser = {
         id: 'adm-1',
         name: 'Administrator Sarah Connor',
-        email: 'admin@clinicos247.com',
+        email: 'admin@clinicos.health',
         role: 'ADMIN',
         avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80'
       };
@@ -128,7 +128,6 @@ class ClinicState {
     if (role === 'PATIENT') window.router.navigate('patient');
     if (role === 'DOCTOR') {
       window.router.navigate('doctor');
-      // If there is an active incoming call, display the incoming ringing modal!
       if (this.data.activeIncomingCall && window.telehealth) {
         setTimeout(() => {
           window.telehealth.showIncomingCallModal(this.data.activeIncomingCall);
@@ -211,6 +210,73 @@ class ClinicState {
     this.save();
   }
 
+  registerNewborn(babyData) {
+    if (!this.data.newborns) this.data.newborns = [];
+    
+    // Generate complete standard vaccine roadmap
+    const standardVaccineSchedule = [
+      { name: 'BCG (Tuberculosis)', ageDue: 'At Birth', dateAdministered: babyData.birthDoseBCG ? babyData.dob : 'Pending', status: babyData.birthDoseBCG ? 'Completed' : 'Pending', batchNo: babyData.birthDoseBCG ? 'BCG-BIRTH-AUTO' : '-' },
+      { name: 'OPV-0 (Oral Polio Zero Dose)', ageDue: 'At Birth', dateAdministered: babyData.birthDoseOPV ? babyData.dob : 'Pending', status: babyData.birthDoseOPV ? 'Completed' : 'Pending', batchNo: babyData.birthDoseOPV ? 'OPV-BIRTH-AUTO' : '-' },
+      { name: 'Hepatitis B (Birth Dose)', ageDue: 'At Birth', dateAdministered: babyData.birthDoseHepB ? babyData.dob : 'Pending', status: babyData.birthDoseHepB ? 'Completed' : 'Pending', batchNo: babyData.birthDoseHepB ? 'HEPB-BIRTH-AUTO' : '-' },
+      { name: 'Pentavalent-1 (DTP-HepB-Hib)', ageDue: '6 Weeks', dateAdministered: 'Scheduled in 6 weeks', status: 'Upcoming', batchNo: '-' },
+      { name: 'Rotavirus-1 (Diarrhea Protection)', ageDue: '6 Weeks', dateAdministered: 'Scheduled in 6 weeks', status: 'Upcoming', batchNo: '-' },
+      { name: 'IPV-1 (Injectable Polio)', ageDue: '6 Weeks', dateAdministered: 'Scheduled in 6 weeks', status: 'Upcoming', batchNo: '-' },
+      { name: 'PCV-1 (Pneumococcal)', ageDue: '6 Weeks', dateAdministered: 'Scheduled in 6 weeks', status: 'Upcoming', batchNo: '-' },
+      { name: 'Pentavalent-2', ageDue: '10 Weeks', dateAdministered: 'Scheduled in 10 weeks', status: 'Upcoming', batchNo: '-' },
+      { name: 'Rotavirus-2', ageDue: '10 Weeks', dateAdministered: 'Scheduled in 10 weeks', status: 'Upcoming', batchNo: '-' },
+      { name: 'Pentavalent-3', ageDue: '14 Weeks', dateAdministered: 'Scheduled in 14 weeks', status: 'Pending', batchNo: '-' },
+      { name: 'Rotavirus-3', ageDue: '14 Weeks', dateAdministered: 'Scheduled in 14 weeks', status: 'Pending', batchNo: '-' },
+      { name: 'IPV-2', ageDue: '14 Weeks', dateAdministered: 'Scheduled in 14 weeks', status: 'Pending', batchNo: '-' },
+      { name: 'MR-1 / MMR-1 (Measles-Rubella)', ageDue: '9 Months', dateAdministered: 'Scheduled at 9 months', status: 'Pending', batchNo: '-' },
+      { name: 'Vitamin A (Dose 1)', ageDue: '9 Months', dateAdministered: 'Scheduled at 9 months', status: 'Pending', batchNo: '-' },
+      { name: 'DTP Booster-1', ageDue: '16-24 Months', dateAdministered: 'Scheduled at 16-24 months', status: 'Pending', batchNo: '-' }
+    ];
+
+    const newBaby = {
+      id: 'baby-' + Date.now().toString().slice(-4),
+      parentId: this.getCurrentUser().id || 'pat-1',
+      parentName: this.getCurrentUser().name || 'Alex Morgan',
+      motherName: babyData.motherName,
+      fatherName: babyData.fatherName,
+      babyName: babyData.babyName || `Baby of ${babyData.motherName}`,
+      gender: babyData.gender,
+      dob: babyData.dob,
+      birthWeight: babyData.birthWeight ? `${babyData.birthWeight} kg` : '3.2 kg',
+      bloodGroup: babyData.bloodGroup || 'O+',
+      deliveryPlace: babyData.deliveryPlace || 'Hospital / Home',
+      address: babyData.address,
+      phone: babyData.phone,
+      registrationType: 'Digital Self-Registration (No Door-to-Door Survey Needed)',
+      status: 'Registered & Scheduled',
+      vaccines: standardVaccineSchedule
+    };
+
+    this.data.newborns.unshift(newBaby);
+    this.logAudit('NEWBORN_VACCINATION_REGISTER', `Registered newborn ${newBaby.babyName} (DOB: ${newBaby.dob}) for immunization program`, `Parent: ${newBaby.motherName}`);
+    this.addNotification('👶 Newborn Registered for Vaccination', `${newBaby.babyName} has been enrolled in the Universal Child Immunization Program. Digital vaccine passport generated.`, 'rx');
+    this.save();
+    this.notify('newbornsChanged', this.data.newborns);
+    return newBaby;
+  }
+
+  administerVaccine(babyId, vaccineName, batchNo, administeredBy) {
+    const baby = (this.data.newborns || []).find(b => b.id === babyId);
+    if (!baby) return;
+
+    const v = (baby.vaccines || []).find(vac => vac.name.toLowerCase().includes(vaccineName.toLowerCase()));
+    if (v) {
+      v.status = 'Completed';
+      v.dateAdministered = new Date().toISOString().split('T')[0];
+      v.batchNo = batchNo || `BATCH-PED-${Date.now().toString().slice(-4)}`;
+      v.administeredBy = administeredBy || this.getCurrentUser().name;
+      
+      this.logAudit('VACCINE_ADMINISTERED', `Administered ${v.name} to ${baby.babyName}`, `Batch #${v.batchNo}`);
+      this.addNotification('Vaccine Administered', `${v.name} recorded for ${baby.babyName}. Certificate updated.`, 'rx');
+      this.save();
+      this.notify('newbornsChanged', this.data.newborns);
+    }
+  }
+
   subscribe(event, callback) {
     if (!this.subscribers.has(event)) {
       this.subscribers.set(event, []);
@@ -226,3 +292,4 @@ class ClinicState {
 }
 
 window.clinicState = new ClinicState();
+

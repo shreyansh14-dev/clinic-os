@@ -1,5 +1,5 @@
 /**
- * ClinicOS 24|7: Main Application Orchestrator & Router
+ * ClinicOS: Main Application Orchestrator & Router
  * Manages view transitions, search autosuggestions, role switching, toasts, and notifications.
  */
 
@@ -18,8 +18,8 @@ class ToastService {
     toast.className = 'toast';
 
     let icon = 'info';
-    let iconBg = 'var(--apollo-orange-light)';
-    let iconColor = 'var(--apollo-orange)';
+    let iconBg = 'var(--primary-light)';
+    let iconColor = 'var(--primary)';
 
     if (type === 'success') {
       icon = 'check-circle';
@@ -36,7 +36,7 @@ class ToastService {
         <i data-lucide="${icon}" style="width:16px; height:16px;"></i>
       </div>
       <div style="flex:1;">
-        <div style="font-size:0.85rem; font-weight:700; color:var(--apollo-navy);">${title}</div>
+        <div style="font-size:0.85rem; font-weight:700; color:var(--text-navy);">${title}</div>
         <div style="font-size:0.78rem; color:var(--text-muted);">${message}</div>
       </div>
       <button onclick="this.parentElement.remove()" style="background:transparent; border:none; color:var(--text-dim); font-size:1.1rem; cursor:pointer; padding:0 4px;">&times;</button>
@@ -166,11 +166,11 @@ class ClinicApp {
 
     list.innerHTML = notifs.map(n => `
       <div class="drawer-item ${n.unread ? 'unread' : ''}">
-        <div style="width:28px; height:28px; border-radius:50%; background:var(--apollo-orange-light); color:var(--apollo-orange); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="width:28px; height:28px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
           <i data-lucide="${n.type === 'rx' ? 'pill' : n.type === 'telehealth' ? 'video' : 'bell'}" style="width:14px; height:14px;"></i>
         </div>
         <div>
-          <div style="font-size:0.82rem; font-weight:700; color:var(--apollo-navy);">${n.title}</div>
+          <div style="font-size:0.82rem; font-weight:700; color:var(--text-navy);">${n.title}</div>
           <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.35; margin-top:2px;">${n.message}</div>
           <div style="font-size:0.68rem; color:var(--text-dim); margin-top:4px;">${n.time}</div>
         </div>
@@ -213,7 +213,10 @@ class ClinicApp {
     const input = document.getElementById('global-search-input');
     if (input) input.value = query;
 
-    if (query.toLowerCase().includes('cardio') || query.toLowerCase().includes('doctor') || query.toLowerCase().includes('physician')) {
+    if (query.toLowerCase().includes('vaccin') || query.toLowerCase().includes('baby') || query.toLowerCase().includes('newborn')) {
+      window.router.navigate('patient');
+      if (window.patientPanel) window.patientPanel.switchSubTab('vaccination');
+    } else if (query.toLowerCase().includes('cardio') || query.toLowerCase().includes('doctor') || query.toLowerCase().includes('physician')) {
       window.router.navigate('patient');
       if (window.patientPanel) window.patientPanel.switchSubTab('booking');
     } else if (query.toLowerCase().includes('blood') || query.toLowerCase().includes('test') || query.toLowerCase().includes('checkup')) {

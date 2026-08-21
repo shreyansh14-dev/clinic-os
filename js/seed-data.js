@@ -589,5 +589,75 @@ const SEED_DATA = {
       { id: 'fever', label: 'General / Infection (High fever, Fatigue, Cough, Cold)', deptId: 'dept-genmed', urgency: 'Low', urgencyColor: '#10B981' }
     ],
     redFlagKeywords: ['crushing chest pain', 'loss of consciousness', 'slurred speech', 'facial drooping', 'sudden weakness', 'uncontrolled bleeding']
-  }
+  },
+
+  newborns: [
+    {
+      id: 'baby-001',
+      parentId: 'pat-1',
+      parentName: 'Alex Morgan',
+      motherName: 'Elena Morgan',
+      fatherName: 'Alex Morgan',
+      babyName: 'Liam Morgan',
+      gender: 'Male',
+      dob: '2026-06-15',
+      birthWeight: '3.4 kg',
+      bloodGroup: 'O+',
+      deliveryPlace: 'ClinicOS Central Maternity Wing',
+      address: '742 Evergreen Terrace, New Delhi 110001',
+      phone: '+91 98765 43210',
+      registrationType: 'Online Parental Self-Registration',
+      status: 'Up to Date',
+      vaccines: [
+        { name: 'BCG (Tuberculosis)', ageDue: 'At Birth', dateAdministered: '2026-06-15', status: 'Completed', batchNo: 'BCG-2026-X8' },
+        { name: 'OPV-0 (Oral Polio)', ageDue: 'At Birth', dateAdministered: '2026-06-15', status: 'Completed', batchNo: 'OPV-0912' },
+        { name: 'Hepatitis B (Birth Dose)', ageDue: 'At Birth', dateAdministered: '2026-06-15', status: 'Completed', batchNo: 'HEPB-774' },
+        { name: 'Pentavalent-1 (DTP-HepB-Hib)', ageDue: '6 Weeks', dateAdministered: '2026-07-28', status: 'Completed', batchNo: 'PENTA-104' },
+        { name: 'Rotavirus-1 (Diarrhea Prevention)', ageDue: '6 Weeks', dateAdministered: '2026-07-28', status: 'Completed', batchNo: 'ROTA-441' },
+        { name: 'IPV-1 (Injectable Polio)', ageDue: '6 Weeks', dateAdministered: '2026-07-28', status: 'Completed', batchNo: 'IPV-882' },
+        { name: 'Pentavalent-2', ageDue: '10 Weeks', dateAdministered: 'Scheduled for Aug 25', status: 'Upcoming', batchNo: '-' },
+        { name: 'Rotavirus-2', ageDue: '10 Weeks', dateAdministered: 'Scheduled for Aug 25', status: 'Upcoming', batchNo: '-' },
+        { name: 'Pentavalent-3', ageDue: '14 Weeks', dateAdministered: 'Due Sept 2026', status: 'Pending', batchNo: '-' },
+        { name: 'MMR-1 / MR-1 (Measles-Rubella)', ageDue: '9 Months', dateAdministered: 'Due March 2027', status: 'Pending', batchNo: '-' }
+      ]
+    },
+    {
+      id: 'baby-002',
+      parentId: 'pat-2',
+      parentName: 'Priya Sharma',
+      motherName: 'Priya Sharma',
+      fatherName: 'Rohan Sharma',
+      babyName: 'Aanya Sharma',
+      gender: 'Female',
+      dob: '2026-08-01',
+      birthWeight: '3.1 kg',
+      bloodGroup: 'B+',
+      deliveryPlace: 'ClinicOS Healthcare Pavilion',
+      address: 'Sector 14, Dwarka, New Delhi 110075',
+      phone: '+91 98111 22334',
+      registrationType: 'Online Parental Self-Registration',
+      status: 'Due for 6 Weeks Dose',
+      vaccines: [
+        { name: 'BCG (Tuberculosis)', ageDue: 'At Birth', dateAdministered: '2026-08-01', status: 'Completed', batchNo: 'BCG-2026-Y2' },
+        { name: 'OPV-0 (Oral Polio)', ageDue: 'At Birth', dateAdministered: '2026-08-01', status: 'Completed', batchNo: 'OPV-0934' },
+        { name: 'Hepatitis B (Birth Dose)', ageDue: 'At Birth', dateAdministered: '2026-08-01', status: 'Completed', batchNo: 'HEPB-790' },
+        { name: 'Pentavalent-1 (DTP-HepB-Hib)', ageDue: '6 Weeks', dateAdministered: 'Due Sept 12', status: 'Upcoming', batchNo: '-' },
+        { name: 'Rotavirus-1', ageDue: '6 Weeks', dateAdministered: 'Due Sept 12', status: 'Upcoming', batchNo: '-' },
+        { name: 'IPV-1 (Injectable Polio)', ageDue: '6 Weeks', dateAdministered: 'Due Sept 12', status: 'Upcoming', batchNo: '-' }
+      ]
+    }
+  ],
+
+  vaccineCatalog: [
+    { name: 'BCG', targetDisease: 'Tuberculosis', scheduleAge: 'At Birth', type: 'Intradermal' },
+    { name: 'OPV (Oral Polio Vaccine)', targetDisease: 'Poliomyelitis', scheduleAge: 'Birth, 6, 10, 14 Weeks', type: 'Oral Drops' },
+    { name: 'Hepatitis B', targetDisease: 'Hepatitis B Infection', scheduleAge: 'Birth, 6, 10, 14 Weeks', type: 'Intramuscular' },
+    { name: 'Pentavalent (DTP-HepB-Hib)', targetDisease: 'Diphtheria, Pertussis, Tetanus, HepB, Hib', scheduleAge: '6, 10, 14 Weeks', type: 'Intramuscular' },
+    { name: 'Rotavirus Vaccine', targetDisease: 'Rotaviral Diarrhea', scheduleAge: '6, 10, 14 Weeks', type: 'Oral Drops' },
+    { name: 'IPV (Inactivated Polio)', targetDisease: 'Polio Booster', scheduleAge: '6, 14 Weeks', type: 'Intradermal' },
+    { name: 'PCV (Pneumococcal)', targetDisease: 'Pneumonia & Meningitis', scheduleAge: '6, 14 Weeks, 9 Months', type: 'Intramuscular' },
+    { name: 'MR / MMR', targetDisease: 'Measles, Mumps, Rubella', scheduleAge: '9 Months & 16-24 Months', type: 'Subcutaneous' },
+    { name: 'DTP Booster', targetDisease: 'Diphtheria, Tetanus, Pertussis', scheduleAge: '16-24 Months & 5-6 Years', type: 'Intramuscular' }
+  ]
 };
+
