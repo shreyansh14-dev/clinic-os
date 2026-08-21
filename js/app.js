@@ -1,6 +1,6 @@
 /**
- * ClinicOS: Main Application Orchestrator & Router
- * Manages view switching, toast alerts, notification drawer, telemetry ticker, and UI sync.
+ * ClinicOS 24|7: Main Application Orchestrator & Router
+ * Manages view transitions, search autosuggestions, role switching, toasts, and notifications.
  */
 
 class ToastService {
@@ -18,35 +18,37 @@ class ToastService {
     toast.className = 'toast';
 
     let icon = 'info';
-    let iconBg = 'rgba(6, 182, 212, 0.15)';
-    let iconColor = 'var(--secondary)';
+    let iconBg = 'var(--apollo-orange-light)';
+    let iconColor = 'var(--apollo-orange)';
 
     if (type === 'success') {
-      icon = 'check';
-      iconBg = 'rgba(16, 185, 129, 0.15)';
-      iconColor = 'var(--primary-light)';
+      icon = 'check-circle';
+      iconBg = 'var(--apollo-green-light)';
+      iconColor = '#059669';
     } else if (type === 'danger') {
       icon = 'alert-triangle';
-      iconBg = 'rgba(239, 68, 68, 0.15)';
-      iconColor = '#F87171';
+      iconBg = 'var(--apollo-red-light)';
+      iconColor = '#dc2626';
     }
 
     toast.innerHTML = `
-      <div class="toast-icon" style="background:${iconBg}; color:${iconColor};">
-        <i data-lucide="${icon}" style="width:14px; height:14px;"></i>
+      <div style="width:32px; height:32px; border-radius:50%; background:${iconBg}; color:${iconColor}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <i data-lucide="${icon}" style="width:16px; height:16px;"></i>
       </div>
-      <div class="toast-content">
-        <div class="toast-title">${title}</div>
-        <div class="toast-msg">${message}</div>
+      <div style="flex:1;">
+        <div style="font-size:0.85rem; font-weight:700; color:var(--apollo-navy);">${title}</div>
+        <div style="font-size:0.78rem; color:var(--text-muted);">${message}</div>
       </div>
-      <button onclick="this.parentElement.remove()" style="color:var(--text-dim); font-size:1.1rem; line-height:1; cursor:pointer;">&times;</button>
+      <button onclick="this.parentElement.remove()" style="background:transparent; border:none; color:var(--text-dim); font-size:1.1rem; cursor:pointer; padding:0 4px;">&times;</button>
     `;
 
     this.container.appendChild(toast);
     if (window.lucide) window.lucide.createIcons();
 
     setTimeout(() => {
-      toast.classList.add('removing');
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      toast.style.transition = 'all 0.3s ease';
       setTimeout(() => toast.remove(), 350);
     }, 4500);
   }
@@ -60,10 +62,10 @@ class AppRouter {
   navigate(routeName) {
     this.currentRoute = routeName;
 
-    // Hide all page views
+    // Hide all views
     document.querySelectorAll('.page-view').forEach(view => view.classList.remove('active'));
 
-    // Update nav items active state
+    // Update navbar active item
     document.querySelectorAll('.nav-item-btn').forEach(btn => {
       const target = btn.getAttribute('data-route');
       if (target === routeName) {
@@ -80,13 +82,13 @@ class AppRouter {
 
       // Render corresponding panel
       if (routeName === 'landing') {
-        window.app.initLandingVisuals();
+        // Landing visual updates
       } else if (routeName === 'patient') {
-        window.patientPanel.render();
+        if (window.patientPanel) window.patientPanel.render();
       } else if (routeName === 'doctor') {
-        window.doctorPanel.render();
+        if (window.doctorPanel) window.doctorPanel.render();
       } else if (routeName === 'admin') {
-        window.adminPanel.render();
+        if (window.adminPanel) window.adminPanel.render();
       }
     }
 
@@ -98,26 +100,18 @@ class ClinicApp {
   constructor() {
     window.toast = new ToastService();
     window.router = new AppRouter();
-    this.bio3dVisualizer = null;
   }
 
   init() {
     this.startTelemetryClock();
     this.updateNavUserBadge();
     this.renderNotificationDrawer();
-    this.setupEventListeners();
-
-    // Start Global Fullscreen 3D DNA & Particle Visualizer
-    setTimeout(() => {
-      if (!this.bio3dVisualizer) {
-        this.bio3dVisualizer = new Bio3DVisualizer('global-3d-background');
-      }
-    }, 50);
+    this.setupGlobalSearch();
 
     // Default route
     window.router.navigate('landing');
 
-    // Subscribe to state notifications
+    // Subscriptions
     window.clinicState.subscribe('notificationAdded', () => {
       this.updateNotificationBadge();
       this.renderNotificationDrawer();
@@ -133,44 +127,58 @@ class ClinicApp {
       const now = new Date();
       const el = document.getElementById('telemetry-clock');
       if (el) {
-        el.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' UTC+5:30';
+        el.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' IST';
       }
     };
     updateTime();
     setInterval(updateTime, 1000);
   }
 
-  initLandingVisuals() {
-    // 3D visualizer is already globally active
-  }
-
   updateNavUserBadge() {
     const user = window.clinicState.getCurrentUser();
-    const avatarEl = document.getElementById('nav-user-avatar');
     const nameEl = document.getElementById('nav-user-name');
     const roleEl = document.getElementById('nav-user-role');
+    const avatarEl = document.getElementById('nav-user-avatar');
 
-    if (avatarEl) avatarEl.src = user.avatar;
-    if (nameEl) nameEl.innerText = user.name.split(' ')[0] + ' ' + (user.name.split(' ')[1] || '');
+    if (nameEl) nameEl.innerText = user.name;
     if (roleEl) roleEl.innerText = user.role;
-
-    // Update demo role pills
-    document.querySelectorAll('.demo-role-btn').forEach(btn => {
-      const role = btn.getAttribute('data-role');
-      btn.classList.toggle('active', role === user.role);
-    });
-
-    this.updateNotificationBadge();
+    if (avatarEl && user.avatar) avatarEl.src = user.avatar;
   }
 
   updateNotificationBadge() {
-    const notifs = window.clinicState.data.notifications || [];
-    const unreadCount = notifs.filter(n => n.unread).length;
-    const badgeEl = document.getElementById('nav-notif-count');
-    if (badgeEl) {
-      badgeEl.innerText = unreadCount;
-      badgeEl.style.display = unreadCount > 0 ? 'flex' : 'none';
+    const unread = (window.clinicState.data.notifications || []).filter(n => n.unread).length;
+    const badge = document.getElementById('nav-notif-count');
+    if (badge) {
+      badge.innerText = unread;
+      badge.style.display = unread > 0 ? 'flex' : 'none';
     }
+  }
+
+  renderNotificationDrawer() {
+    const list = document.getElementById('drawer-notification-list');
+    if (!list) return;
+
+    const notifs = window.clinicState.data.notifications || [];
+    if (notifs.length === 0) {
+      list.innerHTML = `<div style="padding:1.5rem; text-align:center; color:var(--text-dim); font-size:0.85rem;">No new notifications</div>`;
+      return;
+    }
+
+    list.innerHTML = notifs.map(n => `
+      <div class="drawer-item ${n.unread ? 'unread' : ''}">
+        <div style="width:28px; height:28px; border-radius:50%; background:var(--apollo-orange-light); color:var(--apollo-orange); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i data-lucide="${n.type === 'rx' ? 'pill' : n.type === 'telehealth' ? 'video' : 'bell'}" style="width:14px; height:14px;"></i>
+        </div>
+        <div>
+          <div style="font-size:0.82rem; font-weight:700; color:var(--apollo-navy);">${n.title}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.35; margin-top:2px;">${n.message}</div>
+          <div style="font-size:0.68rem; color:var(--text-dim); margin-top:4px;">${n.time}</div>
+        </div>
+      </div>
+    `).join('');
+
+    this.updateNotificationBadge();
+    if (window.lucide) window.lucide.createIcons();
   }
 
   toggleNotificationDrawer() {
@@ -180,58 +188,48 @@ class ClinicApp {
     }
   }
 
-  renderNotificationDrawer() {
-    const notifs = window.clinicState.data.notifications || [];
-    const container = document.getElementById('drawer-notification-list');
-    if (!container) return;
+  setupGlobalSearch() {
+    const input = document.getElementById('global-search-input');
+    const dropdown = document.getElementById('search-dropdown-menu');
+    if (!input || !dropdown) return;
 
-    if (notifs.length === 0) {
-      container.innerHTML = `<div style="padding:1.5rem; text-align:center; font-size:0.82rem; color:var(--text-dim);">No notifications</div>`;
-      return;
-    }
+    input.addEventListener('focus', () => {
+      dropdown.classList.add('active');
+    });
 
-    container.innerHTML = notifs.map(n => `
-      <div class="drawer-item ${n.unread ? 'unread' : ''}" onclick="window.app.clickNotification('${n.id}')">
-        <div style="font-size:1.1rem; color:var(--primary-light);">
-          <i data-lucide="${n.type === 'appointment' ? 'calendar' : n.type === 'report' ? 'file-text' : 'bell'}"></i>
-        </div>
-        <div style="flex:1;">
-          <div class="drawer-item-title">${n.title}</div>
-          <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">${n.message}</div>
-          <div class="drawer-item-time">${n.time}</div>
-        </div>
-      </div>
-    `).join('');
+    input.addEventListener('blur', () => {
+      setTimeout(() => dropdown.classList.remove('active'), 250);
+    });
 
-    if (window.lucide) window.lucide.createIcons();
-  }
-
-  clickNotification(id) {
-    const notif = window.clinicState.data.notifications.find(n => n.id === id);
-    if (notif) {
-      notif.unread = false;
-      window.clinicState.persist();
-      this.updateNotificationBadge();
-      this.renderNotificationDrawer();
-    }
-  }
-
-  setupEventListeners() {
-    // Close drawer on click outside
-    document.addEventListener('click', (e) => {
-      const drawer = document.getElementById('notification-drawer');
-      const btn = document.getElementById('notif-bell-btn');
-      if (drawer && drawer.classList.contains('active')) {
-        if (!drawer.contains(e.target) && !btn.contains(e.target)) {
-          drawer.classList.remove('active');
-        }
+    input.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (q.length > 0) {
+        dropdown.classList.add('active');
       }
     });
   }
+
+  handleSearchChipClick(query) {
+    const input = document.getElementById('global-search-input');
+    if (input) input.value = query;
+
+    if (query.toLowerCase().includes('cardio') || query.toLowerCase().includes('doctor') || query.toLowerCase().includes('physician')) {
+      window.router.navigate('patient');
+      if (window.patientPanel) window.patientPanel.switchSubTab('booking');
+    } else if (query.toLowerCase().includes('blood') || query.toLowerCase().includes('test') || query.toLowerCase().includes('checkup')) {
+      window.router.navigate('patient');
+      if (window.patientPanel) window.patientPanel.switchSubTab('diagnostics');
+    } else if (query.toLowerCase().includes('triage') || query.toLowerCase().includes('symptom')) {
+      if (window.triageEngine) window.triageEngine.openTriage();
+    } else if (query.toLowerCase().includes('med') || query.toLowerCase().includes('paracetamol')) {
+      window.router.navigate('patient');
+      if (window.patientPanel) window.patientPanel.switchSubTab('prescriptions');
+    }
+  }
 }
 
-// Instantiate on DOM Loaded
+window.app = new ClinicApp();
+
 document.addEventListener('DOMContentLoaded', () => {
-  window.app = new ClinicApp();
   window.app.init();
 });

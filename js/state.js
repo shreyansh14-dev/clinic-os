@@ -1,11 +1,11 @@
 /**
- * ClinicOS: Reactive Central State Management & Audit Logger
- * Manages RBAC, persistent data store, reactive subscriptions, and compliance audit trail.
+ * ClinicOS 24|7: Central State Manager & Audit Logger
+ * Manages RBAC, persistent state, subscriptions, compliance logs, and cross-panel video call events.
  */
 
 class ClinicState {
   constructor() {
-    this.storageKey = 'clinicos_state_v1';
+    this.storageKey = 'clinicos_apollo_state_v1';
     this.subscribers = new Map();
     this.init();
   }
@@ -23,7 +23,6 @@ class ClinicState {
       this.resetToSeed();
     }
 
-    // Active Session (Default to Patient for friendly onboarding)
     if (!this.data.currentUser) {
       this.data.currentUser = {
         id: 'pat-1',
@@ -31,13 +30,9 @@ class ClinicState {
         email: 'alex.morgan@example.com',
         role: 'PATIENT', // PATIENT | DOCTOR | ADMIN
         avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
-        token: 'jwt_simulated_token_pat_1_' + Date.now()
+        token: 'jwt_apollo_token_pat_1'
       };
     }
-
-    // Active View / Route
-    this.currentView = 'landing'; // landing | patient | doctor | admin | teleconsult
-    this.activeTeleconsultAppointmentId = null;
   }
 
   resetToSeed() {
@@ -48,252 +43,186 @@ class ClinicState {
       email: 'alex.morgan@example.com',
       role: 'PATIENT',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
-      token: 'jwt_simulated_token_pat_1'
+      token: 'jwt_apollo_token_pat_1'
     };
     this.data.notifications = [
       {
         id: 'notif-1',
-        title: 'Appointment Scheduled',
-        message: 'Your Cardiology Telehealth call is confirmed for 10:30 AM today.',
+        title: 'Instant Video Consultation Ready',
+        message: 'Top General Physicians are online now. Average wait time < 2 mins.',
         time: 'Just now',
         unread: true,
-        type: 'appointment'
+        type: 'telehealth'
       },
       {
         id: 'notif-2',
-        title: 'Diagnostic Report Ready',
-        message: '12-Lead ECG Report has been signed and uploaded by Dr. Robert Chen.',
-        time: '25m ago',
+        title: 'Full Body Checkup Confirmed',
+        message: 'Home sample collection scheduled with certified phlebotomist for tomorrow 8:00 AM.',
+        time: '30m ago',
         unread: true,
         type: 'report'
       }
     ];
-    this.persist();
+    this.data.auditLogs = this.data.auditLogs || [];
+    this.data.activeIncomingCall = null;
+    this.save();
   }
 
-  persist() {
-    localStorage.setItem(this.storageKey, JSON.stringify(this.data));
-    this.emit('stateChanged', this.data);
-  }
-
-  // Subscribe to changes
-  subscribe(event, callback) {
-    if (!this.subscribers.has(event)) {
-      this.subscribers.set(event, []);
+  save() {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+    } catch (e) {
+      console.warn('Storage quota exceeded or error saving state', e);
     }
-    this.subscribers.get(event).push(callback);
-    return () => {
-      const arr = this.subscribers.get(event) || [];
-      this.subscribers.set(event, arr.filter(cb => cb !== callback));
-    };
-  }
-
-  emit(event, payload) {
-    if (this.subscribers.has(event)) {
-      this.subscribers.get(event).forEach(cb => {
-        try {
-          cb(payload);
-        } catch (err) {
-          console.error(`Error in subscriber for event ${event}:`, err);
-        }
-      });
-    }
-  }
-
-  // Auth & RBAC
-  setCurrentUser(user) {
-    this.data.currentUser = user;
-    this.logAudit('USER_LOGIN', `Logged in as ${user.role} (${user.name})`, `User: ${user.email}`);
-    this.persist();
-    this.emit('userChanged', user);
   }
 
   getCurrentUser() {
     return this.data.currentUser;
   }
 
-  switchRole(roleName) {
-    if (roleName === 'PATIENT') {
-      this.setCurrentUser({
+  switchRole(role) {
+    if (role === 'PATIENT') {
+      this.data.currentUser = {
         id: 'pat-1',
         name: 'Alex Morgan',
         email: 'alex.morgan@example.com',
         role: 'PATIENT',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
-        token: 'jwt_pat_' + Date.now()
-      });
-      window.router.navigate('patient');
-    } else if (roleName === 'DOCTOR') {
-      this.setCurrentUser({
-        id: 'doc-1',
-        name: 'Dr. Robert Chen',
-        email: 'robert.chen@clinicos.health',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'
+      };
+    } else if (role === 'DOCTOR') {
+      const doc = this.data.doctors[0];
+      this.data.currentUser = {
+        id: doc.id,
+        name: doc.name,
+        email: doc.email,
         role: 'DOCTOR',
-        avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80',
-        token: 'jwt_doc_' + Date.now()
-      });
-      window.router.navigate('doctor');
-    } else if (roleName === 'ADMIN') {
-      this.setCurrentUser({
-        id: 'admin-1',
-        name: 'Dr. Marcus Vance (Admin Supervisor)',
-        email: 'admin@clinicos.health',
+        avatar: doc.avatar
+      };
+    } else if (role === 'ADMIN') {
+      this.data.currentUser = {
+        id: 'adm-1',
+        name: 'Administrator Sarah Connor',
+        email: 'admin@clinicos247.com',
         role: 'ADMIN',
-        avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80',
-        token: 'jwt_admin_' + Date.now()
-      });
-      window.router.navigate('admin');
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80'
+      };
+    }
+
+    this.save();
+    this.notify('userChanged', this.data.currentUser);
+
+    // Update UI role buttons
+    document.querySelectorAll('.demo-role-btn').forEach(btn => {
+      if (btn.getAttribute('data-role') === role) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    if (window.toast) {
+      window.toast.show('Role Switched', `Active Profile: ${this.data.currentUser.name} (${role})`, 'info');
+    }
+
+    // Auto navigate to role workspace
+    if (role === 'PATIENT') window.router.navigate('patient');
+    if (role === 'DOCTOR') {
+      window.router.navigate('doctor');
+      // If there is an active incoming call, display the incoming ringing modal!
+      if (this.data.activeIncomingCall && window.telehealth) {
+        setTimeout(() => {
+          window.telehealth.showIncomingCallModal(this.data.activeIncomingCall);
+        }, 200);
+      }
+    }
+    if (role === 'ADMIN') window.router.navigate('admin');
+  }
+
+  addAppointment(apt) {
+    if (!this.data.appointments) this.data.appointments = [];
+    this.data.appointments.unshift(apt);
+    this.logAudit('APPOINTMENT_CREATE', `Booked appointment #${apt.id} with ${apt.doctorName}`, `Dept: ${apt.department}`);
+    this.save();
+    this.notify('appointmentsChanged', this.data.appointments);
+  }
+
+  updateAppointmentStatus(id, newStatus) {
+    const apt = (this.data.appointments || []).find(a => a.id === id);
+    if (apt) {
+      apt.status = newStatus;
+      this.logAudit('APPOINTMENT_UPDATE', `Updated status of #${id} to ${newStatus}`, `Patient ID: ${apt.patientId}`);
+      this.save();
+      this.notify('appointmentsChanged', this.data.appointments);
     }
   }
 
-  // Audit Logging
-  logAudit(action, details, resource = 'System') {
-    const user = this.getCurrentUser();
-    const newLog = {
-      id: 'log-' + (Date.now().toString(36) + Math.random().toString(36).substr(2, 4)).toUpperCase(),
-      timestamp: new Date().toLocaleString(),
-      user: user ? user.email : 'anonymous@clinicos.health',
-      role: user ? user.role : 'ANONYMOUS',
-      action: action,
-      resource: resource,
-      ip: '192.168.1.' + Math.floor(100 + Math.random() * 80),
-      details: details
+  addPrescription(rx) {
+    if (!this.data.prescriptions) this.data.prescriptions = [];
+    const newRx = {
+      id: 'rx-' + Date.now().toString().slice(-4),
+      date: new Date().toISOString().split('T')[0],
+      ...rx
     };
-
-    if (!this.data.auditLogs) this.data.auditLogs = [];
-    this.data.auditLogs.unshift(newLog);
-    // Keep max 200 logs
-    if (this.data.auditLogs.length > 200) {
-      this.data.auditLogs = this.data.auditLogs.slice(0, 200);
-    }
-    this.persist();
-    this.emit('auditLogAdded', newLog);
+    this.data.prescriptions.unshift(newRx);
+    this.logAudit('PRESCRIPTION_ISSUED', `Issued digital prescription #${newRx.id} for ${rx.patientName}`, `Diagnosis: ${rx.diagnosis}`);
+    this.addNotification('New Prescription Issued', `Dr. ${rx.doctorName} signed a new prescription for you.`, 'rx');
+    this.save();
+    this.notify('prescriptionsChanged', this.data.prescriptions);
+    return newRx;
   }
 
-  // Notifications
   addNotification(title, message, type = 'info') {
+    if (!this.data.notifications) this.data.notifications = [];
     const notif = {
-      id: 'notif-' + Date.now(),
+      id: 'notif-' + Date.now().toString().slice(-4),
       title,
       message,
-      type,
       time: 'Just now',
-      unread: true
+      unread: true,
+      type
     };
-    if (!this.data.notifications) this.data.notifications = [];
     this.data.notifications.unshift(notif);
-    this.persist();
-    this.emit('notificationAdded', notif);
-    if (window.toast) {
-      window.toast.show(title, message, type);
-    }
+    this.save();
+    this.notify('notificationAdded', notif);
   }
 
   markAllNotificationsRead() {
     if (this.data.notifications) {
       this.data.notifications.forEach(n => n.unread = false);
-      this.persist();
-      this.emit('notificationsUpdated', this.data.notifications);
+      this.save();
+      this.notify('notificationsUpdated');
     }
   }
 
-  // Appointments
-  addAppointment(aptData) {
-    const newApt = {
-      id: 'apt-' + (100 + this.data.appointments.length + 1),
-      ...aptData,
-      status: 'Confirmed'
+  logAudit(action, details, target) {
+    if (!this.data.auditLogs) this.data.auditLogs = [];
+    const log = {
+      id: 'AUDIT-' + Date.now().toString().slice(-5),
+      timestamp: new Date().toISOString(),
+      user: this.getCurrentUser().name,
+      role: this.getCurrentUser().role,
+      action: action,
+      details: details,
+      target: target || 'N/A',
+      ip: '127.0.0.1 (WebRTC Safe)',
+      hash: 'sha256_' + Math.random().toString(36).substring(2, 12)
     };
-    this.data.appointments.unshift(newApt);
-    this.logAudit('APPOINTMENT_BOOK', `Booked appointment with ${newApt.doctorName} on ${newApt.date} at ${newApt.time}`, `Apt ID: ${newApt.id}`);
-    this.addNotification('Appointment Booked', `Your appointment with ${newApt.doctorName} for ${newApt.date} has been confirmed.`, 'success');
-    this.persist();
-    return newApt;
+    this.data.auditLogs.unshift(log);
+    this.save();
   }
 
-  updateAppointmentStatus(aptId, newStatus) {
-    const apt = this.data.appointments.find(a => a.id === aptId);
-    if (apt) {
-      apt.status = newStatus;
-      this.logAudit('APPOINTMENT_STATUS_UPDATE', `Updated Appointment ${aptId} status to ${newStatus}`, `Apt ID: ${aptId}`);
-      this.addNotification('Appointment Update', `Appointment #${aptId} is now ${newStatus}.`, 'info');
-      this.persist();
+  subscribe(event, callback) {
+    if (!this.subscribers.has(event)) {
+      this.subscribers.set(event, []);
     }
+    this.subscribers.get(event).push(callback);
   }
 
-  // Prescriptions
-  addPrescription(rxData) {
-    const newRx = {
-      id: 'rx-' + (500 + (this.data.prescriptions ? this.data.prescriptions.length : 0) + 1),
-      date: new Date().toISOString().split('T')[0],
-      ...rxData
-    };
-    if (!this.data.prescriptions) this.data.prescriptions = [];
-    this.data.prescriptions.unshift(newRx);
-    this.logAudit('PRESCRIPTION_ISSUE', `Prescription issued for ${newRx.patientName}: ${newRx.diagnosis}`, `Rx ID: ${newRx.id}`);
-    this.addNotification('New Prescription Received', `Dr. ${newRx.doctorName} generated a digital prescription.`, 'success');
-    this.persist();
-    return newRx;
-  }
-
-  // Vitals
-  updatePatientVitals(patientId, newVitals) {
-    const pat = this.data.patients.find(p => p.id === patientId);
-    if (pat) {
-      pat.vitals = {
-        ...pat.vitals,
-        ...newVitals,
-        lastUpdated: 'Just now'
-      };
-      if (!pat.vitalsHistory) pat.vitalsHistory = [];
-      pat.vitalsHistory.push({
-        date: new Date().toISOString().split('T')[0],
-        hr: newVitals.heartRate || pat.vitals.heartRate,
-        bp: newVitals.bloodPressure || pat.vitals.bloodPressure,
-        spo2: newVitals.spo2 || pat.vitals.spo2,
-        glucose: newVitals.glucose || pat.vitals.glucose,
-        temp: newVitals.temperature || pat.vitals.temperature
-      });
-      this.logAudit('VITALS_UPDATE', `Logged updated vitals (HR: ${newVitals.heartRate}, BP: ${newVitals.bloodPressure})`, `Patient: ${pat.name}`);
-      this.persist();
-      this.emit('vitalsUpdated', pat);
+  notify(event, payload) {
+    if (this.subscribers.has(event)) {
+      this.subscribers.get(event).forEach(cb => cb(payload));
     }
-  }
-
-  // Invoices & Payments
-  processPayment(invoiceId, method, txnId) {
-    const inv = this.data.invoices.find(i => i.id === invoiceId);
-    if (inv) {
-      inv.status = 'Paid';
-      inv.paymentMethod = method;
-      inv.paidAt = new Date().toLocaleString();
-      inv.transactionId = txnId || ('TXN-' + Math.floor(100000 + Math.random() * 900000));
-      this.logAudit('PAYMENT_PROCESSED', `Invoice ${invoiceId} paid ($${inv.totalDue}) via ${method}`, `Inv ID: ${invoiceId}`);
-      this.addNotification('Payment Confirmed', `Payment of $${inv.totalDue} for invoice #${invoiceId} was successful!`, 'success');
-      this.persist();
-    }
-  }
-
-  // Diagnostics
-  orderDiagnosticTest(testData) {
-    const newOrder = {
-      id: 'ord-' + (800 + (this.data.diagnosticOrders ? this.data.diagnosticOrders.length : 0) + 1),
-      orderedDate: new Date().toISOString().split('T')[0],
-      status: 'Sample Collected',
-      turnaround: 'Est. 2-4 Hours',
-      findings: 'Specimen received in pathology lab. Processing automated biomarkers analyzer.',
-      reportPdf: `Diagnostic_Report_${newOrder?.id || 'new'}.pdf`,
-      imagingPreview: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=600&q=80',
-      ...testData
-    };
-    if (!this.data.diagnosticOrders) this.data.diagnosticOrders = [];
-    this.data.diagnosticOrders.unshift(newOrder);
-    this.logAudit('DIAGNOSTIC_ORDER', `Diagnostic test ${newOrder.testName} ordered for ${newOrder.patientName}`, `Order ID: ${newOrder.id}`);
-    this.addNotification('Diagnostic Test Ordered', `Order #${newOrder.id} for ${newOrder.testName} is scheduled.`, 'info');
-    this.persist();
-    return newOrder;
   }
 }
 
-// Global Single Instance
 window.clinicState = new ClinicState();

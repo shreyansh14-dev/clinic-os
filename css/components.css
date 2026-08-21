@@ -1,785 +1,736 @@
 /* ==========================================================================
-   Buttons (Animated on Hover & Pressing with Tactile Spring Physics)
+   ClinicOS 24|7 - Apollo Healthcare Components
+   Apollo Service Cards · Specialties · Lab Packages · Video Call Ringing Modal
    ========================================================================== */
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  padding: 0.65rem 1.25rem;
-  font-size: 0.88rem;
-  font-weight: 700;
-  font-family: var(--font-heading);
-  border-radius: 4px;
-  background-color: #10847e; /* PharmEasy green */
-  color: #ffffff;
-  border: none;
-  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+/* ══ 1. HERO QUICK SERVICES GRID (Apollo 24|7 4-Card Hero) ══ */
+.apollo-services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.apollo-service-card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem 1.2rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
   position: relative;
   overflow: hidden;
-  will-change: transform, box-shadow;
+  transition: var(--transition-normal);
 }
 
-/* Hover & press dynamics for PharmEasy style */
-.btn:hover {
-  background-color: #0d6e69; /* darker on hover */
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.apollo-service-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--apollo-orange);
+  box-shadow: var(--shadow-hover);
 }
 
-.btn:active {
-  transform: translateY(1px) scale(0.98);
-  background-color: #0c5e61;
-}
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  padding: 0.65rem 1.25rem;
-  font-size: 0.88rem;
-  font-weight: 700;
-  font-family: var(--font-heading);
-  border-radius: var(--border-radius-sm);
-  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-  cursor: pointer;
-  border: 1px solid transparent;
-  user-select: none;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-  will-change: transform, box-shadow;
-}
-
-/* Global button animation for all variants */
-button,
-.btn-primary,
-.btn-secondary,
-.btn-outline,
-.btn-danger,
-.btn-cyan,
-.btn-purple {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  padding: 0.65rem 1.25rem;
-  font-size: 0.88rem;
-  font-weight: 700;
-  font-family: var(--font-heading);
-  border-radius: var(--border-radius-sm);
-  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-  cursor: pointer;
-  border: 1px solid transparent;
-  user-select: none;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-  will-change: transform, box-shadow;
-}
-
-/* Hover & press dynamics for all button variants */
-button:hover,
-.btn-primary:hover,
-.btn-secondary:hover,
-.btn-outline:hover,
-.btn-danger:hover,
-.btn-cyan:hover,
-.btn-purple:hover {
-  transform: translateY(-3px) scale(1.03);
-}
-
-button:active,
-.btn-primary:active,
-.btn-secondary:active,
-.btn-outline:active,
-.btn-danger:active,
-.btn-cyan:active,
-.btn-purple:active {
-  transform: translateY(2px) scale(0.95) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) inset !important;
-  filter: brightness(0.92);
-}
-
-.btn svg {
-  width: 17px;
-  height: 17px;
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-/* Universal Button Hover & Pressing Dynamics */
-.btn:hover {
-  transform: translateY(-3px) scale(1.03);
-}
-
-.btn:hover svg {
-  transform: scale(1.1);
-}
-
-.btn:active {
-  transform: translateY(2px) scale(0.95) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) inset !important;
-  filter: brightness(0.92);
-}
-
-/* Apollo Signature Action Orange CTA */
-.btn-primary {
-  background-color: #10847e; /* PharmEasy green */
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-primary:hover {
-  background-color: #0d6e69;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-}
-  background: var(--action-orange-gradient);
-  color: #FFFFFF;
-  box-shadow: var(--shadow-orange);
-  font-weight: 800;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #E56E0B 0%, #EA580C 100%);
-  box-shadow: 0 8px 24px rgba(252, 128, 25, 0.5);
-  color: #FFFFFF;
-}
-
-.btn-secondary {
-  background: #FFFFFF;
-  border: 1px solid var(--border-subtle);
-  color: var(--apollo-blue-dark);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-secondary:hover {
-  background: #F4F8FA;
-  border-color: var(--apollo-blue-chill);
-  color: var(--apollo-orange);
-  box-shadow: 0 6px 18px rgba(1, 68, 89, 0.15);
-}
-
-.btn-outline {
+.apollo-service-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
   background: transparent;
-  border: 1.5px solid var(--apollo-blue-chill);
-  color: var(--apollo-blue-dark);
+  transition: var(--transition-fast);
+}
+
+.apollo-service-card:hover::after {
+  background: var(--apollo-orange);
+}
+
+.apollo-service-card.card-doctors::after { background: var(--apollo-orange); }
+.apollo-service-card.card-medicines::after { background: var(--apollo-blue); }
+.apollo-service-card.card-labtests::after { background: var(--apollo-teal); }
+.apollo-service-card.card-triage::after { background: var(--apollo-purple); }
+
+.service-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.service-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+}
+
+.service-icon-box.icon-orange {
+  background: var(--apollo-orange-light);
+  color: var(--apollo-orange);
+}
+
+.service-icon-box.icon-blue {
+  background: var(--apollo-blue-light);
+  color: var(--apollo-blue);
+}
+
+.service-icon-box.icon-teal {
+  background: var(--apollo-teal-light);
+  color: var(--apollo-teal);
+}
+
+.service-icon-box.icon-purple {
+  background: var(--apollo-purple-light);
+  color: var(--apollo-purple);
+}
+
+.service-tag {
+  font-size: 0.65rem;
   font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.btn-outline:hover {
-  background: rgba(9, 120, 149, 0.12);
-  color: var(--apollo-blue-dark);
-  border-color: var(--apollo-blue-dark);
-  box-shadow: 0 4px 16px rgba(9, 120, 149, 0.25);
+.service-card-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--apollo-navy);
+  margin-bottom: 0.35rem;
 }
 
-.btn-danger {
-  background: rgba(224, 36, 36, 0.1);
-  border-color: rgba(224, 36, 36, 0.3);
-  color: #E02424;
-  font-weight: 700;
-}
-
-.btn-danger:hover {
-  background: #E02424;
-  color: #FFFFFF;
-  box-shadow: 0 6px 20px rgba(224, 36, 36, 0.4);
-}
-
-.btn-cyan {
-  background: linear-gradient(135deg, #097895 0%, #014459 100%);
-  color: #FFFFFF;
-  box-shadow: var(--shadow-sm);
-  font-weight: 700;
-}
-
-.btn-cyan:hover {
-  box-shadow: 0 8px 22px rgba(9, 120, 149, 0.45);
-  filter: brightness(1.05);
-}
-
-.btn-purple {
-  background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%);
-  color: #FFFFFF;
-  box-shadow: var(--shadow-glow-purple);
-  font-weight: 700;
-}
-
-.btn-purple:hover {
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5);
-}
-
-.btn-sm {
-  padding: 0.4rem 0.85rem;
+.service-card-desc {
   font-size: 0.8rem;
-  border-radius: 6px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin-bottom: 1.1rem;
 }
 
-.btn-lg {
-  padding: 0.85rem 1.75rem;
-  font-size: 1rem;
-  border-radius: var(--border-radius-md);
+.service-card-action {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--apollo-orange);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.btn-icon {
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border-radius: 10px;
+.apollo-service-card:hover .service-card-action {
+  gap: 0.55rem;
 }
 
-/* ==========================================================================
-   Cards & Containers
-   ========================================================================== */
-
-.glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--border-radius-lg);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-md);
+/* ══ 2. 24x7 INSTANT VIDEO CONSULTATION BANNER ══ */
+.instant-telehealth-banner {
+  background: linear-gradient(135deg, #02475b 0%, #002533 100%);
+  border-radius: var(--radius-xl);
+  padding: 2rem 2.5rem;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
-  transition: var(--transition-smooth);
 }
 
-.glass-card::before {
+.instant-telehealth-banner::before {
+  content: '';
+  position: absolute;
+  right: -50px;
+  top: -50px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(234, 94, 32, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.telehealth-banner-left {
+  max-width: 650px;
+  z-index: 1;
+}
+
+.telehealth-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 0.75rem;
+}
+
+.telehealth-banner-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+.telehealth-banner-sub {
+  font-size: 0.92rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.telehealth-features-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.telehealth-feat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+}
+
+.telehealth-feat-item i {
+  color: var(--apollo-orange);
+  width: 15px;
+  height: 15px;
+}
+
+/* ══ 3. TOP SPECIALTIES SECTION ══ */
+.specialties-section {
+  margin-bottom: 3rem;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.section-title-wrap h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--apollo-navy);
+}
+
+.section-title-wrap p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.specialties-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+
+.specialty-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 0.85rem;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-xs);
+  transition: var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.specialty-card:hover {
+  border-color: var(--apollo-orange);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.specialty-icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--apollo-orange-light);
+  color: var(--apollo-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  transition: var(--transition-fast);
+}
+
+.specialty-card:hover .specialty-icon-circle {
+  background: var(--apollo-orange);
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.specialty-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--apollo-navy);
+}
+
+.specialty-meta {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+/* ══ 4. POPULAR HEALTH PACKAGES & LAB TESTS ══ */
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.package-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: var(--transition-normal);
+  position: relative;
+}
+
+.package-card:hover {
+  border-color: var(--apollo-teal);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.package-top-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--apollo-teal-light);
+  color: var(--apollo-teal);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.package-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--apollo-navy);
+  margin-bottom: 0.4rem;
+  padding-right: 4rem;
+}
+
+.package-includes {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+
+.package-test-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.package-test-item {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.package-test-item i {
+  color: #10b981;
+  width: 14px;
+  height: 14px;
+}
+
+.package-pricing {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.package-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--apollo-navy);
+}
+
+.package-original-price {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+.package-discount-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+/* ══ 5. DOCTOR CONSULTATION CARDS (Patient Portal) ══ */
+.doctor-consult-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+  margin-bottom: 1rem;
+}
+
+.doctor-consult-card:hover {
+  border-color: var(--apollo-orange);
+  box-shadow: var(--shadow-md);
+}
+
+.doc-info-left {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.doc-avatar-wrap {
+  position: relative;
+}
+
+.doc-avatar-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-subtle);
+}
+
+.doc-verified-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #10b981;
+  color: #ffffff;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-surface);
+  font-size: 0.6rem;
+}
+
+.doc-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--apollo-navy);
+}
+
+.doc-spec {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--apollo-orange);
+  margin-bottom: 0.2rem;
+}
+
+.doc-exp {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+
+.doc-action-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.doc-fee-tag {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--apollo-navy);
+}
+
+.doc-btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ══ 6. INCOMING VIDEO CONSULTATION RINGING MODAL ══ */
+.incoming-call-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(2, 71, 91, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.25s ease;
+}
+
+.incoming-call-overlay.active {
+  display: flex;
+}
+
+.incoming-call-modal {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem;
+  width: 440px;
+  max-width: 90vw;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  position: relative;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.call-ring-waves {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 1.25rem;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.call-ring-waves img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--apollo-orange);
+  position: relative;
+  z-index: 2;
+}
+
+.call-ring-waves::before,
+.call-ring-waves::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--apollo-orange), var(--apollo-blue-chill), var(--apollo-blue-dark));
+  bottom: 0;
+  border-radius: 50%;
+  border: 2px solid var(--apollo-orange);
+  animation: ripple 1.6s infinite cubic-bezier(0, 0.2, 0.8, 1);
 }
 
-.glass-card:hover {
-  border-color: var(--apollo-blue-chill);
-  box-shadow: var(--shadow-lg);
+.call-ring-waves::after {
+  animation-delay: 0.8s;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+@keyframes ripple {
+  0% { transform: scale(0.85); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.incoming-caller-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--apollo-navy);
+  margin-bottom: 0.25rem;
+}
+
+.incoming-caller-reason {
+  font-size: 0.85rem;
+  color: var(--text-dim);
   margin-bottom: 1.25rem;
 }
 
-.card-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: var(--apollo-blue-dark);
+.incoming-call-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-.card-title-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: rgba(9, 120, 149, 0.12);
-  color: var(--apollo-blue-chill);
+.call-accept-btn {
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.92rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+  transition: var(--transition-fast);
 }
 
-.card-subtitle {
-  font-size: 0.82rem;
-  color: var(--text-dim);
-  margin-top: 0.2rem;
+.call-accept-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
 }
 
-/* ==========================================================================
-   Stats & KPI Grid
-   ========================================================================== */
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.kpi-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--border-radius-md);
-  padding: 1.25rem;
+.call-decline-btn {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.92rem;
   display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-smooth);
-}
-
-.kpi-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--apollo-blue-chill);
-  box-shadow: var(--shadow-md);
-}
-
-.kpi-top {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  transition: var(--transition-fast);
+}
+
+.call-decline-btn:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+/* ══ 7. APOLLO FOOTER ══ */
+.apollo-footer {
+  background: var(--apollo-navy-dark);
+  color: #ffffff;
+  padding: 3rem 1.5rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 4rem;
+}
+
+.footer-grid {
+  max-width: 1280px;
+  margin: 0 auto 2.5rem;
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 2.5rem;
+}
+
+.footer-brand h3 {
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 800;
   margin-bottom: 0.75rem;
 }
 
-.kpi-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(9, 120, 149, 0.12);
-  color: var(--apollo-blue-dark);
+.footer-brand p {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  max-width: 320px;
 }
 
-.kpi-icon.cyan {
-  background: rgba(252, 128, 25, 0.12);
-  color: var(--apollo-orange);
-}
-
-.kpi-icon.purple {
-  background: rgba(124, 58, 237, 0.12);
-  color: var(--accent-purple);
-}
-
-.kpi-icon.amber {
-  background: rgba(253, 185, 49, 0.18);
-  color: #D97706;
-}
-
-.kpi-trend {
-  font-size: 0.75rem;
+.footer-col h4 {
+  color: #ffffff;
+  font-size: 0.95rem;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.kpi-trend.positive {
-  background: #ECFDF5;
-  color: #047857;
-}
-
-.kpi-trend.negative {
-  background: #FEF2F2;
-  color: #B91C1C;
-}
-
-.kpi-value {
-  font-family: var(--font-heading);
-  font-size: 1.85rem;
-  font-weight: 800;
-  line-height: 1.1;
-  color: var(--apollo-blue-dark);
-  letter-spacing: -0.02em;
-}
-
-.kpi-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-top: 0.35rem;
-}
-
-/* ==========================================================================
-   Badges & Pills
-   ========================================================================== */
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.65rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: capitalize;
-  letter-spacing: 0.02em;
-}
-
-.badge-success {
-  background: #ECFDF5;
-  color: #047857;
-  border: 1px solid rgba(5, 150, 105, 0.25);
-}
-
-.badge-warning {
-  background: #FFFBEB;
-  color: #B45309;
-  border: 1px solid rgba(217, 119, 6, 0.25);
-}
-
-.badge-danger {
-  background: #FEF2F2;
-  color: #B91C1C;
-  border: 1px solid rgba(220, 38, 38, 0.25);
-}
-
-.badge-info {
-  background: rgba(9, 120, 149, 0.12);
-  color: var(--apollo-blue-dark);
-  border: 1px solid rgba(9, 120, 149, 0.25);
-}
-
-.badge-purple {
-  background: #F5F3FF;
-  color: #6D28D9;
-  border: 1px solid rgba(124, 58, 237, 0.25);
-}
-
-/* ==========================================================================
-   Tables
-   ========================================================================== */
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-subtle);
-  background: #FFFFFF;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 0.88rem;
-}
-
-.data-table th {
-  background: #F4F8FA;
-  color: var(--apollo-blue-dark);
-  font-size: 0.74rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0.9rem 1.1rem;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.data-table td {
-  padding: 1rem 1.1rem;
-  border-bottom: 1px solid rgba(9, 120, 149, 0.12);
-  color: var(--text-muted);
-  vertical-align: middle;
-}
-
-.data-table tr:last-child td {
-  border-bottom: none;
-}
-
-.data-table tbody tr {
-  transition: var(--transition-smooth);
-}
-
-.data-table tbody tr:hover {
-  background: #EDF4F7;
-}
-
-.data-table strong {
-  color: var(--apollo-blue-dark);
-}
-
-/* ==========================================================================
-   Form Controls & Filters
-   ========================================================================== */
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
   margin-bottom: 1rem;
 }
 
-.form-label {
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footer-links a {
+  color: #94a3b8;
+  text-decoration: none;
   font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--apollo-blue-dark);
-}
-
-.form-control {
-  background: #FFFFFF;
-  border: 1px solid var(--border-glass);
-  border-radius: var(--border-radius-sm);
-  padding: 0.65rem 0.95rem;
-  color: var(--text-main);
-  font-size: 0.88rem;
-  font-weight: 500;
-  transition: var(--transition-smooth);
-  width: 100%;
-}
-
-.form-control:focus {
-  border-color: var(--apollo-blue-chill);
-  box-shadow: 0 0 0 3px rgba(9, 120, 149, 0.18);
-  background: #FFFFFF;
-}
-
-.form-control::placeholder {
-  color: var(--text-dim);
-}
-
-select.form-control {
+  transition: var(--transition-fast);
   cursor: pointer;
 }
 
-.search-filter-bar {
-  display: flex;
-  gap: 0.85rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 1.25rem;
+.footer-links a:hover {
+  color: var(--apollo-orange);
 }
 
-.search-input-wrapper {
-  position: relative;
-  flex: 1;
-  min-width: 240px;
-}
-
-.search-input-wrapper svg {
-  position: absolute;
-  left: 0.9rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--apollo-blue-chill);
-  width: 17px;
-  height: 17px;
-}
-
-.search-input-wrapper input {
-  padding-left: 2.5rem;
-}
-
-/* ==========================================================================
-   Modals
-   ========================================================================== */
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(1, 68, 89, 0.6);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  animation: fadeIn 0.25s ease-out;
-}
-
-.modal-backdrop.active {
-  display: flex;
-}
-
-.modal-content {
-  background: #FFFFFF;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--border-radius-lg);
-  max-width: 680px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.modal-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-subtle);
+.footer-bottom {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #F4F8FA;
-}
-
-.modal-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--apollo-blue-dark);
-}
-
-.modal-close-btn {
-  color: var(--text-dim);
-  font-size: 1.3rem;
-  line-height: 1;
-  padding: 4px;
-  border-radius: 6px;
-  transition: var(--transition-smooth);
-}
-
-.modal-close-btn:hover {
-  color: var(--text-main);
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.modal-body {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  color: var(--text-main);
-}
-
-.modal-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border-subtle);
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  background: #F4F8FA;
-}
-
-/* ==========================================================================
-   Toast Notifications System
-   ========================================================================== */
-
-#toast-container {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  pointer-events: none;
-}
-
-.toast {
-  pointer-events: auto;
-  min-width: 320px;
-  max-width: 420px;
-  background: #FFFFFF;
-  border: 1px solid var(--border-glow);
-  border-radius: var(--border-radius-md);
-  padding: 1rem 1.25rem;
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  animation: toastSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition: var(--transition-smooth);
-}
-
-.toast.removing {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.toast-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.toast-content {
-  flex: 1;
-}
-
-.toast-title {
-  font-size: 0.88rem;
-  font-weight: 800;
-  color: var(--apollo-blue-dark);
-}
-
-.toast-msg {
   font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-top: 0.2rem;
+  color: #64748b;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-/* ==========================================================================
-   Notification Drawer
-   ========================================================================== */
-
-.notification-drawer {
-  position: absolute;
-  top: calc(var(--header-height) + 8px);
-  right: 2rem;
-  width: 360px;
-  max-height: 480px;
-  background: #FFFFFF;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-lg);
-  display: none;
-  flex-direction: column;
-  z-index: 1000;
-  overflow: hidden;
-  animation: drawerSlide 0.25s ease-out;
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.notification-drawer.active {
-  display: flex;
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.drawer-header {
-  padding: 0.9rem 1.1rem;
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #F4F8FA;
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .apollo-services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .specialties-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .packages-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.drawer-list {
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.drawer-item {
-  padding: 0.85rem 1.1rem;
-  border-bottom: 1px solid rgba(9, 120, 149, 0.1);
-  display: flex;
-  gap: 0.75rem;
-  transition: var(--transition-smooth);
-  cursor: pointer;
-}
-
-.drawer-item:hover {
-  background: #EDF4F7;
-}
-
-.drawer-item.unread {
-  background: rgba(9, 120, 149, 0.08);
-}
-
-.drawer-item-title {
-  font-size: 0.82rem;
-  font-weight: 800;
-  color: var(--apollo-blue-dark);
-}
-
-.drawer-item-time {
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  margin-top: 0.2rem;
+@media (max-width: 640px) {
+  .apollo-services-grid {
+    grid-template-columns: 1fr;
+  }
+  .specialties-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .packages-grid {
+    grid-template-columns: 1fr;
+  }
+  .instant-telehealth-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+  .telehealth-features-row {
+    justify-content: center;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
 }

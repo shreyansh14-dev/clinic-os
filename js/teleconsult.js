@@ -1,7 +1,7 @@
 /**
- * ClinicOS: Telehealth Video Consultation & WebRTC Suite
- * Features live audio/video stream, doctor prescription quickpad, patient vitals HUD,
- * in-call chat, screen sharing, call recording, and post-call summary.
+ * ClinicOS 24|7: Telehealth Video Consultation & WebRTC Suite
+ * Live Camera & Mic Access, Doctor Incoming Call Notification & Ringing,
+ * Digital Rx Pad, Real-time Vitals HUD, and In-call Chat.
  */
 
 class TelehealthSuite {
@@ -10,60 +10,188 @@ class TelehealthSuite {
     this.isMuted = false;
     this.isVideoOff = false;
     this.isScreenSharing = false;
-    this.isRecording = true;
     this.callDurationSecs = 0;
     this.timerInterval = null;
     this.activeAppointment = null;
+    this.currentCallData = null;
+    this.ringInterval = null;
+
     this.chatMessages = [
-      { sender: 'Dr. Robert Chen', role: 'doctor', text: 'Hello Alex, good morning. How are you feeling today?' },
-      { sender: 'Alex Morgan', role: 'patient', text: 'Good morning Dr. Chen! Feeling better, but had some flutter after jogging yesterday.' },
-      { sender: 'Dr. Robert Chen', role: 'doctor', text: 'Understood. I am looking at your live ECG telemetry now. Resting rhythm looks steady.' }
+      { sender: 'Dr. Robert Chen', role: 'doctor', text: 'Hello! I am Dr. Chen. I see you requested a 24/7 video consultation.' },
+      { sender: 'Alex Morgan', role: 'patient', text: 'Hello Dr. Chen! Thanks for connecting so quickly. Had slight palpitations after light workout.' },
+      { sender: 'Dr. Robert Chen', role: 'doctor', text: 'Understood. Reviewing your live ECG and vitals now. Let me know if you feel any dizziness.' }
     ];
   }
 
-  startConsultation(appointmentId) {
+  // 1-Click Instant Video Call (from Apollo Header, Hero Banner, or Triage)
+  startInstantConsultation(doctorSpecialty = 'General Physician') {
+    const state = window.clinicState.data;
+    const currentUser = window.clinicState.getCurrentUser();
+    const isDoctor = currentUser.role === 'DOCTOR';
+
+    // Find or assign doctor
+    const doctor = state.doctors.find(d => d.department.toLowerCase().includes(doctorSpecialty.toLowerCase())) || state.doctors[0];
+    const patient = state.patients[0];
+
+    const newApt = {
+      id: 'apt-tele-' + Date.now().toString().slice(-4),
+      patientId: patient.id,
+      patientName: patient.name,
+      doctorId: doctor.id,
+      doctorName: doctor.name,
+      department: doctor.department,
+      date: 'Today',
+      time: 'Instant Video Consult',
+      status: 'In-Progress',
+      type: 'Telehealth',
+      reason: '24/7 Instant Video Consultation (' + doctorSpecialty + ')'
+    };
+
+    if (!state.appointments) state.appointments = [];
+    state.appointments.unshift(newApt);
+    window.clinicState.save();
+
+    this.startConsultation(newApt.id, isDoctor ? 'DOCTOR' : 'PATIENT');
+  }
+
+  startConsultation(appointmentId, callerRole = 'PATIENT') {
     const state = window.clinicState.data;
     this.activeAppointment = state.appointments.find(a => a.id === appointmentId) || state.appointments[0];
-    
-    // Switch route to teleconsult
+    const doctor = state.doctors.find(d => d.id === this.activeAppointment.doctorId) || state.doctors[0];
+    const patient = state.patients.find(p => p.id === this.activeAppointment.patientId) || state.patients[0];
+
+    this.currentCallData = {
+      appointmentId: this.activeAppointment.id,
+      patientId: patient.id,
+      patientName: patient.name,
+      patientAvatar: patient.avatar,
+      patientAge: patient.age,
+      doctorId: doctor.id,
+      doctorName: doctor.name,
+      doctorTitle: doctor.title,
+      doctorAvatar: doctor.avatar,
+      specialty: this.activeAppointment.department,
+      reason: this.activeAppointment.reason || 'Routine Teleconsultation',
+      callerRole: callerRole
+    };
+
+    // If initiated by patient, dispatch incoming ringing alert for doctor
+    if (callerRole === 'PATIENT') {
+      window.clinicState.data.activeIncomingCall = this.currentCallData;
+      window.clinicState.save();
+
+      // Show incoming call notification on doctor side if currently doctor
+      const currentUser = window.clinicState.getCurrentUser();
+      if (currentUser.role === 'DOCTOR') {
+        this.showIncomingCallModal(this.currentCallData);
+        return;
+      }
+    }
+
+    // Switch route to teleconsultation suite
     window.router.navigate('teleconsult');
     this.renderRoom();
     this.startCallTimer();
     this.initMedia();
 
-    if (window.audioService) {
-      window.audioService.playCallRing();
+    if (window.audioService && window.audioService.playSuccessChime) {
+      window.audioService.playSuccessChime();
     }
-    window.clinicState.logAudit('TELEHEALTH_SESSION_JOIN', `Joined Telehealth Call for Appointment #${this.activeAppointment.id}`, `Apt ID: ${this.activeAppointment.id}`);
+
+    window.clinicState.logAudit('TELEHEALTH_SESSION_JOIN', `Joined Video Consultation #${this.activeAppointment.id}`, `User: ${doctor.name} & ${patient.name}`);
+    window.toast.show('Teleconsultation Active', `Connected to WebRTC HD Session with ${callerRole === 'DOCTOR' ? patient.name : doctor.name}`, 'success');
+  }
+
+  // Display Ringing Modal on Doctor Panel
+  showIncomingCallModal(callData) {
+    this.currentCallData = callData;
+    const modalOverlay = document.getElementById('incoming-call-modal-overlay');
+    if (!modalOverlay) return;
+
+    const callerNameEl = document.getElementById('incoming-caller-name');
+    const callerReasonEl = document.getElementById('incoming-caller-reason');
+    const callerAvatarEl = document.getElementById('incoming-caller-avatar');
+
+    if (callerNameEl) callerNameEl.innerText = callData.patientName + ' (Age ' + (callData.patientAge || '32') + ')';
+    if (callerReasonEl) callerReasonEl.innerText = 'Reason: ' + (callData.reason || 'Instant Video Consultation') + ' • ' + callData.specialty;
+    if (callerAvatarEl) callerAvatarEl.src = callData.patientAvatar;
+
+    modalOverlay.classList.add('active');
+
+    // Ringing sound
+    if (window.audioService && window.audioService.playCallRing) {
+      window.audioService.playCallRing();
+      if (this.ringInterval) clearInterval(this.ringInterval);
+      this.ringInterval = setInterval(() => {
+        if (modalOverlay.classList.contains('active') && window.audioService) {
+          window.audioService.playCallRing();
+        }
+      }, 3000);
+    }
+  }
+
+  acceptIncomingCall() {
+    if (this.ringInterval) clearInterval(this.ringInterval);
+    const modalOverlay = document.getElementById('incoming-call-modal-overlay');
+    if (modalOverlay) modalOverlay.classList.remove('active');
+
+    window.clinicState.data.activeIncomingCall = null;
+    window.clinicState.save();
+
+    // Switch to doctor role and enter consultation room
+    window.clinicState.switchRole('DOCTOR');
+    window.router.navigate('teleconsult');
+    this.renderRoom();
+    this.startCallTimer();
+    this.initMedia();
+
+    window.toast.show('Call Connected', `You are now in consultation with ${this.currentCallData ? this.currentCallData.patientName : 'Patient'}`, 'success');
+  }
+
+  declineIncomingCall() {
+    if (this.ringInterval) clearInterval(this.ringInterval);
+    const modalOverlay = document.getElementById('incoming-call-modal-overlay');
+    if (modalOverlay) modalOverlay.classList.remove('active');
+
+    window.clinicState.data.activeIncomingCall = null;
+    window.clinicState.save();
+
+    window.toast.show('Call Declined', 'Consultation request forwarded to next on-duty specialist.', 'info');
   }
 
   renderRoom() {
     const container = document.getElementById('teleconsult-view');
     if (!container) return;
 
-    const doctor = SEED_DATA.doctors.find(d => d.id === this.activeAppointment.doctorId) || SEED_DATA.doctors[0];
-    const patient = SEED_DATA.patients.find(p => p.id === this.activeAppointment.patientId) || SEED_DATA.patients[0];
+    const state = window.clinicState.data;
+    const doctor = (state.doctors && state.doctors.find(d => d.id === (this.activeAppointment ? this.activeAppointment.doctorId : null))) || state.doctors[0];
+    const patient = (state.patients && state.patients.find(p => p.id === (this.activeAppointment ? this.activeAppointment.patientId : null))) || state.patients[0];
     const currentUser = window.clinicState.getCurrentUser();
     const isDoctor = currentUser.role === 'DOCTOR';
 
     container.innerHTML = `
-      <div class="main-content-wrapper" style="padding-top: 1rem;">
-        <!-- Header Bar -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <div class="main-content-wrapper" style="padding-top: 0.5rem;">
+        <!-- Top Session Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
           <div style="display:flex; align-items:center; gap:0.85rem;">
-            <button class="btn btn-secondary btn-sm" onclick="window.telehealth.endCall()">
+            <button class="btn btn-outline btn-sm" onclick="window.telehealth.endCall()">
               <i data-lucide="arrow-left"></i> Exit Room
             </button>
             <div>
-              <h2 style="font-size:1.3rem;">Telehealth Virtual Consultation Suite</h2>
-              <p style="font-size:0.8rem; color:var(--text-dim);">
-                Session with <strong>${isDoctor ? patient.name : doctor.name}</strong> • Apt #${this.activeAppointment.id} (${this.activeAppointment.department})
+              <h2 style="font-size:1.35rem; font-weight:800; color:var(--apollo-navy);">
+                Apollo 24|7 Telehealth Video Consultation
+              </h2>
+              <p style="font-size:0.82rem; color:var(--text-dim);">
+                Session with <strong>${isDoctor ? patient.name : doctor.name}</strong> • Apt #${this.activeAppointment ? this.activeAppointment.id : 'Live'} (${this.activeAppointment ? this.activeAppointment.department : 'General Medicine'})
               </p>
             </div>
           </div>
           <div style="display:flex; gap:0.6rem; align-items:center;">
             <span class="badge badge-success"><span class="pulse-dot"></span> WebRTC E2E Encrypted</span>
             <span class="badge badge-info">HD 1080p 60fps</span>
+            <button class="btn btn-primary btn-sm" onclick="window.telehealth.reconnectCamera()">
+              <i data-lucide="camera"></i> Switch Camera
+            </button>
           </div>
         </div>
 
@@ -77,9 +205,9 @@ class TelehealthSuite {
                 <span>REC <span id="call-timer-display">00:00</span></span>
               </div>
               <div class="patient-live-vitals-pill">
-                <span><i data-lucide="heart" style="color:#EF4444; width:14px;"></i> HR: <strong id="tele-vitals-hr">${patient.vitals.heartRate} bpm</strong></span>
-                <span><i data-lucide="activity" style="color:#06B6D4; width:14px;"></i> BP: <strong>${patient.vitals.bloodPressure}</strong></span>
-                <span><i data-lucide="wind" style="color:#10B981; width:14px;"></i> SpO2: <strong>${patient.vitals.spo2}%</strong></span>
+                <span><i data-lucide="heart" style="color:#ef4444; width:14px;"></i> HR: <strong id="tele-vitals-hr">${patient.vitals ? patient.vitals.heartRate : 74} bpm</strong></span>
+                <span><i data-lucide="activity" style="color:#0ea5e9; width:14px;"></i> BP: <strong>${patient.vitals ? patient.vitals.bloodPressure : '120/80'}</strong></span>
+                <span><i data-lucide="wind" style="color:#10b981; width:14px;"></i> SpO2: <strong>${patient.vitals ? patient.vitals.spo2 : 99}%</strong></span>
               </div>
             </div>
 
@@ -87,29 +215,35 @@ class TelehealthSuite {
             <div class="video-stream-grid" id="video-stream-grid">
               <!-- Doctor Video Tile -->
               <div class="video-tile" id="remote-video-tile">
-                <img src="${doctor.avatar}" style="width:100%; height:100%; object-fit:cover; filter: brightness(0.95);" alt="Doctor Stream">
+                <img src="${doctor.avatar}" style="width:100%; height:100%; object-fit:cover;" alt="Doctor Stream">
                 <div class="video-participant-badge">
-                  <i data-lucide="stethoscope" style="width:14px; color:var(--primary-light);"></i>
+                  <i data-lucide="stethoscope" style="width:14px; color:var(--apollo-orange);"></i>
                   <span>${doctor.name} (${doctor.title})</span>
-                  <span class="video-quality-tag">• Live</span>
+                  <span class="video-quality-tag">• On-Duty</span>
                 </div>
               </div>
 
-              <!-- Patient Video Tile -->
+              <!-- Patient / Local Camera Tile -->
               <div class="video-tile" id="local-video-tile">
                 <video id="local-webcam-video" autoplay playsinline muted style="display:none; width:100%; height:100%; object-fit:cover;"></video>
-                <div id="local-video-fallback" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#0f172a;">
-                  <img src="${patient.avatar}" style="width:100%; height:100%; object-fit:cover;" alt="Patient Stream">
+                
+                <div id="local-video-fallback" class="camera-fallback-avatar" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                  <img src="${patient.avatar}" alt="Patient Stream">
+                  <div>
+                    <div style="color:#ffffff; font-weight:700; font-size:0.9rem;">${patient.name}</div>
+                    <div style="font-size:0.72rem; color:#94a3b8;">HD Live Feed Active</div>
+                  </div>
                 </div>
+
                 <div class="video-participant-badge">
-                  <i data-lucide="user" style="width:14px; color:var(--secondary);"></i>
+                  <i data-lucide="user" style="width:14px; color:var(--apollo-teal);"></i>
                   <span>${patient.name} (Patient)</span>
                   <span class="video-quality-tag" id="cam-status-label">• Camera Active</span>
                 </div>
               </div>
             </div>
 
-            <!-- Controls Bar -->
+            <!-- Video Controls Bar -->
             <div class="teleconsult-controls-bar">
               <button class="call-ctrl-btn" id="ctrl-mic-btn" onclick="window.telehealth.toggleMute()" title="Toggle Microphone">
                 <i data-lucide="mic"></i>
@@ -126,7 +260,7 @@ class TelehealthSuite {
             </div>
           </div>
 
-          <!-- Right Interactive Sidebar (Chat + Live Prescription Pad) -->
+          <!-- Right Consultation Interactive Sidebar -->
           <div class="teleconsult-sidebar">
             <div class="teleconsult-tabs">
               <button class="tele-tab-btn active" onclick="window.telehealth.switchTab('chat')">
@@ -140,7 +274,7 @@ class TelehealthSuite {
               </button>
             </div>
 
-            <!-- Tab 1: Chat Stream -->
+            <!-- Tab 1: Live Chat -->
             <div class="tele-tab-content active" id="tele-tab-chat">
               <div class="chat-messages-container" id="chat-msg-list">
                 ${this.chatMessages.map(m => `
@@ -158,26 +292,26 @@ class TelehealthSuite {
               </div>
             </div>
 
-            <!-- Tab 2: Doctor Live Rx Pad -->
+            <!-- Tab 2: Doctor Live Prescription Pad -->
             <div class="tele-tab-content" id="tele-tab-rx">
-              <div style="font-size:0.85rem; font-weight:700; color:var(--text-main); margin-bottom:0.75rem;">
-                Issue Prescription During Call
+              <div style="font-size:0.9rem; font-weight:800; color:var(--apollo-navy); margin-bottom:0.75rem;">
+                Issue Digital Prescription
               </div>
               <div class="form-group">
-                <label class="form-label" style="font-size:0.75rem;">Primary Diagnosis</label>
-                <input type="text" id="live-rx-diag" class="form-control" style="font-size:0.8rem; padding:0.45rem;" value="Sinus Tachycardia (Exertional) - Stage 1">
+                <label class="form-label">Primary Diagnosis</label>
+                <input type="text" id="live-rx-diag" class="form-control" value="Exertional Tachycardia - Stage 1 (Benign)">
               </div>
               <div class="form-group">
-                <label class="form-label" style="font-size:0.75rem;">Prescribed Medication</label>
-                <input type="text" id="live-rx-med" class="form-control" style="font-size:0.8rem; padding:0.45rem;" value="Metoprolol Succinate 25mg">
+                <label class="form-label">Prescribed Medicine</label>
+                <input type="text" id="live-rx-med" class="form-control" value="Metoprolol Succinate 25mg ER">
               </div>
               <div class="form-group">
-                <label class="form-label" style="font-size:0.75rem;">Dosage & Timing</label>
-                <input type="text" id="live-rx-freq" class="form-control" style="font-size:0.8rem; padding:0.45rem;" value="1 Tablet Daily after breakfast (30 Days)">
+                <label class="form-label">Dosage & Timing</label>
+                <input type="text" id="live-rx-freq" class="form-control" value="1 Tablet Daily After Breakfast (30 Days)">
               </div>
               <div class="form-group">
-                <label class="form-label" style="font-size:0.75rem;">Clinical Instructions</label>
-                <textarea id="live-rx-notes" class="form-control" rows="2" style="font-size:0.8rem; padding:0.45rem;">Hydrate adequately prior to exercise. Maintain heart rate monitor limit at 145 bpm.</textarea>
+                <label class="form-label">Clinical Advice & Follow-Up</label>
+                <textarea id="live-rx-notes" class="form-control" rows="2">Hydrate well before workouts. Maintain heart rate monitor limit at 145 bpm. Follow up in 30 days.</textarea>
               </div>
               <button class="btn btn-primary btn-sm" style="width:100%; margin-top:auto;" onclick="window.telehealth.saveLivePrescription()">
                 <i data-lucide="check-circle"></i> Issue & Sign Digital Rx
@@ -186,22 +320,24 @@ class TelehealthSuite {
 
             <!-- Tab 3: Patient EHR Summary -->
             <div class="tele-tab-content" id="tele-tab-ehr">
-              <div style="font-size:0.82rem; color:var(--text-muted); display:flex; flex-direction:column; gap:0.75rem;">
-                <div style="background:var(--bg-surface-elevated); padding:0.75rem; border-radius:8px;">
-                  <strong style="color:var(--text-main);">Known Allergies:</strong>
+              <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                <div style="background:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-card);">
+                  <strong style="color:var(--apollo-navy); font-size:0.82rem;">Known Allergies:</strong>
                   <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
-                    ${patient.allergies.map(a => `<span class="badge badge-danger" style="font-size:0.7rem;">${a}</span>`).join('')}
+                    ${(patient.allergies || ['Penicillin', 'Dust Mites']).map(a => `<span class="badge badge-danger" style="font-size:0.68rem;">${a}</span>`).join('')}
                   </div>
                 </div>
-                <div style="background:var(--bg-surface-elevated); padding:0.75rem; border-radius:8px;">
-                  <strong style="color:var(--text-main);">Chronic Conditions:</strong>
+                <div style="background:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-card);">
+                  <strong style="color:var(--apollo-navy); font-size:0.82rem;">Chronic Conditions:</strong>
                   <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
-                    ${patient.chronicConditions.map(c => `<span class="badge badge-warning" style="font-size:0.7rem;">${c}</span>`).join('')}
+                    ${(patient.chronicConditions || ['Mild Asthmatic Bronchitis']).map(c => `<span class="badge badge-warning" style="font-size:0.68rem;">${c}</span>`).join('')}
                   </div>
                 </div>
-                <div style="background:var(--bg-surface-elevated); padding:0.75rem; border-radius:8px;">
-                  <strong style="color:var(--text-main);">Insurance:</strong>
-                  <p style="font-size:0.75rem; margin-top:0.2rem;">${patient.insurance.provider} (Policy: ${patient.insurance.policyNumber})</p>
+                <div style="background:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-card);">
+                  <strong style="color:var(--apollo-navy); font-size:0.82rem;">Health Insurance:</strong>
+                  <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">
+                    ${patient.insurance ? patient.insurance.provider : 'Star Health Comprehensive'} (Policy #${patient.insurance ? patient.insurance.policyNumber : 'SH-9921-X'})
+                  </p>
                 </div>
               </div>
             </div>
@@ -213,7 +349,30 @@ class TelehealthSuite {
     if (window.lucide) window.lucide.createIcons();
   }
 
+  // Real Camera Access via getUserMedia
   async initMedia() {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: true
+        });
+        this.localStream = stream;
+        const videoEl = document.getElementById('local-webcam-video');
+        const fallback = document.getElementById('local-video-fallback');
+        if (videoEl) {
+          videoEl.srcObject = stream;
+          videoEl.style.display = 'block';
+          if (fallback) fallback.style.display = 'none';
+        }
+      }
+    } catch (e) {
+      console.log('Webcam permission note:', e.message);
+      // If hardware camera is not available, graceful fallback is already active
+    }
+  }
+
+  async reconnectCamera() {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -225,9 +384,10 @@ class TelehealthSuite {
           videoEl.style.display = 'block';
           if (fallback) fallback.style.display = 'none';
         }
+        window.toast.show('Camera Connected', 'Real local webcam stream active.', 'success');
       }
-    } catch (e) {
-      console.log('Webcam permission not granted or device not present; using HD medical simulated stream.');
+    } catch (err) {
+      window.toast.show('Camera Info', 'Camera permission not granted or device unavailable.', 'info');
     }
   }
 
@@ -254,7 +414,7 @@ class TelehealthSuite {
       btn.innerHTML = `<i data-lucide="${this.isMuted ? 'mic-off' : 'mic'}"></i>`;
       if (window.lucide) window.lucide.createIcons();
     }
-    window.clinicState.addNotification('Audio Status', this.isMuted ? 'Microphone Muted' : 'Microphone Unmuted', 'info');
+    window.toast.show('Microphone', this.isMuted ? 'Microphone Muted' : 'Microphone Unmuted', 'info');
   }
 
   toggleVideo() {
@@ -293,7 +453,7 @@ class TelehealthSuite {
     if (btn) {
       btn.classList.toggle('btn-primary', this.isScreenSharing);
     }
-    window.clinicState.addNotification('Screen Share', this.isScreenSharing ? 'Screen presentation broadcast started.' : 'Screen sharing stopped.', 'info');
+    window.toast.show('Screen Share', this.isScreenSharing ? 'Screen presentation broadcast started.' : 'Screen sharing stopped.', 'info');
   }
 
   switchTab(tabName) {
@@ -333,13 +493,14 @@ class TelehealthSuite {
   }
 
   saveLivePrescription() {
-    const diag = document.getElementById('live-rx-diag')?.value;
-    const med = document.getElementById('live-rx-med')?.value;
-    const freq = document.getElementById('live-rx-freq')?.value;
-    const notes = document.getElementById('live-rx-notes')?.value;
+    const diag = document.getElementById('live-rx-diag')?.value || 'Sinus Tachycardia';
+    const med = document.getElementById('live-rx-med')?.value || 'Metoprolol 25mg';
+    const freq = document.getElementById('live-rx-freq')?.value || 'Once Daily';
+    const notes = document.getElementById('live-rx-notes')?.value || 'Hydrate and follow up in 30 days';
 
-    const patient = SEED_DATA.patients.find(p => p.id === this.activeAppointment.patientId) || SEED_DATA.patients[0];
-    const doctor = SEED_DATA.doctors.find(d => d.id === this.activeAppointment.doctorId) || SEED_DATA.doctors[0];
+    const state = window.clinicState.data;
+    const patient = (state.patients && state.patients.find(p => p.id === (this.activeAppointment ? this.activeAppointment.patientId : null))) || state.patients[0];
+    const doctor = (state.doctors && state.doctors.find(d => d.id === (this.activeAppointment ? this.activeAppointment.doctorId : null))) || state.doctors[0];
 
     window.clinicState.addPrescription({
       patientId: patient.id,
@@ -359,11 +520,13 @@ class TelehealthSuite {
       ],
       advice: notes,
       followUp: 'Follow up in 30 days or after telemetry evaluation',
-      signature: `${doctor.name}, MD (Digital Telehealth Sig)`
+      signature: `${doctor.name}, MD (Apollo Telehealth Digital Sig)`
     });
 
-    if (window.audioService) window.audioService.playSuccessChime();
-    alert('Digital Prescription successfully signed and synchronized to patient EHR!');
+    if (window.audioService && window.audioService.playSuccessChime) {
+      window.audioService.playSuccessChime();
+    }
+    window.toast.show('Prescription Signed', 'Digital Rx generated and synced to patient health records!', 'success');
   }
 
   endCall() {
@@ -382,7 +545,7 @@ class TelehealthSuite {
     } else {
       window.router.navigate('patient');
     }
-    window.clinicState.addNotification('Consultation Completed', `Telehealth video session concluded. Clinical summary and billing invoice generated.`, 'success');
+    window.toast.show('Consultation Ended', 'Telehealth consultation concluded. Digital clinical summary generated.', 'success');
   }
 }
 
