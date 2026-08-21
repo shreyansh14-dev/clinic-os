@@ -2,13 +2,21 @@
 ClinicOS - Database Initialization & Schema
 SQLite backend for real user auth, appointments, payments, medicines, orders, vaccinations
 """
+import os
 import sqlite3
 import json
 from werkzeug.security import generate_password_hash
 
-DB_PATH = 'clinicos.db'
+# Handle Vercel / serverless read-only filesystem by using /tmp if needed
+if os.environ.get('VERCEL') or not os.access('.', os.W_OK):
+    DB_PATH = '/tmp/clinicos.db'
+else:
+    DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'clinicos.db')
 
 def get_db():
+    # If DB does not exist yet (e.g. in /tmp on Vercel cold start), initialize it
+    if not os.path.exists(DB_PATH):
+        init_db()
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
