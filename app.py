@@ -2,6 +2,7 @@
 ClinicOS - Flask Backend API
 Full REST API: Auth, Doctors, Appointments, Payments, Medicines, Orders, Vaccination
 """
+import os
 import json
 import uuid
 import sqlite3
@@ -12,7 +13,14 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import init_db, get_db, DEFAULT_VACCINE_SCHEDULE
 
-app = Flask(__name__, static_folder='.', static_url_path='', template_folder='templates')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(
+    __name__,
+    static_folder=BASE_DIR,
+    static_url_path='',
+    template_folder=os.path.join(BASE_DIR, 'templates')
+)
 app.secret_key = 'clinicos-secret-key-2026-xK9mN3pQ'
 CORS(app, supports_credentials=True)
 
@@ -49,7 +57,7 @@ def available_dates():
     return result
 
 # ─────────────────────────────────────────────
-# STATIC ROUTES
+# STATIC & VIEW ROUTES
 # ─────────────────────────────────────────────
 @app.route('/')
 def index():
@@ -73,15 +81,15 @@ def dashboard_page(subpath=''):
 # Serve css / js / assets from project root
 @app.route('/css/<path:filename>')
 def serve_css(filename):
-    return send_from_directory('css', filename)
+    return send_from_directory(os.path.join(BASE_DIR, 'css'), filename)
 
 @app.route('/js/<path:filename>')
 def serve_js(filename):
-    return send_from_directory('js', filename)
+    return send_from_directory(os.path.join(BASE_DIR, 'js'), filename)
 
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):
-    return send_from_directory('assets', filename)
+    return send_from_directory(os.path.join(BASE_DIR, 'assets'), filename)
 
 # ─────────────────────────────────────────────
 # AUTH API
