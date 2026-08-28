@@ -16,7 +16,8 @@ import {
   KeyRound,
   Video,
   FileText,
-  Clock
+  Clock,
+  Calendar
 } from 'lucide-react';
 
 export const AuthPortal = () => {
@@ -28,6 +29,7 @@ export const AuthPortal = () => {
   const [email, setEmail] = useState('patient@clinicos.com');
   const [password, setPassword] = useState('patient123');
   const [name, setName] = useState('');
+  const [age, setAge] = useState('29');
   const [phone, setPhone] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -52,6 +54,8 @@ export const AuthPortal = () => {
     }
   };
 
+  const parsedAge = parseInt(age, 10);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -59,6 +63,12 @@ export const AuthPortal = () => {
     setLoading(true);
 
     try {
+      if (selectedRole === 'patient') {
+        if (!age || isNaN(parsedAge) || parsedAge < 1 || parsedAge > 120) {
+          throw new Error('Please enter a valid age (1 to 120).');
+        }
+      }
+
       if (isSignUp) {
         if (!name || !email || !password) {
           throw new Error('Please fill in all required registration fields');
@@ -68,15 +78,16 @@ export const AuthPortal = () => {
           email,
           password,
           role: selectedRole,
+          age: selectedRole === 'patient' ? parsedAge : null,
           phone,
           specialty: selectedRole === 'doctor' ? (specialty || 'General Medicine') : null
         });
-        setSuccessMsg('Registration successful! Account stored in Database.');
+        setSuccessMsg('Registration successful! Entering workspace...');
       } else {
         if (!email || !password) {
           throw new Error('Please enter email and password');
         }
-        await loginUser(email, password, selectedRole);
+        await loginUser(email, password, selectedRole, selectedRole === 'patient' ? parsedAge : null);
         setSuccessMsg('Session authenticated successfully.');
       }
     } catch (err) {
@@ -235,7 +246,7 @@ export const AuthPortal = () => {
             
             {isSignUp && (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Full Legal Name</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Full Legal Name *</label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
@@ -250,8 +261,28 @@ export const AuthPortal = () => {
               </div>
             )}
 
+            {/* AGE INPUT FOR PATIENT */}
+            {selectedRole === 'patient' && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Age (Years) *</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    max="120"
+                    placeholder="Enter patient age (e.g. 29 or 75)"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-orange-500 focus:bg-white"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address *</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
@@ -266,7 +297,7 @@ export const AuthPortal = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password *</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
@@ -332,7 +363,7 @@ export const AuthPortal = () => {
                 <span className="animate-pulse">Authenticating against Database...</span>
               ) : (
                 <>
-                  <span>{isSignUp ? 'Register & Enter Workspace' : `Sign In as ${selectedRole.toUpperCase()}`}</span>
+                  <span>{isSignUp ? `Register & Enter Workspace` : `Sign In as ${selectedRole.toUpperCase()}`}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

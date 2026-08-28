@@ -23,10 +23,10 @@ async function request(endpoint, options = {}) {
 
 export const apiService = {
   // Auth APIs
-  login: async (email, password, role) => {
+  login: async (email, password, role, age) => {
     return await request('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password, role })
+      body: JSON.stringify({ email, password, role, age })
     });
   },
 

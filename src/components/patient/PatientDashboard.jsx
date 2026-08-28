@@ -9,6 +9,8 @@ import {
   Bed, Search, MapPin, Star, Phone, Video,
 } from 'lucide-react';
 
+import { SeniorPatientDashboard } from './SeniorPatientDashboard';
+
 /* ── Department config with icons + colors — no dept images (icon-only style) ── */
 const DEPTS = [
   { name:'Cardiology',              icon:Heart,       color:'#ef4444', fee:3000 },
@@ -84,10 +86,17 @@ const VitalCard = ({ label, value, unit, color, icon: Icon }) => (
 );
 
 export const PatientDashboard = () => {
-  const { activePatient, appointments, vitals, departments, doctors } = useApp();
+  const { currentUser, activePatient, appointments, vitals, departments, doctors, updatePatientAge } = useApp();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [articleModal, setArticleModal] = useState(null);
+
+  const patientAge = currentUser?.age || activePatient?.age || 29;
+
+  // AGE > 70: SHOW DEDICATED SENIOR CARE INTERFACE
+  if (patientAge > 70) {
+    return <SeniorPatientDashboard />;
+  }
 
   const lv = vitals[0] || { bpSystolic:120, bpDiastolic:80, heartRate:72, spo2:98 };
   const upcoming = appointments.slice(0, 3);

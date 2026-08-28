@@ -22,7 +22,7 @@ seedDatabase().catch(err => console.error('Failed to seed database:', err));
 // =============================
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role, age } = req.body;
     let sql = 'SELECT * FROM users WHERE email = ? AND password = ?';
     let params = [email, password];
 
@@ -36,6 +36,8 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials or role mismatch' });
     }
 
+    const userAge = age ? parseInt(age) : (user.age || (role === 'patient' ? 29 : null));
+
     // Return token & user payload
     const token = `token-${user.id}-${Date.now()}`;
     const userPayload = {
@@ -43,16 +45,22 @@ app.post('/api/auth/login', async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      age: userAge,
       phone: user.phone,
       specialty: user.specialty,
       department: user.department,
       avatar: user.avatar
     };
 
+    // Update patient table age if patient
+    if (user.role === 'patient' && userAge) {
+      await runQuery('UPDATE patients SET age = ? WHERE email = ?', [userAge, user.email]).catch(() => {});
+    }
+
     // Log login action
     await runQuery(
       `INSERT INTO audit_logs (id, timestamp, user, action, level, ip) VALUES (?, ?, ?, ?, ?, ?)`,
-      [`log-${Date.now()}`, new Date().toISOString().replace('T', ' ').substring(0, 19), `${user.name} (${user.role.toUpperCase()})`, 'Logged into ClinicOS System', 'INFO', req.ip || '127.0.0.1']
+      [`log-${Date.now()}`, new Date().toISOString().replace('T', ' ').substring(0, 19), `${user.name} (${user.role.toUpperCase()})`, `Logged in (Age: ${userAge || 'N/A'})`, 'INFO', req.ip || '127.0.0.1']
     );
 
     res.json({ success: true, token, user: userPayload });
@@ -63,7 +71,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { name, email, password, role, phone, specialty, department } = req.body;
+    const { name, email, password, role, phone, specialty, department, age } = req.body;
     const existing = await getQuery('SELECT * FROM users WHERE email = ?', [email]);
     if (existing) {
       return res.status(400).json({ success: false, message: 'User with this email already exists' });
@@ -72,22 +80,23 @@ app.post('/api/auth/register', async (req, res) => {
     const id = `usr-${role.substring(0, 3)}-${Date.now()}`;
     const avatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
     const createdAt = new Date().toISOString();
+    const parsedAge = age ? parseInt(age) : (role === 'patient' ? 29 : null);
 
     await runQuery(
       `INSERT INTO users (id, name, email, password, role, phone, specialty, department, avatar, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [id, name, email, password, role || 'patient', phone || '', specialty || '', department || '', avatar, createdAt]
     );
 
-    // If registering as a patient, also create in patients table
+    // If registering as a patient, also create in patients table with age
     if (role === 'patient' || !role) {
       await runQuery(
         `INSERT INTO patients (id, name, age, gender, bloodGroup, phone, email, address, emergencyContact, insuranceId, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [`pat-${Date.now()}`, name, 25, 'Other', 'O+', phone || '', email, 'India', 'Primary Contact', 'INS-NEW', avatar]
+        [`pat-${Date.now()}`, name, parsedAge || 29, 'Other', 'O+', phone || '', email, 'India', 'Primary Contact', 'INS-NEW', avatar]
       );
     }
 
     const token = `token-${id}-${Date.now()}`;
-    const userPayload = { id, name, email, role: role || 'patient', phone, avatar };
+    const userPayload = { id, name, email, role: role || 'patient', age: parsedAge, phone, avatar };
 
     res.json({ success: true, token, user: userPayload });
   } catch (error) {

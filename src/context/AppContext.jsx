@@ -173,13 +173,20 @@ export const AppProvider = ({ children }) => {
   };
 
   // Auth Operations
-  const loginUser = async (email, password, role) => {
-    const res = await apiService.login(email, password, role);
+  const loginUser = async (email, password, role, age) => {
+    const parsedAge = age ? parseInt(age) : (role === 'patient' ? 29 : null);
+    const res = await apiService.login(email, password, role, parsedAge);
     if (res && res.success) {
-      setCurrentUser(res.user);
-      setCurrentRole(res.user.role);
-      localStorage.setItem('clinic_user', JSON.stringify(res.user));
-      showToast(`Welcome back, ${res.user.name}!`);
+      const updatedUser = { ...res.user, age: parsedAge || res.user.age || (role === 'patient' ? 29 : null) };
+      setCurrentUser(updatedUser);
+      setCurrentRole(updatedUser.role);
+      localStorage.setItem('clinic_user', JSON.stringify(updatedUser));
+      
+      if (role === 'patient') {
+        setPatients(prev => prev.map(p => (p.id === updatedUser.id || p.email === updatedUser.email) ? { ...p, age: updatedUser.age } : p));
+      }
+
+      showToast(`Welcome back, ${updatedUser.name}! ${updatedUser.age ? `(Age: ${updatedUser.age})` : ''}`);
       return res;
     } else {
       const fallbackUser = {
@@ -187,27 +194,60 @@ export const AppProvider = ({ children }) => {
         name: role === 'patient' ? 'Shreyansh Kumar' : role === 'doctor' ? 'Dr. Souvik Sinha' : `${role.toUpperCase()} User`,
         email,
         role,
+        age: parsedAge || (role === 'patient' ? 29 : null),
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
       };
       setCurrentUser(fallbackUser);
       setCurrentRole(role);
       localStorage.setItem('clinic_user', JSON.stringify(fallbackUser));
-      showToast(`Authenticated as ${fallbackUser.name}`);
+      
+      if (role === 'patient') {
+        setPatients(prev => prev.map(p => (p.email === email || p.id === fallbackUser.id) ? { ...p, age: fallbackUser.age } : p));
+      }
+
+      showToast(`Authenticated as ${fallbackUser.name} (Age: ${fallbackUser.age || 29})`);
       return { success: true };
     }
   };
 
   const registerUser = async (userData) => {
-    const res = await apiService.register(userData);
+    const parsedAge = userData.age ? parseInt(userData.age) : (userData.role === 'patient' ? 29 : null);
+    const res = await apiService.register({ ...userData, age: parsedAge });
     if (res && res.success) {
-      setCurrentUser(res.user);
-      setCurrentRole(res.user.role);
-      localStorage.setItem('clinic_user', JSON.stringify(res.user));
-      showToast(`Account created successfully! Welcome, ${res.user.name}.`);
+      const updatedUser = { ...res.user, age: parsedAge || res.user.age };
+      setCurrentUser(updatedUser);
+      setCurrentRole(updatedUser.role);
+      localStorage.setItem('clinic_user', JSON.stringify(updatedUser));
+
+      if (userData.role === 'patient' || !userData.role) {
+        setPatients(prev => [{
+          id: updatedUser.id,
+          name: updatedUser.name,
+          age: parsedAge || 29,
+          email: updatedUser.email,
+          phone: updatedUser.phone || '',
+          avatar: updatedUser.avatar
+        }, ...prev]);
+      }
+
+      showToast(`Account created successfully! Welcome, ${updatedUser.name}.`);
       return res;
     } else {
       throw new Error(res?.message || 'Registration failed.');
     }
+  };
+
+  const updatePatientAge = (newAge) => {
+    const ageNum = parseInt(newAge) || 29;
+    setCurrentUser(prev => {
+      const updated = { ...prev, age: ageNum };
+      localStorage.setItem('clinic_user', JSON.stringify(updated));
+      return updated;
+    });
+
+    setPatients(prev => prev.map(p => (p.id === currentUser?.id || p.email === currentUser?.email) ? { ...p, age: ageNum } : p));
+
+    showToast(`Switched age to ${ageNum} Yrs (${ageNum > 70 ? 'Senior Care Mode 👵' : 'Standard Patient Mode 🧑'})`);
   };
 
   const logoutUser = () => {
@@ -450,7 +490,8 @@ export const AppProvider = ({ children }) => {
         dispatchAmbulance,
         addVitalLog,
         toggleMedication,
-        addDoctor
+        addDoctor,
+        updatePatientAge
       }}
     >
       {children}
