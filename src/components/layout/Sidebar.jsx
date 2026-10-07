@@ -78,8 +78,8 @@ export const Sidebar = () => {
   return (
     <aside style={{
       width: '230px', minWidth: '230px',
-      background: 'linear-gradient(180deg,#0f172a 0%,#0a1020 100%)',
-      borderRight: '1px solid rgba(255,255,255,0.08)',
+      background: '#FFFFFF',
+      borderRight: '1px solid #E2E8F0',
       display: 'flex', flexDirection: 'column',
       height: '100vh', overflow: 'hidden', flexShrink: 0,
     }}>
@@ -88,20 +88,20 @@ export const Sidebar = () => {
       <div style={{ padding: '1rem 0.85rem 0.5rem', flexShrink: 0 }}>
         <div style={{
           padding: '0.5rem 0.85rem',
-          background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '0.65rem',
+          background: '#F8FAFC',
+          border: '1px solid #E2E8F0',
+          borderRadius: '0.75rem',
           display: 'flex', alignItems: 'center', gap: '0.6rem',
         }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: rc.dot, boxShadow: `0 0 8px ${rc.dot}`, flexShrink: 0 }} />
-          <span style={{ fontSize: '0.68rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#e2e8f0' }}>
+          <span style={{ fontSize: '0.68rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#0F172A' }}>
             {rc.label}
           </span>
         </div>
       </div>
 
       {/* Nav items */}
-      <nav style={{ flex: 1, overflowY: 'auto', padding: '0.4rem 0.7rem 1rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+      <nav style={{ flex: 1, overflowY: 'auto', padding: '0.4rem 0.7rem 1rem', display: 'flex', flexDirection: 'column', gap: '3px' }}>
         {navItems.map(({ path, label, icon: Icon }) => {
           const isActive = location.pathname === path;
           const img = NAV_IMAGES[path];
@@ -112,29 +112,29 @@ export const Sidebar = () => {
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.6rem',
                 padding: '0.55rem 0.75rem',
-                borderRadius: '0.65rem',
+                borderRadius: '0.75rem',
                 border: 'none', width: '100%', textAlign: 'left',
                 cursor: 'pointer', fontFamily: 'inherit',
                 fontSize: '0.78rem',
                 fontWeight: isActive ? 800 : 600,
                 transition: 'all 0.15s ease',
-                background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
-                color: isActive ? '#ffffff' : '#cbd5e1',           // ← BRIGHT text
-                borderLeft: isActive ? '3px solid #ffffff' : '3px solid transparent',
+                background: isActive ? '#F4F0FF' : 'transparent',
+                color: isActive ? '#5F2EEA' : '#475569',
+                borderLeft: isActive ? '3px solid #5F2EEA' : '3px solid transparent',
               }}
-              onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
-              onMouseLeave={e => { if (!isActive) { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.background = 'transparent'; } }}
+              onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = '#0F172A'; e.currentTarget.style.background = '#F8FAFC'; } }}
+              onMouseLeave={e => { if (!isActive) { e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = 'transparent'; } }}
             >
               {/* Small thumbnail image on hover/active, icon otherwise */}
               {isActive && img ? (
                 <img
                   src={img}
                   alt={label}
-                  style={{ width: 22, height: 22, borderRadius: '0.35rem', objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.2)' }}
+                  style={{ width: 22, height: 22, borderRadius: '0.35rem', objectFit: 'cover', flexShrink: 0, border: '1px solid #DDD6FE' }}
                   onError={e => e.target.style.display = 'none'}
                 />
               ) : (
-                <Icon size={14} style={{ color: isActive ? '#ffffff' : '#94a3b8', flexShrink: 0 }} />
+                <Icon size={14} style={{ color: isActive ? '#5F2EEA' : '#64748B', flexShrink: 0 }} />
               )}
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
             </button>
@@ -143,12 +143,12 @@ export const Sidebar = () => {
       </nav>
 
       {/* Footer branding */}
-      <div style={{ padding: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
-        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.75rem', padding: '0.7rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
-            <Activity size={11} style={{ color: '#34d399' }} /> ClinicOS
+      <div style={{ padding: '0.75rem', borderTop: '1px solid #E2E8F0', flexShrink: 0 }}>
+        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '0.75rem', padding: '0.7rem' }}>
+          <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
+            <Activity size={11} style={{ color: '#10B981' }} /> ClinicOS
           </div>
-          <p style={{ fontSize: '0.6rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>Smart Healthcare & EMR Platform</p>
+          <p style={{ fontSize: '0.62rem', color: '#64748B', margin: 0, lineHeight: 1.4 }}>Smart Healthcare & EMR Platform</p>
         </div>
       </div>
     </aside>

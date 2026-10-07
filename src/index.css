@@ -358,15 +358,57 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius:
   will-change: transform;
 }
 
-body, html {
-  font-family: var(--font-family);
+
+/* ── Clean ClinicOS Tables & Form Elements ── */
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.82rem;
+  color: #0f172a;
+}
+.custom-table th {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-weight: 800;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.custom-table th:first-child {
+  border-top-left-radius: 12px;
+}
+.custom-table th:last-child {
+  border-top-right-radius: 12px;
+}
+.custom-table td {
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+  vertical-align: middle;
+}
+.custom-table tr:hover td {
+  background: #f8fafc;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.input-field {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-family: var(--font-family);
+  transition: var(--transition);
+  outline: none;
+}
+.input-field:focus {
+  border-color: #5f2eea;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(95, 46, 234, 0.1);
 }
 

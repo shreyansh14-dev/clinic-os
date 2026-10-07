@@ -1,13 +1,32 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Users, Stethoscope, Clock, Receipt, ShieldCheck, Plus, Edit2, Trash2 } from 'lucide-react';
+import {
+  Building2,
+  Users,
+  Stethoscope,
+  Clock,
+  Receipt,
+  ShieldCheck,
+  Plus,
+  Edit2,
+  Trash2,
+  ArrowUpRight,
+  Sparkles,
+  Activity,
+  FileCheck2,
+  CalendarCheck2
+} from 'lucide-react';
 
 export const AdminDashboard = () => {
   const { patients, doctors, appointments, bills, labTests } = useApp();
   const navigate = useNavigate();
   const setActiveTab = (tab) => {
-    const map = { 'system-invoices': '/system-invoices', 'manage-doctors': '/manage-doctors', 'manage-departments': '/manage-departments' };
+    const map = {
+      'system-invoices': '/system-invoices',
+      'manage-doctors': '/manage-doctors',
+      'manage-departments': '/manage-departments'
+    };
     navigate(map[tab] || '/admin');
   };
 
@@ -15,131 +34,234 @@ export const AdminDashboard = () => {
   const totalDoctors = doctors.length || 5;
   const pendingVisits = appointments.filter(a => a.status === 'Scheduled' || a.status === 'Pending').length;
   const totalRevenue = bills.filter(b => b.status === 'Paid').reduce((acc, b) => acc + (b.totalAmount || 0), 0);
+  const pendingLabRequests = labTests.filter(t => t.status === 'Pending').length;
+  const unpaidBillsCount = bills.filter(b => b.status === 'Unpaid').length;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+    <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-8 font-sans">
       
-      {/* Authority Control Panel Banner (Matching Presentation Slide 5 & 12) */}
-      <div className="glass-card" style={{
-        padding: '2rem',
-        background: 'linear-gradient(135deg, #161c28 0%, #0d111a 100%)',
-        border: '1px solid var(--border-color)',
-        borderRadius: '1.25rem',
-        display: 'flex',
-        justify: 'space-between',
-        alignItems: 'center'
-      }}>
-        <div>
-          <span className="badge badge-orange" style={{ marginBottom: '0.5rem', padding: '0.25rem 0.75rem' }}>
-            Hospital Authority Control Panel
-          </span>
-          <h2 style={{ fontSize: '2rem', fontWeight: '900', color: '#ffffff', margin: '0.2rem 0' }}>
-            Authority Dashboard
-          </h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
-            Review care requests and manage daily hospital operations across all departments.
-          </p>
+      {/* Authority Control Panel Hero Banner */}
+      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-xl border border-slate-800">
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
+          <Building2 className="w-80 h-80 text-white" />
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn-orange" onClick={() => setActiveTab('system-invoices')}>
-            <Receipt size={18} /> Issue or Manage Bills
-          </button>
-          <button className="btn-secondary" style={{ background: '#ffffff', color: '#000000', border: 'none', fontWeight: '700' }} onClick={() => setActiveTab('manage-doctors')}>
-            <Stethoscope size={18} /> Manage Doctors
-          </button>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-black tracking-wide text-purple-200">
+              <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+              <span>HOSPITAL AUTHORITY CONTROL PANEL</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white m-0">
+              Authority Dashboard
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl m-0 leading-relaxed">
+              Review care requests, allocate clinical resources, and monitor daily hospital operations across all departments.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setActiveTab('system-invoices')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#5F2EEA] hover:bg-[#4E22D4] text-white text-xs font-bold transition-all shadow-md shadow-purple-500/25 border-none cursor-pointer"
+            >
+              <Receipt className="w-4 h-4" />
+              <span>Issue or Manage Bills</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('manage-doctors')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/20 backdrop-blur-md cursor-pointer"
+            >
+              <Stethoscope className="w-4 h-4 text-purple-300" />
+              <span>Manage Doctors</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Metrics Row (Matching Slide 5 & 12: Patients 15, Doctors 27/5, Pending visits 3, Hospital Revenue ₹3,150) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
+      {/* 4 Pastel Metric Cards (Matching ClinicOS Design Palette) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', textAlign: 'center' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '800', textTransform: 'uppercase' }}>Patients</span>
-          <h3 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#38bdf8', margin: '0.2rem 0' }}>{totalPatients}</h3>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Registered Accounts</span>
+        {/* Patients Card (Pastel Sky) */}
+        <div className="bg-[#EFF6FF] border border-[#DBEAFE] rounded-[24px] p-5 shadow-[0_4px_20px_rgba(37,99,235,0.04)] hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-2xl bg-white shadow-2xs flex items-center justify-center">
+              <Users className="w-5 h-5 text-blue-600" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white text-blue-700 border border-blue-200">
+              Active EMR
+            </span>
+          </div>
+          <div className="text-3xl font-black text-slate-900 tracking-tight mb-1">{totalPatients}</div>
+          <div className="text-xs font-bold text-slate-700">Registered Accounts</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Total registered patients</div>
         </div>
 
-        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', textAlign: 'center' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '800', textTransform: 'uppercase' }}>Doctors</span>
-          <h3 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#a78bfa', margin: '0.2rem 0' }}>{totalDoctors}</h3>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Consultants On Roster</span>
+        {/* Doctors Card (Pastel Lavender) */}
+        <div className="bg-[#F5F3FF] border border-[#EDE9FE] rounded-[24px] p-5 shadow-[0_4px_20px_rgba(124,58,237,0.04)] hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-2xl bg-white shadow-2xs flex items-center justify-center">
+              <Stethoscope className="w-5 h-5 text-purple-600" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white text-purple-700 border border-purple-200">
+              On Roster
+            </span>
+          </div>
+          <div className="text-3xl font-black text-slate-900 tracking-tight mb-1">{totalDoctors}</div>
+          <div className="text-xs font-bold text-slate-700">Consultants On Roster</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Specialists across OPD</div>
         </div>
 
-        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', textAlign: 'center' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '800', textTransform: 'uppercase' }}>Pending Visits</span>
-          <h3 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#ff5500', margin: '0.2rem 0' }}>{pendingVisits}</h3>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Queued for Clearance</span>
+        {/* Pending Visits Card (Pastel Amber) */}
+        <div className="bg-[#FFF7ED] border border-[#FFEDD5] rounded-[24px] p-5 shadow-[0_4px_20px_rgba(234,88,12,0.04)] hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-2xl bg-white shadow-2xs flex items-center justify-center">
+              <Clock className="w-5 h-5 text-amber-600" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white text-amber-700 border border-amber-200">
+              Queued
+            </span>
+          </div>
+          <div className="text-3xl font-black text-slate-900 tracking-tight mb-1">{pendingVisits}</div>
+          <div className="text-xs font-bold text-slate-700">Pending Visits</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Awaiting clinical clearance</div>
         </div>
 
-        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', textAlign: 'center' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '800', textTransform: 'uppercase' }}>Hospital Revenue</span>
-          <h3 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#34d399', margin: '0.2rem 0' }}>₹{totalRevenue.toLocaleString()}</h3>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Collected Digital Clearance</span>
+        {/* Hospital Revenue Card (Pastel Mint) */}
+        <div className="bg-[#ECFDF5] border border-[#D1FAE5] rounded-[24px] p-5 shadow-[0_4px_20px_rgba(5,150,105,0.04)] hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-2xl bg-white shadow-2xs flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white text-emerald-700 border border-emerald-200">
+              Cleared
+            </span>
+          </div>
+          <div className="text-3xl font-black text-slate-900 tracking-tight mb-1">₹{totalRevenue.toLocaleString()}</div>
+          <div className="text-xs font-bold text-slate-700">Hospital Revenue</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Collected digital clearance</div>
         </div>
 
       </div>
 
-      {/* Action Approval Queue & Doctor Roster (Matching Slide 12 - 05 DOCTOR/ADMIN INTERFACE) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      {/* Middle Row: Approval Queue & Billing Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
         {/* Approval Queue */}
-        <div className="glass-card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff', marginBottom: '1rem' }}>Approval Queue</h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            {pendingVisits} appointment requests and {labTests.filter(t=>t.status==='Pending').length} diagnostic requests await action.
-          </p>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button className="btn-orange" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }} onClick={() => setActiveTab('manage-doctors')}>
+        <div className="bg-white rounded-[24px] border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.03)] p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-[#5F2EEA]">
+                <CalendarCheck2 className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-extrabold text-slate-900 m-0">Approval Queue</h3>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed mb-6">
+              <strong className="text-slate-800">{pendingVisits}</strong> appointment requests and <strong className="text-slate-800">{pendingLabRequests}</strong> diagnostic requests await administration verification.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5 pt-4 border-t border-slate-100">
+            <button
+              onClick={() => setActiveTab('manage-doctors')}
+              className="px-4 py-2 bg-[#5F2EEA] hover:bg-[#4E22D4] text-white font-bold text-xs rounded-full border-none cursor-pointer transition-all shadow-xs"
+            >
               Review Appointments
             </button>
-            <button className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }} onClick={() => setActiveTab('manage-departments')}>
+            <button
+              onClick={() => setActiveTab('manage-departments')}
+              className="px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs rounded-full cursor-pointer transition-all"
+            >
               Review Diagnostic Tests
             </button>
           </div>
         </div>
 
         {/* Billing Overview */}
-        <div className="glass-card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff', marginBottom: '1rem' }}>Billing & Ledger</h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            {bills.filter(b=>b.status==='Unpaid').length} bills awaiting patient clearance. Total collected: ₹{totalRevenue.toLocaleString()}
-          </p>
-          <button className="btn-orange" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }} onClick={() => setActiveTab('system-invoices')}>
-            Issue or Manage Bills
-          </button>
+        <div className="bg-white rounded-[24px] border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.03)] p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                <FileCheck2 className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-extrabold text-slate-900 m-0">Billing & Ledger</h3>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed mb-6">
+              <strong className="text-slate-800">{unpaidBillsCount}</strong> bills awaiting patient clearance. Total collected through digital clearance: <strong className="text-emerald-600">₹{totalRevenue.toLocaleString()}</strong>
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2.5 pt-4 border-t border-slate-100">
+            <button
+              onClick={() => setActiveTab('system-invoices')}
+              className="px-4 py-2 bg-[#5F2EEA] hover:bg-[#4E22D4] text-white font-bold text-xs rounded-full border-none cursor-pointer transition-all shadow-xs"
+            >
+              Issue or Manage Bills
+            </button>
+          </div>
         </div>
 
       </div>
 
-      {/* Manage Doctors Cards Grid (Matching Slide 12 Screenshot - Doctors Grid with Edit & Delete) */}
-      <div className="glass-card" style={{ padding: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>Registered Doctors & Consultants Roster</h3>
-          <button className="btn-orange" style={{ padding: '0.4rem 0.85rem', fontSize: '0.78rem' }} onClick={() => setActiveTab('manage-doctors')}>
-            <Plus size={15} /> Add Doctor
+      {/* Doctor Roster Cards Grid */}
+      <div className="bg-white rounded-[24px] border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.03)] p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <h3 className="text-base font-extrabold text-slate-900 m-0">Registered Doctors & Consultants Roster</h3>
+            <p className="text-xs text-slate-500 m-0 mt-0.5">Manage physician credentials, specialty allocations, and consultation fees</p>
+          </div>
+          <button
+            onClick={() => setActiveTab('manage-doctors')}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#5F2EEA] hover:bg-[#4E22D4] text-white font-bold text-xs border-none cursor-pointer transition-all self-start sm:self-auto shadow-xs"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Doctor</span>
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {doctors.slice(0, 6).map((doc) => (
-            <div key={doc.id} style={{ background: '#0d111a', padding: '1.25rem', borderRadius: '0.85rem', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                <img src={doc.avatar} alt={doc.name} style={{ width: '3rem', height: '3rem', borderRadius: '50%', objectFit: 'cover', border: '2px solid #ff5500' }} />
+            <div
+              key={doc.id}
+              className="p-4 rounded-2xl border border-slate-100 bg-[#FAFBFD] hover:bg-white hover:border-purple-200 transition-all flex flex-col justify-between gap-3 shadow-2xs hover:shadow-xs group"
+            >
+              <div className="flex items-center gap-3">
+                <img
+                  src={doc.avatar}
+                  alt={doc.name}
+                  className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-2xs ring-2 ring-slate-100 group-hover:ring-purple-200 transition-all"
+                />
                 <div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#ffffff', margin: 0 }}>{doc.name}</h4>
-                  <p style={{ fontSize: '0.78rem', color: '#ff5500', fontWeight: '700', margin: 0 }}>{doc.specialty}</p>
+                  <h4 className="text-xs font-black text-slate-900 m-0 group-hover:text-[#5F2EEA] transition-colors">
+                    {doc.name}
+                  </h4>
+                  <span className="inline-block mt-0.5 text-[11px] font-bold text-[#5F2EEA] bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
+                    {doc.specialty}
+                  </span>
                 </div>
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Consultation Fee: <strong style={{ color: '#ffffff' }}>₹{doc.consultationFee || doc.fee || 2000}</strong>
+
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-200/60">
+                <span className="text-slate-500 font-medium">Consultation Fee</span>
+                <span className="font-bold text-slate-900 bg-white px-2.5 py-0.5 rounded-full border border-slate-200">
+                  ₹{doc.consultationFee || doc.fee || 2000}
+                </span>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
-                <button className="btn-orange" style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.75rem', justifyContent: 'center' }}>
-                  <Edit2 size={13} /> Edit
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => setActiveTab('manage-doctors')}
+                  className="flex-1 py-1.5 px-3 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-[11px] inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Edit2 className="w-3 h-3 text-slate-500" />
+                  <span>Edit</span>
                 </button>
-                <button className="btn-secondary" style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.75rem', justifyContent: 'center', color: '#ef4444', borderColor: '#ef4444' }}>
-                  <Trash2 size={13} /> Delete
+                <button
+                  onClick={() => setActiveTab('manage-doctors')}
+                  className="flex-1 py-1.5 px-3 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-bold text-[11px] inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Trash2 className="w-3 h-3 text-rose-500" />
+                  <span>Delete</span>
                 </button>
               </div>
             </div>

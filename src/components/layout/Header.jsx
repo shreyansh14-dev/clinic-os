@@ -425,17 +425,17 @@ export const Header = () => {
           <div className="w-full flex items-center justify-between">
             {/* Brand Logo */}
             <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex items-center justify-center font-black text-xl shadow-md">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#FF5510] to-[#FF6E30] text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/25">
                 C
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-lg font-black tracking-tight text-slate-900 m-0 font-heading">ClinicOS</h1>
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-900 px-2 py-0.5 rounded-full border border-slate-300">
+                  <h1 className="text-base font-black tracking-tight text-slate-900 m-0 font-heading">ClinicOS</h1>
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-[#E8F1FD] text-[#1E62DC] px-2 py-0.5 rounded-full border border-[#D0E2FB]">
                     SMART HOSPITAL
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 font-medium m-0">Digital Healthcare Platform & EMR Network</p>
+                <p className="text-[10px] text-slate-400 font-medium m-0">Digital Healthcare Platform & EMR Network</p>
               </div>
             </div>
 
