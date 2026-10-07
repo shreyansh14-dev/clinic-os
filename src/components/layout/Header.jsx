@@ -18,7 +18,21 @@ import {
   Phone,
   Navigation,
   CheckCircle2,
-  Clock
+  Clock,
+  ChevronDown,
+  Calendar,
+  CalendarCheck,
+  CalendarPlus,
+  FileText,
+  FlaskConical,
+  TestTube2,
+  HeartPulse,
+  Pill,
+  Syringe,
+  Receipt,
+  Shield,
+  BookOpen,
+  Sparkles
 } from 'lucide-react';
 
 export const Header = () => {
@@ -137,108 +151,380 @@ export const Header = () => {
       {/* Main Header Bar */}
       <div className="px-6 py-3.5 flex items-center justify-between bg-white border-b border-slate-200">
         
-        {/* Brand Logo */}
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex items-center justify-center font-black text-xl shadow-md">
-            C
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h1 className="text-lg font-black tracking-tight text-slate-900 m-0 font-heading">ClinicOS</h1>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-900 px-2 py-0.5 rounded-full border border-slate-300">
-                SMART HOSPITAL
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium m-0">Digital Healthcare Platform & EMR Network</p>
-          </div>
-        </div>
-
-        {/* Search Bar & 108 SOS Dispatch Trigger Button */}
-        <div className="hidden md:flex items-center space-x-3 flex-1 max-w-md mx-6">
-          <div className="relative w-full">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-            <input
-              type="text"
-              placeholder="Search doctors, clinics, specialties..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-100/80 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:border-slate-900 focus:bg-white transition-all"
-            />
-          </div>
-
-          <button
-            onClick={() => {
-              setSosDispatched(false);
-              setIsSosModalOpen(true);
-            }}
-            className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-extrabold text-xs rounded-2xl shadow-md flex items-center space-x-1.5 whitespace-nowrap border-none cursor-pointer"
-          >
-            <Siren className="w-4 h-4 text-white animate-pulse" />
-            <span>108 SOS Ambulance</span>
-          </button>
-        </div>
-
-        {/* Role Switcher Pills & Profile */}
-        <div className="flex items-center space-x-4">
-          
-          <div className="bg-slate-100 p-1 rounded-2xl border border-slate-200 flex items-center space-x-1 text-xs font-bold">
-            <button
-              onClick={() => handleRoleSwitchClick('patient')}
-              className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
-                currentRole === 'patient'
-                  ? 'bg-slate-900 text-white shadow-sm font-extrabold'
-                  : 'text-slate-600 hover:text-slate-900 bg-transparent'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              <span>Patient Portal</span>
-            </button>
-
-            <button
-              onClick={() => handleRoleSwitchClick('doctor')}
-              className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
-                currentRole === 'doctor'
-                  ? 'bg-slate-900 text-white shadow-sm font-extrabold'
-                  : 'text-slate-600 hover:text-slate-900 bg-transparent'
-              }`}
-            >
-              <Stethoscope className="w-3.5 h-3.5" />
-              <span>Doctor Console</span>
-            </button>
-
-            <button
-              onClick={() => handleRoleSwitchClick('admin')}
-              className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
-                currentRole === 'admin'
-                  ? 'bg-slate-900 text-white shadow-sm font-extrabold'
-                  : 'text-slate-600 hover:text-slate-900 bg-transparent'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>Hospital Admin</span>
-            </button>
-          </div>
-
-          <button className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 relative border-none bg-transparent cursor-pointer">
-            <Bell className="w-4 h-4" />
-            <span className="w-2 h-2 rounded-full bg-slate-900 absolute top-2 right-2 border border-white"></span>
-          </button>
-
-          <div className="flex items-center space-x-3 pl-3 border-l border-slate-200">
-            <img src={userInfo.avatar} alt={userInfo.name} className="w-9 h-9 rounded-full object-cover border border-slate-300" />
-            <div className="hidden lg:block">
-              <div className="text-xs font-black text-slate-900 m-0">{userInfo.name}</div>
-              <div className="text-[9px] font-black text-slate-700 tracking-wider m-0">{userInfo.sub}</div>
+        {/* Patient Consumer Header (when currentRole === 'patient') */}
+        {currentRole === 'patient' ? (
+          <div className="w-full flex items-center justify-between gap-4">
+            {/* Left: Brand Logo */}
+            <div className="flex items-center gap-3 cursor-pointer shrink-0" onClick={() => navigate('/')}>
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#FF5510] to-[#FF6E30] text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/25">
+                C
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-black tracking-tight text-slate-900 leading-none font-heading">ClinicOS</span>
+                  <span className="text-[10px] font-black tracking-wider bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md border border-sky-200">
+                    SMART HOSPITAL
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-medium m-0 leading-none mt-1">Digital Healthcare Platform & EMR Network</p>
+              </div>
             </div>
 
-            <button
-              onClick={logout}
-              title="Sign Out"
-              className="p-2 text-slate-400 hover:text-slate-900 bg-transparent border-none cursor-pointer transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
+            {/* Center: Consumer Healthcare Navigation with Dropdowns */}
+            <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-slate-700">
+              <button
+                onClick={() => navigate('/book-appointment')}
+                className="hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
+              >
+                Find Doctors
+              </button>
 
-        </div>
+              {/* Appointments Dropdown */}
+              <div className="relative group">
+                <button
+                  type="button"
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
+                >
+                  <span>Appointments</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform group-hover:rotate-180" />
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
+                  <button
+                    onClick={() => navigate('/book-appointment')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <CalendarPlus className="w-4 h-4 text-orange-500 shrink-0" />
+                    <span>Book Appointment</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/my-appointments')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <CalendarCheck className="w-4 h-4 text-blue-500 shrink-0" />
+                    <span>My Appointments</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Lab Tests Dropdown */}
+              <div className="relative group">
+                <button
+                  type="button"
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
+                >
+                  <span>Lab Tests</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform group-hover:rotate-180" />
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
+                  <button
+                    onClick={() => navigate('/lab-tests')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <FlaskConical className="w-4 h-4 text-purple-500 shrink-0" />
+                    <span>Lab Tests at Home</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/diagnostic-tests')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <TestTube2 className="w-4 h-4 text-indigo-500 shrink-0" />
+                    <span>My Lab Reports</span>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={() => navigate('/medical-records')}
+                className="hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
+              >
+                Medical Records
+              </button>
+
+              {/* Health Dropdown */}
+              <div className="relative group">
+                <button
+                  type="button"
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
+                >
+                  <span>Health</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform group-hover:rotate-180" />
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
+                  <button
+                    onClick={() => navigate('/health-tracker')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <HeartPulse className="w-4 h-4 text-rose-500 shrink-0" />
+                    <span>Health Vitals Log</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/my-meds')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <Pill className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Meds Schedule</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/vaccines')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <Syringe className="w-4 h-4 text-pink-500 shrink-0" />
+                    <span>Vaccine Passport</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* More Dropdown */}
+              <div className="relative group">
+                <button
+                  type="button"
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
+                >
+                  <span>More</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform group-hover:rotate-180" />
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
+                  <button
+                    onClick={() => navigate('/bills')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <Receipt className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Bills & Receipts</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/insurance-claims')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0" />
+                    <span>Insurance Claims</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/video-call')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <Video className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Telehealth</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/symptom-assistant')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <BookOpen className="w-4 h-4 text-purple-500 shrink-0" />
+                    <span>Health Articles</span>
+                  </button>
+                </div>
+              </div>
+            </nav>
+
+            {/* Right Controls */}
+            <div className="flex items-center gap-3">
+              {/* Location Picker */}
+              <div className="relative group hidden sm:block">
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 transition-all cursor-pointer"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                  <span>Mumbai</span>
+                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                </button>
+              </div>
+
+              {/* Search Icon Trigger */}
+              <button
+                type="button"
+                onClick={() => navigate('/book-appointment')}
+                title="Search Doctors & Specialties"
+                className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 cursor-pointer bg-white transition-all"
+              >
+                <Search className="w-3.5 h-3.5" />
+              </button>
+
+              {/* 108 SOS Ambulance Trigger Button */}
+              <button
+                onClick={() => {
+                  setSosDispatched(false);
+                  setIsSosModalOpen(true);
+                }}
+                className="px-3.5 py-1.5 bg-gradient-to-r from-[#FF2E70] to-[#FF453A] hover:opacity-95 text-white font-black text-xs rounded-full shadow-xs flex items-center gap-1.5 border-none cursor-pointer whitespace-nowrap transition-transform hover:scale-105"
+              >
+                <Siren className="w-3.5 h-3.5 animate-pulse text-white" />
+                <span>108 SOS Ambulance</span>
+              </button>
+
+              {/* Patient Portal Badge / Switcher */}
+              <div className="relative group">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                >
+                  <User className="w-3.5 h-3.5 text-slate-600" />
+                  <span className="hidden sm:inline">Patient Portal</span>
+                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                </button>
+                {/* Switch to Doctor or Admin Portal */}
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase px-2 py-1 tracking-wider">Switch Portal</div>
+                  <button
+                    onClick={() => handleRoleSwitchClick('doctor')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-purple-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <Stethoscope className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Doctor Console</span>
+                  </button>
+                  <button
+                    onClick={() => handleRoleSwitchClick('admin')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                  >
+                    <Building2 className="w-3.5 h-3.5 text-slate-700" />
+                    <span>Hospital Admin</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Notification Bell */}
+              <button
+                type="button"
+                onClick={() => showToast('No new notifications')}
+                className="relative p-2 text-slate-500 hover:text-slate-900 rounded-full hover:bg-slate-100 cursor-pointer border-none bg-transparent"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="w-2 h-2 rounded-full bg-rose-500 absolute top-1.5 right-1.5 border border-white" />
+              </button>
+
+              {/* Profile Avatar */}
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+                <div className="relative cursor-pointer group">
+                  <img
+                    src={userInfo.avatar}
+                    alt={userInfo.name}
+                    className="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-2xs"
+                  />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white absolute bottom-0 right-0" />
+                  
+                  {/* Dropdown Menu */}
+                  <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
+                    <div className="px-3 py-1.5 border-b border-slate-100 mb-1">
+                      <div className="text-xs font-bold text-slate-900">{userInfo.name}</div>
+                      <div className="text-[10px] text-slate-400 font-medium">Patient Account</div>
+                    </div>
+                    <button
+                      onClick={logout}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Clinical Staff Header (Doctor & Admin) */
+          <div className="w-full flex items-center justify-between">
+            {/* Brand Logo */}
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex items-center justify-center font-black text-xl shadow-md">
+                C
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h1 className="text-lg font-black tracking-tight text-slate-900 m-0 font-heading">ClinicOS</h1>
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-900 px-2 py-0.5 rounded-full border border-slate-300">
+                    SMART HOSPITAL
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium m-0">Digital Healthcare Platform & EMR Network</p>
+              </div>
+            </div>
+
+            {/* Search Bar & 108 SOS Dispatch Trigger Button */}
+            <div className="hidden md:flex items-center space-x-3 flex-1 max-w-md mx-6">
+              <div className="relative w-full">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <input
+                  type="text"
+                  placeholder="Search doctors, clinics, specialties..."
+                  className="w-full pl-10 pr-4 py-2 bg-slate-100/80 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:border-slate-900 focus:bg-white transition-all"
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  setSosDispatched(false);
+                  setIsSosModalOpen(true);
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-extrabold text-xs rounded-2xl shadow-md flex items-center space-x-1.5 whitespace-nowrap border-none cursor-pointer"
+              >
+                <Siren className="w-4 h-4 text-white animate-pulse" />
+                <span>108 SOS Ambulance</span>
+              </button>
+            </div>
+
+            {/* Role Switcher Pills & Profile */}
+            <div className="flex items-center space-x-4">
+              <div className="bg-slate-100 p-1 rounded-2xl border border-slate-200 flex items-center space-x-1 text-xs font-bold">
+                <button
+                  onClick={() => handleRoleSwitchClick('patient')}
+                  className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
+                    currentRole === 'patient'
+                      ? 'bg-slate-900 text-white shadow-sm font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900 bg-transparent'
+                  }`}
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>Patient Portal</span>
+                </button>
+
+                <button
+                  onClick={() => handleRoleSwitchClick('doctor')}
+                  className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
+                    currentRole === 'doctor'
+                      ? 'bg-slate-900 text-white shadow-sm font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900 bg-transparent'
+                  }`}
+                >
+                  <Stethoscope className="w-3.5 h-3.5" />
+                  <span>Doctor Console</span>
+                </button>
+
+                <button
+                  onClick={() => handleRoleSwitchClick('admin')}
+                  className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
+                    currentRole === 'admin'
+                      ? 'bg-slate-900 text-white shadow-sm font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900 bg-transparent'
+                  }`}
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>Hospital Admin</span>
+                </button>
+              </div>
+
+              <button className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 relative border-none bg-transparent cursor-pointer">
+                <Bell className="w-4 h-4" />
+                <span className="w-2 h-2 rounded-full bg-slate-900 absolute top-2 right-2 border border-white"></span>
+              </button>
+
+              <div className="flex items-center space-x-3 pl-3 border-l border-slate-200">
+                <img src={userInfo.avatar} alt={userInfo.name} className="w-9 h-9 rounded-full object-cover border border-slate-300" />
+                <div className="hidden lg:block">
+                  <div className="text-xs font-black text-slate-900 m-0">{userInfo.name}</div>
+                  <div className="text-[9px] font-black text-slate-700 tracking-wider m-0">{userInfo.sub}</div>
+                </div>
+
+                <button
+                  onClick={logout}
+                  title="Sign Out"
+                  className="p-2 text-slate-400 hover:text-slate-900 bg-transparent border-none cursor-pointer transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
 

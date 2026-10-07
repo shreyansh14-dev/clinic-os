@@ -94,17 +94,19 @@ const MainRoutes = () => {
 };
 
 const AppContent = () => {
-  const { currentUser } = useApp();
+  const { currentUser, currentRole } = useApp();
   const location = useLocation();
 
   if (!currentUser || location.pathname === '/login') {
     return <AuthPortal />;
   }
 
+  const isPatient = currentRole === 'patient';
+
   return (
-    <div className="app-container">
-      <Sidebar />
-      <div className="main-wrapper">
+    <div className={`app-container ${isPatient ? 'patient-portal-layout' : ''}`}>
+      {!isPatient && <Sidebar />}
+      <div className={`main-wrapper ${isPatient ? 'patient-main-wrapper' : ''}`}>
         <Header />
         <MainRoutes />
       </div>

@@ -94,6 +94,31 @@ html, body, #root {
 .content-area::-webkit-scrollbar { width: 5px; }
 .content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
 
+/* ── Patient Portal Consumer Layout ── */
+.patient-portal-layout {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #fafbfe;
+}
+.patient-main-wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  height: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fafbfe;
+}
+.patient-main-wrapper .content-area {
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+}
+
 /* ── Header (white) ── */
 .header-container {
   background: #ffffff;
