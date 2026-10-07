@@ -18,11 +18,13 @@ export const AnimatedDoctor = ({
   eyesClosed = false,
   gaze = { x: 0, y: 0 },
   faceShift = { x: 0, y: 0 },
-  bodyShift = { x: 0, y: 0, rot: 0 },
+  bodyShift = { x: 0, y: 0 },
   isLeaningRight = false,
   intensity = 1.0,
   isRoleActive = false,
   isSettled = true,
+  isBouncing = false,
+  bounceId = 0,
   className = ''
 }) => {
   const shouldCloseEyes = eyesClosed || expression === 'shy_closed' || isBlinking;
@@ -33,17 +35,16 @@ export const AnimatedDoctor = ({
   const isSurprised = expression === 'surprised';
 
   // Eye gaze displacement
-  const gx = (gaze?.x || 0) * 0.8 * intensity;
-  const gy = (gaze?.y || 0) * 0.8 * intensity;
+  const gx = (gaze?.x || 0) * 0.9 * intensity;
+  const gy = (gaze?.y || 0) * 0.9 * intensity;
 
   // Face parallax
-  const fx = (faceShift?.x || 0) * 0.8 * intensity;
-  const fy = (faceShift?.y || 0) * 0.8 * intensity;
+  const fx = (faceShift?.x || 0) * 0.9 * intensity;
+  const fy = (faceShift?.y || 0) * 0.9 * intensity;
 
   // Body displacement from cursor
-  const bx = (bodyShift?.x || 0) * 0.9 * intensity;
-  const by = (bodyShift?.y || 0) * 0.9 * intensity;
-  const rot = isLeaning ? 6.2 : (bodyShift?.rot || 0) * 1.1 * intensity;
+  const bx = (bodyShift?.x || 0) * 1.05 * intensity;
+  const by = (bodyShift?.y || 0) * 1.05 * intensity;
 
   let extraTransform = '';
   if (isSad) {
@@ -54,24 +55,29 @@ export const AnimatedDoctor = ({
 
   return (
     <div
-      className={`avatar-head relative select-none transition-transform duration-100 ease-out ${className}`}
+      className={`avatar-head relative select-none will-change-transform ${className}`}
       style={{
-        transform: `scale(${isRoleActive ? 1.05 : 0.98}) translate(${bx}px, ${by}px) rotate(${rot}deg) ${extraTransform}`,
+        transform: `scale(${isRoleActive ? 1.05 : 0.98}) translate(${bx}px, ${by}px) ${extraTransform}`,
         transformOrigin: 'bottom center',
         zIndex: isRoleActive ? 22 : 12,
         filter: 'drop-shadow(0 18px 30px rgba(99, 32, 238, 0.32))'
       }}
     >
-      <svg
-        viewBox="0 0 220 320"
-        className="w-full h-auto overflow-visible"
-        style={{
-          transformOrigin: 'bottom center',
-          animation: isSettled
-            ? 'doctorIdle 6.4s ease-in-out infinite alternate'
-            : 'none'
-        }}
+      <div
+        key={bounceId}
+        className={isBouncing ? 'avatar-bounce-active' : ''}
+        style={{ transformOrigin: 'bottom center', width: '100%', height: '100%' }}
       >
+        <svg
+          viewBox="0 0 220 320"
+          className="w-full h-auto overflow-visible"
+          style={{
+            transformOrigin: 'bottom center',
+            animation: isSettled
+              ? 'doctorIdle 6.4s ease-in-out infinite alternate'
+              : 'none'
+          }}
+        >
         <defs>
           {/* Vivid Purple 3D Clay Cylinder Gradient */}
           <radialGradient id="doctorBodyGrad" cx="35%" cy="30%" r="70%">
@@ -274,6 +280,7 @@ export const AnimatedDoctor = ({
           <circle cx="115" cy="262" r="5" fill="#334155" />
         </g>
       </svg>
+      </div>
     </div>
   );
 };

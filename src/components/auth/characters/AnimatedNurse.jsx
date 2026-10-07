@@ -17,10 +17,12 @@ export const AnimatedNurse = ({
   eyesClosed = false,
   gaze = { x: 0, y: 0 },
   faceShift = { x: 0, y: 0 },
-  bodyShift = { x: 0, y: 0, rot: 0 },
+  bodyShift = { x: 0, y: 0 },
   intensity = 1.0,
   isRoleActive = false,
   isSettled = true,
+  isBouncing = false,
+  bounceId = 0,
   className = ''
 }) => {
   const shouldCloseEyes = eyesClosed || expression === 'shy_closed' || isBlinking;
@@ -30,17 +32,16 @@ export const AnimatedNurse = ({
   const isCurious = expression === 'curious';
 
   // Eye gaze displacement
-  const gx = (gaze?.x || 0) * 0.75 * intensity;
-  const gy = (gaze?.y || 0) * 0.75 * intensity;
+  const gx = (gaze?.x || 0) * 0.85 * intensity;
+  const gy = (gaze?.y || 0) * 0.85 * intensity;
 
   // Face parallax
-  const fx = (faceShift?.x || 0) * 0.75 * intensity;
-  const fy = (faceShift?.y || 0) * 0.75 * intensity;
+  const fx = (faceShift?.x || 0) * 0.85 * intensity;
+  const fy = (faceShift?.y || 0) * 0.85 * intensity;
 
   // Body displacement from cursor
-  const bx = (bodyShift?.x || 0) * 0.8 * intensity;
-  const by = (bodyShift?.y || 0) * 0.8 * intensity;
-  const rot = isLeaning ? 3.5 : (bodyShift?.rot || 0) * 0.9 * intensity;
+  const bx = (bodyShift?.x || 0) * 0.95 * intensity;
+  const by = (bodyShift?.y || 0) * 0.95 * intensity;
 
   let extraTransform = '';
   if (isSad) {
@@ -49,24 +50,29 @@ export const AnimatedNurse = ({
 
   return (
     <div
-      className={`avatar-head relative select-none transition-transform duration-100 ease-out ${className}`}
+      className={`avatar-head relative select-none will-change-transform ${className}`}
       style={{
-        transform: `scale(${isRoleActive ? 1.05 : 0.98}) translate(${bx}px, ${by}px) rotate(${rot}deg) ${extraTransform}`,
+        transform: `scale(${isRoleActive ? 1.05 : 0.98}) translate(${bx}px, ${by}px) ${extraTransform}`,
         transformOrigin: 'bottom center',
         zIndex: isRoleActive ? 20 : 10,
         filter: 'drop-shadow(0 14px 26px rgba(234, 179, 8, 0.28))'
       }}
     >
-      <svg
-        viewBox="0 0 200 280"
-        className="w-full h-auto overflow-visible"
-        style={{
-          transformOrigin: 'bottom center',
-          animation: isSettled
-            ? 'nurseIdle 5.6s ease-in-out infinite alternate'
-            : 'none'
-        }}
+      <div
+        key={bounceId}
+        className={isBouncing ? 'avatar-bounce-active' : ''}
+        style={{ transformOrigin: 'bottom center', width: '100%', height: '100%' }}
       >
+        <svg
+          viewBox="0 0 200 280"
+          className="w-full h-auto overflow-visible"
+          style={{
+            transformOrigin: 'bottom center',
+            animation: isSettled
+              ? 'nurseIdle 5.6s ease-in-out infinite alternate'
+              : 'none'
+          }}
+        >
         <defs>
           {/* Vivid Warm Yellow Gradient */}
           <radialGradient id="nurseBodyGrad" cx="38%" cy="28%" r="72%">
@@ -227,6 +233,7 @@ export const AnimatedNurse = ({
           <circle cx="62" cy="50" r="8" fill="url(#nurseBodyGrad)" />
         </g>
       </svg>
+      </div>
     </div>
   );
 };

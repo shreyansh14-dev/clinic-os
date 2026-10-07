@@ -42,6 +42,7 @@ export const AuthPortal = () => {
   const [isOverlayActive, setIsOverlayActive] = useState(false);
   const [isOverlayRetracting, setIsOverlayRetracting] = useState(false);
   const [isTransitioningToDashboard, setIsTransitioningToDashboard] = useState(false);
+  const [roleBounce, setRoleBounce] = useState({ role: null, bounceId: 0 });
 
   // Form Field Focus State ('email' | 'password' | 'submit' | null)
   const [focusState, setFocusState] = useState(null);
@@ -107,6 +108,7 @@ export const AuthPortal = () => {
 
   // Replay brand intro transition on demand
   const handleReplayIntro = () => {
+    setRoleBounce({ role: null, bounceId: 0 });
     setPhase('phase2');
     setIsOverlayActive(true);
     setIsOverlayRetracting(false);
@@ -164,6 +166,7 @@ export const AuthPortal = () => {
 
   const handleRoleSelect = (roleId) => {
     setSelectedRole(roleId);
+    setRoleBounce({ role: roleId, bounceId: Date.now() });
     setErrorMsg('');
     setSuccessMsg('');
     const target = roles.find((r) => r.id === roleId);
@@ -282,6 +285,7 @@ export const AuthPortal = () => {
             isLeaningRight={isLeaningRight}
             roleIntensity={roleIntensity}
             selectedRole={selectedRole}
+            roleBounce={roleBounce}
             phase={phase}
           />
         </div>

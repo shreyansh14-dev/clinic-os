@@ -39,6 +39,7 @@ export const HealthcareIllustration = ({
   isLeaningRight = false,
   roleIntensity = { patient: 1.0, doctor: 0.85, nurse: 0.8 },
   selectedRole = 'patient',
+  roleBounce = { role: null, bounceId: 0 },
   phase = 'phase4', // 'phase1' | 'phase2' | 'phase3' | 'phase4'
   className = ''
 }) => {
@@ -192,6 +193,8 @@ export const HealthcareIllustration = ({
               intensity={roleIntensity.doctor}
               isRoleActive={selectedRole === 'doctor'}
               isSettled={isSettled}
+              isBouncing={roleBounce?.role === 'doctor'}
+              bounceId={roleBounce?.role === 'doctor' ? roleBounce.bounceId : 0}
             />
           </div>
 
@@ -207,6 +210,8 @@ export const HealthcareIllustration = ({
               intensity={roleIntensity.patient}
               isRoleActive={selectedRole === 'patient'}
               isSettled={isSettled}
+              isBouncing={roleBounce?.role === 'patient'}
+              bounceId={roleBounce?.role === 'patient' ? roleBounce.bounceId : 0}
             />
           </div>
 
@@ -222,6 +227,8 @@ export const HealthcareIllustration = ({
               intensity={roleIntensity.nurse}
               isRoleActive={selectedRole === 'admin'}
               isSettled={isSettled}
+              isBouncing={roleBounce?.role === 'admin'}
+              bounceId={roleBounce?.role === 'admin' ? roleBounce.bounceId : 0}
             />
           </div>
         </div>

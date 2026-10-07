@@ -17,10 +17,12 @@ export const AnimatedPatient = ({
   eyesClosed = false,
   gaze = { x: 0, y: 0 },
   faceShift = { x: 0, y: 0 },
-  bodyShift = { x: 0, y: 0, rot: 0 },
+  bodyShift = { x: 0, y: 0 },
   intensity = 1.0,
   isRoleActive = true,
   isSettled = true,
+  isBouncing = false,
+  bounceId = 0,
   className = ''
 }) => {
   const shouldCloseEyes = eyesClosed || expression === 'shy_closed' || isBlinking;
@@ -42,28 +44,32 @@ export const AnimatedPatient = ({
   // Body displacement from cursor
   const bx = (bodyShift?.x || 0) * intensity;
   const by = (bodyShift?.y || 0) * intensity;
-  const rot = (bodyShift?.rot || 0) * intensity;
 
   return (
     <div
-      className={`avatar-head relative select-none transition-transform duration-100 ease-out ${className}`}
+      className={`avatar-head relative select-none will-change-transform ${className}`}
       style={{
-        transform: `scale(${isRoleActive ? 1.04 : 0.98}) translate(${bx}px, ${by}px) rotate(${rot}deg)`,
+        transform: `scale(${isRoleActive ? 1.04 : 0.98}) translate(${bx}px, ${by}px)`,
         transformOrigin: 'bottom center',
         zIndex: isRoleActive ? 25 : 15,
         filter: 'drop-shadow(0 14px 24px rgba(255, 107, 36, 0.28))'
       }}
     >
-      <svg
-        viewBox="0 0 240 220"
-        className="w-full h-auto overflow-visible"
-        style={{
-          transformOrigin: 'bottom center',
-          animation: isSettled
-            ? 'patientIdle 4.8s ease-in-out infinite alternate'
-            : 'none'
-        }}
+      <div
+        key={bounceId}
+        className={isBouncing ? 'avatar-bounce-active' : ''}
+        style={{ transformOrigin: 'bottom center', width: '100%', height: '100%' }}
       >
+        <svg
+          viewBox="0 0 240 220"
+          className="w-full h-auto overflow-visible"
+          style={{
+            transformOrigin: 'bottom center',
+            animation: isSettled
+              ? 'patientIdle 4.8s ease-in-out infinite alternate'
+              : 'none'
+          }}
+        >
         <defs>
           {/* Main Orange Body Gradient (3D Clay Sphere) */}
           <radialGradient id="patientBodyGrad" cx="38%" cy="32%" r="68%">
@@ -295,6 +301,7 @@ export const AnimatedPatient = ({
           <circle cx="132" cy="168" r="9" fill="url(#patientArmGrad)" opacity="0.85" />
         </g>
       </svg>
+      </div>
     </div>
   );
 };

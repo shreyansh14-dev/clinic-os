@@ -112,9 +112,9 @@ export const useAvatarExpressions = ({
       const dx = e.clientX - stageCenterX;
       const dy = e.clientY - stageCenterY;
 
-      // Normalize across max distance
-      const maxDistX = Math.max(300, window.innerWidth * 0.45);
-      const maxDistY = Math.max(250, window.innerHeight * 0.45);
+      // Normalize across max distance (responsive to screen size)
+      const maxDistX = Math.max(220, window.innerWidth * 0.40);
+      const maxDistY = Math.max(180, window.innerHeight * 0.40);
 
       const nx = Math.max(-1, Math.min(1, dx / maxDistX));
       const ny = Math.max(-1, Math.min(1, dy / maxDistY));
@@ -147,31 +147,31 @@ export const useAvatarExpressions = ({
         ty = 0.85;
       }
 
-      // Smooth Lerp (18% per frame for snappy responsive feel)
-      currentNorm.current.x += (tx - currentNorm.current.x) * 0.18;
-      currentNorm.current.y += (ty - currentNorm.current.y) * 0.18;
+      // Smooth Lerp (20% per frame for responsive, lively feel)
+      currentNorm.current.x += (tx - currentNorm.current.x) * 0.20;
+      currentNorm.current.y += (ty - currentNorm.current.y) * 0.20;
 
       const cx = currentNorm.current.x;
       const cy = currentNorm.current.y;
 
-      if (Math.abs(cx - lastX) > 0.008 || Math.abs(cy - lastY) > 0.008) {
+      if (Math.abs(cx - lastX) > 0.003 || Math.abs(cy - lastY) > 0.003) {
         lastX = cx;
         lastY = cy;
 
-        const gx = Math.round(cx * 6.5 * 100) / 100;
-        const gy = Math.round(cy * 5.0 * 100) / 100;
+        // Amplified motion factors for lively character animation
+        const gx = Math.round(cx * 11.0 * 100) / 100;
+        const gy = Math.round(cy * 7.5 * 100) / 100;
 
-        const fx = Math.round(cx * 8.0 * 100) / 100;
-        const fy = Math.round(cy * 5.0 * 100) / 100;
+        const fx = Math.round(cx * 16.0 * 100) / 100;
+        const fy = Math.round(cy * 10.0 * 100) / 100;
 
-        const bx = Math.round(cx * 5.5 * 100) / 100;
-        const by = Math.round(cy * 3.5 * 100) / 100;
-        const rot = Math.round(cx * 3.5 * 100) / 100;
+        const bx = Math.round(cx * 18.0 * 100) / 100;
+        const by = Math.round(cy * 12.0 * 100) / 100;
 
         setAvatarMotion({
           gaze: { x: gx, y: gy },
           faceShift: { x: fx, y: fy },
-          bodyShift: { x: bx, y: by, rot }
+          bodyShift: { x: bx, y: by }
         });
 
         if (containerRef?.current) {
