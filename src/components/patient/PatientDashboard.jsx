@@ -209,74 +209,33 @@ export const PatientDashboard = () => {
 
       {/* ─────────────────────────────────────────────────────────────
           1. HERO SECTION (Matching Reference Frame 04 & 05)
-          Deep Indigo (#242454), Giant "Healthcare" Typography, 
-          Central Smiling Doctor, and Floating Feature Pills
+          Exact Pixel-Perfect Hero Banner & Proportions
           ───────────────────────────────────────────────────────────── */}
-      <section className="w-full px-6 sm:px-10 pt-6 pb-6">
-        <div className="relative rounded-[32px] bg-[#242454] text-white overflow-hidden shadow-2xl p-6 sm:p-10 min-h-[440px] md:min-h-[500px] flex flex-col justify-between">
-          
-          {/* Giant Bold "Healthcare" Headline (Frame 04) */}
-          <div className="relative z-10 w-full text-center">
-            <h1 className="text-[64px] sm:text-[100px] md:text-[130px] lg:text-[145px] font-extrabold tracking-tight text-white m-0 leading-none select-none font-['Poppins']">
-              Healthcare
-            </h1>
-          </div>
-
-          {/* Central Doctor Cutout & Floating Feature Badges */}
-          <div className="relative z-10 flex flex-col items-center justify-center my-auto py-2">
-            <div className="relative flex items-center justify-center">
-              
-              {/* Left Floating Pill (Frame 04: Reduce HbA1c) */}
-              <div className="hidden sm:flex absolute -left-28 md:-left-44 top-1/3 z-20 animate-float-slow items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-white shadow-lg">
-                <span className="w-3.5 h-3.5 rounded-full bg-rose-400/80 flex items-center justify-center text-[9px] text-white">
-                  ↓
-                </span>
-                <span>Reduce HbA1c</span>
-              </div>
-
-              {/* Central Female Doctor with Stethoscope & Glasses (Frame 04) */}
-              <div className="relative w-56 sm:w-68 md:w-84 h-64 sm:h-80 md:h-92 flex items-end justify-center">
-                <img
-                  src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&auto=format&fit=crop&q=80"
-                  alt="Doctor with Stethoscope"
-                  className="w-full h-full object-cover object-top rounded-full sm:rounded-t-full shadow-2xl drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
-                />
-              </div>
-
-              {/* Right Floating Pill (Frame 04: No more medications) */}
-              <div className="hidden sm:flex absolute -right-28 md:-right-44 top-1/2 z-20 animate-float-slow-reverse items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-white shadow-lg">
-                <span className="w-3.5 h-3.5 rounded-full bg-emerald-400/80 flex items-center justify-center text-[9px] text-white">
-                  ✓
-                </span>
-                <span>No more medications</span>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Bottom Row: Narrative Copy on Left, CTA Button on Right (Frame 04) */}
-          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/10">
-            <p className="text-[11px] sm:text-xs text-slate-200 font-bold tracking-wider uppercase text-center sm:text-left max-w-sm m-0 leading-relaxed font-['Poppins']">
-              IF YOU&apos;RE LOOKING FOR A CREATIVE AND EASY WAY TO BUILD A HEALTHY LIFE, WOW! CLINICOS IS THE PERFECT SOLUTION.
-            </p>
-
-            {/* Pill CTA Button (Frame 04: Book Consultation + Arrow) */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate('/book-appointment')}
-                className="px-6 py-2.5 rounded-full bg-[#E7B8D1] hover:bg-[#d8a3bf] text-[#16163B] font-bold text-xs tracking-wide transition-all shadow-md cursor-pointer border-none flex items-center gap-3"
-              >
-                <span>Book Consultation</span>
-              </button>
-              <button
-                onClick={() => navigate('/book-appointment')}
-                className="w-9 h-9 rounded-full bg-[#E7B8D1] hover:bg-[#d8a3bf] text-[#16163B] flex items-center justify-center shadow-md border-none cursor-pointer transition-transform hover:scale-105"
-              >
-                <ArrowRight className="w-4 h-4 text-[#16163B]" />
-              </button>
-            </div>
-          </div>
-
+      <section className="w-full px-5 sm:px-8 pt-4 pb-4">
+        <div className="relative rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-xl bg-[#242454]">
+          <img
+            src="/images/hero-banner-exact.png"
+            alt="Healthcare Banner"
+            className="w-full h-auto block select-none"
+          />
+          {/* Interactive Clickable Hotspot for Book Consultation */}
+          <button
+            onClick={() => navigate('/book-appointment')}
+            title="Book Consultation"
+            className="absolute bottom-[3%] right-[3%] w-[24%] sm:w-[22%] h-[14%] rounded-full bg-transparent hover:bg-white/10 active:scale-95 transition-all cursor-pointer border-none"
+          />
+          {/* Interactive Clickable Hotspot for Left Pill: Reduce HbA1c */}
+          <button
+            onClick={() => showToast('HbA1c monitoring and endocrinology consults active.')}
+            title="Reduce HbA1c"
+            className="absolute top-[42%] left-[22%] sm:left-[24%] w-[16%] h-[8%] rounded-full bg-transparent hover:bg-white/10 transition-all cursor-pointer border-none"
+          />
+          {/* Interactive Clickable Hotspot for Right Pill: No more medications */}
+          <button
+            onClick={() => showToast('Lifestyle medicine and de-prescribing protocols active.')}
+            title="No more medications"
+            className="absolute top-[42%] right-[19%] sm:right-[21%] w-[18%] h-[8%] rounded-full bg-transparent hover:bg-white/10 transition-all cursor-pointer border-none"
+          />
         </div>
       </section>
 
@@ -284,126 +243,43 @@ export const PatientDashboard = () => {
           2. THE 4 PASTEL SERVICE CARDS (Matching Reference Frame 04 & 05)
           Soft Yellow, Mint, Soft Blush/Pink, and Pastel Blue
           ───────────────────────────────────────────────────────────── */}
-      <section className="w-full px-6 sm:px-10 pb-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="w-full px-5 sm:px-8 pb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           
-          {/* Card 1: Soft Yellow (#E9DF70) - Instant Video Consultation */}
+          {/* Card 1: Soft Yellow - Instant Video Consultation */}
           <div
             onClick={() => navigate('/video-call')}
-            className="group relative rounded-[28px] bg-[#E9DF70] p-6 flex flex-col justify-between min-h-[220px] cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
+            title="Instant Video Consultation"
+            className="group relative rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] transition-all cursor-pointer"
           >
-            <div>
-              <h3 className="text-xl font-bold text-[#16163B] m-0 leading-tight font-['Poppins']">
-                Instant Video<br />Consultation
-              </h3>
-              <p className="text-xs text-slate-800 font-medium mt-1">Connect within 60 secs</p>
-            </div>
-
-            <div className="flex items-end justify-between mt-6">
-              <div className="w-10 h-10 rounded-full bg-[#16163B] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-md shrink-0">
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-
-              {/* Exact Line-Art Stethoscope Phone Illustration (Frame 04) */}
-              <div className="w-24 h-24 text-yellow-700/50 group-hover:text-yellow-800/70 transition-colors">
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" className="w-full h-full">
-                  <rect x="25" y="15" width="45" height="70" rx="8" />
-                  <circle cx="47" cy="76" r="3" fill="currentColor" />
-                  <path d="M47 30C47 40 40 48 35 48C30 48 30 40 30 35" strokeLinecap="round" />
-                  <circle cx="65" cy="40" r="5" fill="none" />
-                  <path d="M47 45C55 45 65 35 65 40" strokeLinecap="round" />
-                </svg>
-              </div>
-            </div>
+            <img src="/images/card-video-exact.png" alt="Instant Video Consultation" className="w-full h-auto block" />
           </div>
 
-          {/* Card 2: Mint (#A7DDC5) - Find Doctors near you */}
+          {/* Card 2: Mint - Find Doctors near you */}
           <div
             onClick={() => navigate('/book-appointment')}
-            className="group relative rounded-[28px] bg-[#A7DDC5] p-6 flex flex-col justify-between min-h-[220px] cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
+            title="Find Doctors near you"
+            className="group relative rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] transition-all cursor-pointer"
           >
-            <div>
-              <h3 className="text-xl font-bold text-[#16163B] m-0 leading-tight font-['Poppins']">
-                Find Doctors<br />near you
-              </h3>
-              <p className="text-xs text-slate-800 font-medium mt-1">Confirmed appointments</p>
-            </div>
-
-            <div className="flex items-end justify-between mt-6">
-              <div className="w-10 h-10 rounded-full bg-[#16163B] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-md shrink-0">
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-
-              {/* Exact Line-Art Doctor Illustration (Frame 04) */}
-              <div className="w-24 h-24 text-teal-800/40 group-hover:text-teal-900/60 transition-colors">
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" className="w-full h-full">
-                  <circle cx="50" cy="35" r="16" />
-                  <path d="M38 28C38 38 62 38 62 28" strokeLinecap="round" />
-                  <path d="M25 80C25 60 40 55 50 55C60 55 75 60 75 80" />
-                  <path d="M45 58L50 66L55 58" />
-                  <path d="M50 66V78" />
-                </svg>
-              </div>
-            </div>
+            <img src="/images/card-doctors-exact.png" alt="Find Doctors near you" className="w-full h-auto block" />
           </div>
 
-          {/* Card 3: Pink (#F3DCE8) - 24/7 Medicines */}
+          {/* Card 3: Pink - 24/7 Medicines */}
           <div
             onClick={() => navigate('/pharmacy-inventory')}
-            className="group relative rounded-[28px] bg-[#F3DCE8] p-6 flex flex-col justify-between min-h-[220px] cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
+            title="24/7 Medicines"
+            className="group relative rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] transition-all cursor-pointer"
           >
-            <div>
-              <h3 className="text-xl font-bold text-[#16163B] m-0 leading-tight font-['Poppins']">
-                24/7<br />Medicines
-              </h3>
-              <p className="text-xs text-slate-800 font-medium mt-1">Essentials at your doorstep</p>
-            </div>
-
-            <div className="flex items-end justify-between mt-6">
-              <div className="w-10 h-10 rounded-full bg-[#16163B] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-md shrink-0">
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-
-              {/* Exact Line-Art Capsule & Tablets (Frame 04) */}
-              <div className="w-24 h-24 text-rose-800/40 group-hover:text-rose-900/60 transition-colors">
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" className="w-full h-full">
-                  <rect x="25" y="25" width="26" height="52" rx="13" transform="rotate(-25 38 51)" />
-                  <ellipse cx="62" cy="65" rx="18" ry="10" />
-                  <ellipse cx="62" cy="60" rx="18" ry="10" />
-                </svg>
-              </div>
-            </div>
+            <img src="/images/card-medicines-exact.png" alt="24/7 Medicines" className="w-full h-auto block" />
           </div>
 
-          {/* Card 4: Pastel Blue (#9ABCF0) - Lab Tests */}
+          {/* Card 4: Pastel Blue - Lab Tests */}
           <div
             onClick={() => navigate('/pathology-worklist')}
-            className="group relative rounded-[28px] bg-[#9ABCF0] p-6 flex flex-col justify-between min-h-[220px] cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
+            title="Lab Tests"
+            className="group relative rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] transition-all cursor-pointer"
           >
-            <div>
-              <h3 className="text-xl font-bold text-[#16163B] m-0 leading-tight font-['Poppins']">
-                Lab<br />Tests
-              </h3>
-              <p className="text-xs text-slate-800 font-medium mt-1">Sample pickup at your home</p>
-            </div>
-
-            <div className="flex items-end justify-between mt-6">
-              <div className="w-10 h-10 rounded-full bg-[#16163B] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-md shrink-0">
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-
-              {/* Exact Line-Art Test Tube with Droplet (Frame 04) */}
-              <div className="w-24 h-24 text-blue-900/40 group-hover:text-blue-950/60 transition-colors">
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" className="w-full h-full">
-                  <path d="M35 20H55M40 20V65C40 73 50 73 50 65V20" />
-                  <line x1="40" y1="32" x2="48" y2="32" />
-                  <line x1="40" y1="44" x2="46" y2="44" />
-                  <path d="M60 55C60 62 68 62 68 55C68 48 64 45 64 45C64 45 60 48 60 55Z" />
-                  <circle cx="75" cy="65" r="7" />
-                  <path d="M72 65L74 67L78 63" strokeLinecap="round" />
-                </svg>
-              </div>
-            </div>
+            <img src="/images/card-tests-exact.png" alt="Lab Tests" className="w-full h-auto block" />
           </div>
 
         </div>

@@ -100,26 +100,26 @@ html, body, #root {
   overflow-y: auto;
   overflow-x: hidden;
   background: #F3DCE8; /* Reference Pale Pink/Lilac canvas background */
-  padding: 1.5rem 2rem 3rem 2rem;
+  padding: 1.25rem 1.25rem 2.5rem 1.25rem;
 }
 
 @media (min-width: 1440px) {
   .patient-portal-layout {
-    padding: 2.25rem 4rem 4rem 4rem;
+    padding: 1.75rem 2.5rem 3.5rem 2.5rem;
   }
 }
 
 .patient-main-wrapper {
   width: 100%;
-  max-width: 1540px;
+  max-width: 1200px;
   margin: 0 auto;
   height: auto;
-  min-height: calc(100vh - 4.5rem);
+  min-height: calc(100vh - 3.5rem);
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  border-radius: 40px;
-  box-shadow: 0 25px 70px rgba(36, 36, 84, 0.08);
+  border-radius: 36px;
+  box-shadow: 0 20px 60px rgba(36, 36, 84, 0.08);
   overflow: hidden;
 }
 .patient-main-wrapper .content-area {
@@ -459,5 +459,13 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius:
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ── Auth Portal & Login Page Typography (Matching Reference Screenshot Exactly) ── */
+.auth-page-root,
+.auth-page-root *,
+.auth-portal-card,
+.auth-portal-card * {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 

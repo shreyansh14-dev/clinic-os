@@ -82,11 +82,11 @@ export const HealthcareIllustration = ({
 
         {/* Main Headline */}
         <div className="mt-6 space-y-2">
-          <h1 className="text-2xl sm:text-3xl lg:text-[38px] font-black text-slate-900 tracking-tight leading-[1.12] m-0 font-heading">
+          <h1 className="text-2xl sm:text-3xl lg:text-[40px] font-extrabold text-slate-900 tracking-[-0.03em] leading-[1.12] m-0 font-['Plus_Jakarta_Sans',sans-serif]">
             One Platform.<br />
-            Every <span className="bg-gradient-to-r from-[#2563EB] via-[#4F46E5] to-[#7C3AED] bg-clip-text text-transparent">Care Journey.</span>
+            Every <span className="text-[#4F46E5]">Care Journey.</span>
           </h1>
-          <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed max-w-sm m-0 font-normal">
+          <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed max-w-sm m-0 font-medium font-['Plus_Jakarta_Sans',sans-serif]">
             Connected care for patients, clinicians, and hospitals. From appointments to telehealth, EMR to operations.
           </p>
         </div>

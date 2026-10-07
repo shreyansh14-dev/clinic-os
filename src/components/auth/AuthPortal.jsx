@@ -248,7 +248,7 @@ export const AuthPortal = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative flex items-center justify-center p-3 sm:p-6 lg:p-8 font-sans text-slate-900 overflow-y-auto selection:bg-orange-500 selection:text-white">
+    <div className="auth-page-root min-h-screen w-full relative flex items-center justify-center p-3 sm:p-6 lg:p-8 font-['Plus_Jakarta_Sans',sans-serif] text-slate-900 overflow-y-auto selection:bg-[#4F46E5] selection:text-white">
       {/* Dreamy Animated Clouds Background */}
       <AnimatedCloudsBackground />
 
@@ -261,7 +261,7 @@ export const AuthPortal = () => {
       {/* Main Floating Authentication Card Container */}
       <div
         ref={containerRef}
-        className={`max-w-[1100px] w-full bg-white rounded-[32px] shadow-[0_24px_70px_rgba(15,23,42,0.08),0_4px_16px_rgba(15,23,42,0.02)] border border-slate-100/90 overflow-hidden flex flex-col lg:flex-row relative z-10 my-auto transition-all duration-700 ease-out ${
+        className={`auth-portal-card max-w-[1100px] w-full bg-white rounded-[32px] shadow-[0_24px_70px_rgba(15,23,42,0.08),0_4px_16px_rgba(15,23,42,0.02)] border border-slate-100/90 overflow-hidden flex flex-col lg:flex-row relative z-10 my-auto transition-all duration-700 ease-out font-['Plus_Jakarta_Sans',sans-serif] ${
           isTransitioningToDashboard
             ? 'scale-[1.03] opacity-0 pointer-events-none'
             : 'scale-100 opacity-100'
@@ -293,7 +293,7 @@ export const AuthPortal = () => {
         {/* ======================================================== */}
         {/* RIGHT PANEL: INTERACTIVE LOGIN FORM (42%)                */}
         {/* ======================================================== */}
-        <div className="lg:w-[42%] w-full bg-white p-6 sm:p-8 lg:p-10 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-100 relative">
+        <div className="lg:w-[42%] w-full bg-white p-6 sm:p-8 lg:p-10 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-100 relative font-['Plus_Jakarta_Sans',sans-serif]">
           
           {/* Top Status Indicator & Intro Replay */}
           <div className="flex items-center justify-between mb-2">
@@ -303,12 +303,12 @@ export const AuthPortal = () => {
               title="Replay brand transition animation"
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-all border border-transparent hover:border-slate-200 cursor-pointer"
             >
-              <Sparkles className="w-3 h-3 text-purple-600" />
+              <Sparkles className="w-3.5 h-3.5 text-[#4F46E5]" />
               <span>Intro</span>
             </button>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F2FBF6] border border-emerald-100 text-xs text-slate-600 font-medium shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EBFBF4] border border-emerald-100 text-[11px] text-slate-600 font-medium shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
               <span>All systems operational</span>
             </div>
           </div>
@@ -318,16 +318,16 @@ export const AuthPortal = () => {
             <div className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               {isSignUp ? 'CREATE YOUR ACCOUNT' : 'WELCOME BACK'}
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1 mb-1 font-heading">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-[-0.03em] mt-1 mb-1">
               {isSignUp ? (
                 'Join ClinicOS'
               ) : (
                 <>
-                  Sign in to <span className="text-[#5F2EEA]">ClinicOS</span>
+                  Sign in to <span className="text-[#4F46E5]">ClinicOS</span>
                 </>
               )}
             </h2>
-            <p className="text-xs text-slate-500 m-0 font-medium">
+            <p className="text-xs sm:text-[13px] text-slate-500 m-0 font-medium leading-relaxed">
               {isSignUp
                 ? 'Register to access state-of-the-art clinical workflows.'
                 : 'Access your workspace and continue providing better care.'}
@@ -351,7 +351,7 @@ export const AuthPortal = () => {
 
           {/* Role Switcher ("Continue as") with Animated Sliding Indicator */}
           <div className="mt-4 space-y-2">
-            <label className="block text-xs font-semibold text-slate-700">
+            <label className="block text-xs font-bold text-slate-800">
               Continue as
             </label>
             <div className="relative grid grid-cols-3 gap-2 bg-slate-50/80 p-1.5 rounded-2xl border border-slate-200/60">
@@ -363,13 +363,13 @@ export const AuthPortal = () => {
                     key={r.id}
                     type="button"
                     onClick={() => handleRoleSelect(r.id)}
-                    className={`relative z-10 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`relative z-10 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#F4F0FF] text-[#5F2EEA] border border-[#5F2EEA]/40 shadow-xs ring-1 ring-[#5F2EEA]/20'
-                        : 'text-slate-600 hover:text-slate-900 bg-transparent hover:bg-white/60 border border-transparent font-semibold'
+                        ? 'bg-[#EEF2FF] text-[#4F46E5] border border-[#4F46E5]/40 shadow-xs ring-1 ring-[#4F46E5]/20 font-bold'
+                        : 'text-slate-600 hover:text-slate-900 bg-transparent hover:bg-white/60 border border-transparent font-medium'
                     }`}
                   >
-                    <IconComp className="w-3.5 h-3.5" />
+                    <IconComp className={`w-3.5 h-3.5 ${isSelected ? 'text-[#4F46E5]' : 'text-slate-500'}`} />
                     <span>{r.label}</span>
                   </button>
                 );
@@ -487,7 +487,7 @@ export const AuthPortal = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusState('password')}
                   onBlur={() => setFocusState(null)}
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white transition-all font-mono"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white transition-all"
                 />
                 <button
                   type="button"

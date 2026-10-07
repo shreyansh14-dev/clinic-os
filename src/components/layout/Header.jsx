@@ -32,7 +32,9 @@ import {
   Receipt,
   Shield,
   BookOpen,
-  Sparkles
+  Sparkles,
+  Tag,
+  ShoppingCart
 } from 'lucide-react';
 
 export const Header = () => {
@@ -156,35 +158,41 @@ export const Header = () => {
           <div className="w-full flex items-center justify-between gap-3 sm:gap-6">
             
             {/* Left: Brand Logo & Location Selector */}
-            <div className="flex items-center gap-4 shrink-0">
+            <div className="flex items-center gap-3 shrink-0">
               {/* Exact Stylized V Brand Logo with Dots (Frame 04) */}
               <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                <svg width="34" height="26" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="32" height="24" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M32 20C32 13.3726 37.3726 8 44 8C50.6274 8 56 13.3726 56 20V45C56 47.7614 58.2386 50 61 50C63.7614 50 66 47.7614 66 45V20C66 13.3726 71.3726 8 78 8C84.6274 8 90 13.3726 90 20V45C90 61.5685 76.5685 75 60 75C43.4315 75 30 61.5685 30 45L32 20Z"
-                    fill="#242454"
+                    fill="#16163B"
                   />
                   <circle cx="28" cy="55" r="10" fill="#E7B8D1" />
                   <circle cx="92" cy="55" r="10" fill="#E7B8D1" />
                 </svg>
-                <span className="text-xl font-extrabold tracking-tight text-[#242454] font-['Poppins']">
-                  ClinicOS <span className="text-xs font-bold text-slate-400">MediCare</span>
+                <span className="text-xl font-black tracking-tight text-[#16163B] font-['Poppins']">
+                  MediCare
                 </span>
               </div>
 
-              {/* Select Location (Frame 04: Select Location Mumbai / New York ⌵) */}
-              <div className="hidden md:flex items-center text-xs text-slate-500 font-semibold pl-2 border-l border-slate-200">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-pointer transition-colors">
-                  <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                  <span className="text-slate-800 font-bold">Mumbai</span>
+              {/* Vertical Divider */}
+              <div className="h-6 w-px bg-slate-200 hidden md:block mx-1" />
+
+              {/* Select Location (Frame 04: Select Location / New York ⌵) */}
+              <div className="hidden md:flex flex-col text-left cursor-pointer">
+                <div className="flex items-center gap-1 text-[10px] text-slate-400 font-semibold leading-none">
+                  <MapPin className="w-2.5 h-2.5 text-slate-400" />
+                  <span>Select Location</span>
+                </div>
+                <div className="flex items-center gap-1 text-xs font-bold text-slate-800 mt-1 leading-none">
+                  <span>New York</span>
                   <ChevronDown className="w-3 h-3 text-slate-400" />
                 </div>
               </div>
             </div>
 
             {/* Center: Search Bar with Yellow Circle Button (Frame 04) */}
-            <div className="hidden lg:flex flex-1 max-w-md mx-2">
-              <div className="relative w-full flex items-center bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-full pl-1.5 pr-4 py-1 transition-all cursor-pointer">
+            <div className="hidden lg:flex flex-1 max-w-sm mx-2">
+              <div className="relative w-full flex items-center bg-[#F8FAFC] hover:bg-slate-100/80 border border-slate-200/80 rounded-full pl-1.5 pr-4 py-1 transition-all cursor-pointer">
                 <div className="w-7 h-7 rounded-full bg-[#E9DF70] flex items-center justify-center text-[#16163B] shrink-0 mr-2.5 shadow-2xs">
                   <Search className="w-3.5 h-3.5" />
                 </div>
@@ -198,18 +206,20 @@ export const Header = () => {
             </div>
 
             {/* Right: Navigation Links, Cart, SOS, & Portal Switcher */}
-            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            <div className="flex items-center gap-4 sm:gap-5 shrink-0">
               
-              {/* Healthcare Services Dropdown */}
+              {/* Healthcare Services Dropdown with "New" Tag */}
               <div className="relative group hidden xl:block">
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer p-0"
-                >
-                  <span className="px-1.5 py-0.5 rounded-md bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider">New</span>
-                  <span>Healthcare Services</span>
-                  <ChevronDown className="w-3 h-3 text-slate-400 group-hover:rotate-180 transition-transform" />
-                </button>
+                <div className="flex flex-col items-start cursor-pointer">
+                  <span className="px-1 py-0.2 rounded-sm bg-[#FF5510] text-white text-[8px] font-black uppercase tracking-wider mb-0.5">New</span>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer p-0"
+                  >
+                    <span>Healthcare Services</span>
+                    <ChevronDown className="w-3 h-3 text-slate-400 group-hover:rotate-180 transition-transform" />
+                  </button>
+                </div>
                 <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
                   <button
                     onClick={() => navigate('/book-appointment')}
@@ -241,41 +251,29 @@ export const Header = () => {
                   showToast('Offer applied: 60% OFF on all Lab Tests & Scans!');
                   navigate('/pathology-worklist');
                 }}
-                className="hidden md:inline-flex text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer"
+                className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer"
               >
-                Offer
+                <Tag className="w-3.5 h-3.5 text-amber-500" />
+                <span>Offer</span>
               </button>
 
               {/* Cart Button */}
               <button
                 onClick={() => navigate('/pharmacy-inventory')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none"
               >
-                <span>🛒 Cart</span>
+                <ShoppingCart className="w-3.5 h-3.5 text-slate-600" />
+                <span>Cart</span>
               </button>
 
-              {/* 108 SOS Ambulance Trigger Button */}
-              <button
-                onClick={() => {
-                  setSosDispatched(false);
-                  setIsSosModalOpen(true);
-                }}
-                className="px-3.5 py-1.5 bg-gradient-to-r from-[#FF2E70] to-[#FF453A] hover:opacity-95 text-white font-black text-xs rounded-full shadow-xs flex items-center gap-1.5 border-none cursor-pointer whitespace-nowrap transition-transform hover:scale-105"
-              >
-                <Siren className="w-3.5 h-3.5 animate-pulse text-white" />
-                <span className="hidden sm:inline">108 SOS Ambulance</span>
-                <span className="sm:hidden">108 SOS</span>
-              </button>
-
-              {/* Portal Switcher Dropdown */}
+              {/* Login / Portal Switcher Dropdown */}
               <div className="relative group">
                 <button
                   type="button"
-                  className="px-3.5 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none"
                 >
                   <User className="w-3.5 h-3.5 text-slate-600" />
-                  <span className="hidden sm:inline">Login / Portal</span>
-                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                  <span>Login</span>
                 </button>
                 {/* Switch to Doctor or Admin Portal */}
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
