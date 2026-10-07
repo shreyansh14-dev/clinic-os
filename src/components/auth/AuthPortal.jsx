@@ -383,29 +383,10 @@ export const AuthPortal = () => {
                   <currentRoleConfig.icon className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div>
                     <span className="text-xs font-bold text-slate-900 leading-tight">
                       {currentRoleConfig.portalTitle}
                     </span>
-                    {/* User-editable Patient Age Input */}
-                    {selectedRole === 'patient' && (
-                      <div className="inline-flex items-center gap-1.5 bg-white px-2 py-0.5 rounded-lg border border-orange-200/90 shadow-2xs">
-                        <label htmlFor="patient-age-input" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider cursor-pointer">
-                          Age:
-                        </label>
-                        <input
-                          id="patient-age-input"
-                          type="number"
-                          min="1"
-                          max="120"
-                          value={age}
-                          onChange={(e) => setAge(e.target.value)}
-                          placeholder="29"
-                          aria-label="Patient Age"
-                          className="w-12 text-center text-xs font-black text-orange-600 bg-orange-50/80 border border-orange-200 rounded-md py-0.5 px-1 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white transition-all font-heading"
-                        />
-                      </div>
-                    )}
                   </div>
                   <div className="text-[11px] text-slate-500 mt-0.5 leading-tight truncate">
                     {currentRoleConfig.desc}
