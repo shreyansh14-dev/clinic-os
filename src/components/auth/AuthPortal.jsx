@@ -17,6 +17,7 @@ import {
 import { HealthcareIllustration } from './HealthcareIllustration';
 import { LoginTransitionOverlay } from './LoginTransitionOverlay';
 import { useAvatarExpressions } from './useAvatarExpressions';
+import { AnimatedCloudsBackground } from './AnimatedCloudsBackground';
 
 export const AuthPortal = () => {
   const { loginUser, registerUser } = useApp();
@@ -244,18 +245,15 @@ export const AuthPortal = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#EBF0F5] relative flex items-center justify-center p-3 sm:p-6 lg:p-8 font-sans text-slate-900 overflow-y-auto selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen w-full relative flex items-center justify-center p-3 sm:p-6 lg:p-8 font-sans text-slate-900 overflow-y-auto selection:bg-orange-500 selection:text-white">
+      {/* Dreamy Animated Clouds Background */}
+      <AnimatedCloudsBackground />
+
       {/* PHASE 2 & 3: Full-Screen Purple Brand Transition Overlay */}
       <LoginTransitionOverlay
         isActive={isOverlayActive}
         isRetracting={isOverlayRetracting}
       />
-
-      {/* Background Soft Ambient Lights */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-blue-100/35 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-orange-100/35 blur-3xl" />
-      </div>
 
       {/* Main Floating Authentication Card Container */}
       <div
@@ -316,10 +314,16 @@ export const AuthPortal = () => {
             <div className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               {isSignUp ? 'CREATE YOUR ACCOUNT' : 'WELCOME BACK'}
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1 mb-1">
-              {isSignUp ? 'Join ClinicOS' : 'Sign in to ClinicOS'}
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1 mb-1 font-heading">
+              {isSignUp ? (
+                'Join ClinicOS'
+              ) : (
+                <>
+                  Sign in to <span className="text-[#5F2EEA]">ClinicOS</span>
+                </>
+              )}
             </h2>
-            <p className="text-xs text-slate-500 m-0">
+            <p className="text-xs text-slate-500 m-0 font-medium">
               {isSignUp
                 ? 'Register to access state-of-the-art clinical workflows.'
                 : 'Access your workspace and continue providing better care.'}
@@ -346,7 +350,7 @@ export const AuthPortal = () => {
             <label className="block text-xs font-semibold text-slate-700">
               Continue as
             </label>
-            <div className="relative grid grid-cols-3 gap-1.5 bg-slate-100/80 p-1 rounded-2xl border border-slate-200/50">
+            <div className="relative grid grid-cols-3 gap-2 bg-slate-50/80 p-1.5 rounded-2xl border border-slate-200/60">
               {roles.map((r) => {
                 const IconComp = r.icon;
                 const isSelected = selectedRole === r.id;
@@ -355,10 +359,10 @@ export const AuthPortal = () => {
                     key={r.id}
                     type="button"
                     onClick={() => handleRoleSelect(r.id)}
-                    className={`relative z-10 flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${
+                    className={`relative z-10 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20'
-                        : 'text-slate-600 hover:text-slate-900 bg-transparent font-medium'
+                        ? 'bg-[#F4F0FF] text-[#5F2EEA] border border-[#5F2EEA]/40 shadow-xs ring-1 ring-[#5F2EEA]/20'
+                        : 'text-slate-600 hover:text-slate-900 bg-transparent hover:bg-white/60 border border-transparent font-semibold'
                     }`}
                   >
                     <IconComp className="w-3.5 h-3.5" />

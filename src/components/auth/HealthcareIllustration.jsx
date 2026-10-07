@@ -81,9 +81,9 @@ export const HealthcareIllustration = ({
 
         {/* Main Headline */}
         <div className="mt-6 space-y-2">
-          <h1 className="text-2xl sm:text-3xl lg:text-[36px] font-black text-slate-900 tracking-tight leading-[1.14] m-0">
+          <h1 className="text-2xl sm:text-3xl lg:text-[38px] font-black text-slate-900 tracking-tight leading-[1.12] m-0 font-heading">
             One Platform.<br />
-            Every Care Journey.
+            Every <span className="bg-gradient-to-r from-[#2563EB] via-[#4F46E5] to-[#7C3AED] bg-clip-text text-transparent">Care Journey.</span>
           </h1>
           <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed max-w-sm m-0 font-normal">
             Connected care for patients, clinicians, and hospitals. From appointments to telehealth, EMR to operations.
@@ -144,12 +144,18 @@ export const HealthcareIllustration = ({
             transform: 'rotate(-3deg)'
           }}
         >
-          <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-800">Today's Care</span>
-              <Activity className="w-3.5 h-3.5 text-orange-500 animate-pulse" />
-            </div>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 rotate-[-45deg]" />
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+            <span className="text-xs font-bold text-slate-800">Today's Care</span>
+            {/* Orange ECG Wave matching reference image */}
+            <svg width="34" height="18" viewBox="0 0 34 18" fill="none" className="shrink-0">
+              <path
+                d="M 1 9 L 7 9 L 11 2 L 15 16 L 19 6 L 22 11 L 25 9 L 33 9"
+                stroke="#FF5510"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
 
           <div className="space-y-1 text-xs">

@@ -6,8 +6,8 @@
    ============================================================ */
 
 :root {
-  --font-family:    'Nunito Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-heading:   'Nunito Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-family:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-heading:   'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
   /* === SHAPE TOKEN — all cards & boxes use this === */
   --radius-card:    12px;    /* matches target Practo design */
@@ -268,6 +268,44 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius:
   100% { transform: scale(1, 1); }
 }
 
+/* ── Dreamy Animated Cloud Keyframes ── */
+.clouds-drift-slow {
+  animation: cloudsDrift 95s linear infinite;
+  will-change: transform;
+}
+.clouds-drift-mid {
+  animation: cloudsDrift 55s linear infinite;
+  will-change: transform;
+}
+.clouds-drift-fast {
+  animation: cloudsDrift 40s linear infinite;
+  will-change: transform;
+}
+
+.animate-cloud-bob {
+  animation: cloudBob 8s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.animate-cloud-bob-delayed {
+  animation: cloudBob 10s ease-in-out infinite alternate 3s;
+  will-change: transform;
+}
+
+@keyframes cloudsDrift {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes cloudBob {
+  0%   { transform: translateY(0px) scale(1); }
+  50%  { transform: translateY(-10px) scale(1.01); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+body, html {
+  font-family: var(--font-family);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -275,3 +313,4 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius:
     transition-duration: 0.01ms !important;
   }
 }
+
