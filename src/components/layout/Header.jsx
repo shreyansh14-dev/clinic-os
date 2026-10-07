@@ -153,191 +153,98 @@ export const Header = () => {
         
         {/* Patient Consumer Header (when currentRole === 'patient') */}
         {currentRole === 'patient' ? (
-          <div className="w-full flex items-center justify-between gap-4">
-            {/* Left: Brand Logo */}
-            <div className="flex items-center gap-3 cursor-pointer shrink-0" onClick={() => navigate('/')}>
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#FF5510] to-[#FF6E30] text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/25">
-                C
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-black tracking-tight text-slate-900 leading-none font-heading">ClinicOS</span>
-                  <span className="text-[10px] font-black tracking-wider bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md border border-sky-200">
-                    SMART HOSPITAL
-                  </span>
+          <div className="w-full flex items-center justify-between gap-3 sm:gap-6">
+            
+            {/* Left: Brand Logo & Location Selector */}
+            <div className="flex items-center gap-4 shrink-0">
+              {/* MediCare Stylized Logo */}
+              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+                <div className="w-8 h-8 rounded-xl bg-[#1D204E] text-white flex items-center justify-center font-black text-lg shadow-sm">
+                  M
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium m-0 leading-none mt-1">Digital Healthcare Platform & EMR Network</p>
+                <span className="text-xl font-black tracking-tight text-[#1D204E]">
+                  MediCare
+                </span>
+              </div>
+
+              {/* Select Location (Video 00:03: Select Location New York ⌵) */}
+              <div className="hidden md:flex items-center text-xs text-slate-500 font-semibold pl-2 border-l border-slate-200">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-pointer transition-colors">
+                  <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                  <span className="text-slate-800 font-bold">New York</span>
+                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                </div>
               </div>
             </div>
 
-            {/* Center: Consumer Healthcare Navigation with Dropdowns */}
-            <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-slate-700">
-              <button
-                onClick={() => navigate('/book-appointment')}
-                className="hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
-              >
-                Find Doctors
-              </button>
+            {/* Center: Search Bar (Video 00:03: Medicine and healthcare items) */}
+            <div className="hidden lg:flex flex-1 max-w-md mx-2">
+              <div className="relative w-full">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
+                <input
+                  type="text"
+                  placeholder="Medicine and healthcare items"
+                  onClick={() => navigate('/pharmacy-inventory')}
+                  className="w-full pl-10 pr-4 py-2 bg-[#FFFDE8] hover:bg-amber-50/60 focus:bg-white border border-amber-200/80 rounded-full text-xs text-slate-800 font-medium placeholder-slate-400 focus:outline-none focus:border-[#1D204E] transition-all cursor-pointer"
+                />
+              </div>
+            </div>
 
-              {/* Appointments Dropdown */}
-              <div className="relative group">
+            {/* Right: Navigation Links, Cart, SOS, & Portal Switcher */}
+            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+              
+              {/* Healthcare Services Dropdown */}
+              <div className="relative group hidden xl:block">
                 <button
                   type="button"
-                  className="flex items-center gap-1 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
+                  className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer p-0"
                 >
-                  <span>Appointments</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform group-hover:rotate-180" />
+                  <span className="px-1.5 py-0.5 rounded-md bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider">New</span>
+                  <span>Healthcare Services</span>
+                  <ChevronDown className="w-3 h-3 text-slate-400 group-hover:rotate-180 transition-transform" />
                 </button>
                 <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
                   <button
                     onClick={() => navigate('/book-appointment')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
-                    <CalendarPlus className="w-4 h-4 text-orange-500 shrink-0" />
-                    <span>Book Appointment</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/my-appointments')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <CalendarCheck className="w-4 h-4 text-blue-500 shrink-0" />
-                    <span>My Appointments</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Lab Tests Dropdown */}
-              <div className="relative group">
-                <button
-                  type="button"
-                  className="flex items-center gap-1 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
-                >
-                  <span>Lab Tests</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform group-hover:rotate-180" />
-                </button>
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
-                  <button
-                    onClick={() => navigate('/lab-tests')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <FlaskConical className="w-4 h-4 text-purple-500 shrink-0" />
-                    <span>Lab Tests at Home</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/diagnostic-tests')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <TestTube2 className="w-4 h-4 text-indigo-500 shrink-0" />
-                    <span>My Lab Reports</span>
-                  </button>
-                </div>
-              </div>
-
-              <button
-                onClick={() => navigate('/medical-records')}
-                className="hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
-              >
-                Medical Records
-              </button>
-
-              {/* Health Dropdown */}
-              <div className="relative group">
-                <button
-                  type="button"
-                  className="flex items-center gap-1 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
-                >
-                  <span>Health</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform group-hover:rotate-180" />
-                </button>
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
-                  <button
-                    onClick={() => navigate('/health-tracker')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <HeartPulse className="w-4 h-4 text-rose-500 shrink-0" />
-                    <span>Health Vitals Log</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/my-meds')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <Pill className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Meds Schedule</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/vaccines')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <Syringe className="w-4 h-4 text-pink-500 shrink-0" />
-                    <span>Vaccine Passport</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* More Dropdown */}
-              <div className="relative group">
-                <button
-                  type="button"
-                  className="flex items-center gap-1 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0 font-bold text-xs"
-                >
-                  <span>More</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform group-hover:rotate-180" />
-                </button>
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
-                  <button
-                    onClick={() => navigate('/bills')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <Receipt className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Bills & Receipts</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/insurance-claims')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0" />
-                    <span>Insurance Claims</span>
+                    <Stethoscope className="w-4 h-4 text-blue-500 shrink-0" />
+                    <span>In-Clinic Doctors</span>
                   </button>
                   <button
                     onClick={() => navigate('/video-call')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
                     <Video className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Telehealth</span>
+                    <span>Instant Telehealth</span>
                   </button>
                   <button
-                    onClick={() => navigate('/symptom-assistant')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    onClick={() => navigate('/pathology-worklist')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
-                    <BookOpen className="w-4 h-4 text-purple-500 shrink-0" />
-                    <span>Health Articles</span>
+                    <FlaskConical className="w-4 h-4 text-purple-500 shrink-0" />
+                    <span>Home Lab Tests</span>
                   </button>
                 </div>
               </div>
-            </nav>
 
-            {/* Right Controls */}
-            <div className="flex items-center gap-3">
-              {/* Location Picker */}
-              <div className="relative group hidden sm:block">
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 transition-all cursor-pointer"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                  <span>Mumbai</span>
-                  <ChevronDown className="w-3 h-3 text-slate-400" />
-                </button>
-              </div>
-
-              {/* Search Icon Trigger */}
+              {/* Offer Link */}
               <button
-                type="button"
-                onClick={() => navigate('/book-appointment')}
-                title="Search Doctors & Specialties"
-                className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 cursor-pointer bg-white transition-all"
+                onClick={() => {
+                  showToast('Offer applied: 60% OFF on all Lab Tests & Scans!');
+                  navigate('/pathology-worklist');
+                }}
+                className="hidden md:inline-flex text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer"
               >
-                <Search className="w-3.5 h-3.5" />
+                Offer
+              </button>
+
+              {/* Cart Button */}
+              <button
+                onClick={() => navigate('/pharmacy-inventory')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 cursor-pointer transition-colors"
+              >
+                <span>🛒 Cart</span>
               </button>
 
               {/* 108 SOS Ambulance Trigger Button */}
@@ -349,17 +256,18 @@ export const Header = () => {
                 className="px-3.5 py-1.5 bg-gradient-to-r from-[#FF2E70] to-[#FF453A] hover:opacity-95 text-white font-black text-xs rounded-full shadow-xs flex items-center gap-1.5 border-none cursor-pointer whitespace-nowrap transition-transform hover:scale-105"
               >
                 <Siren className="w-3.5 h-3.5 animate-pulse text-white" />
-                <span>108 SOS Ambulance</span>
+                <span className="hidden sm:inline">108 SOS Ambulance</span>
+                <span className="sm:hidden">108 SOS</span>
               </button>
 
-              {/* Patient Portal Badge / Switcher */}
+              {/* Portal Switcher Dropdown */}
               <div className="relative group">
                 <button
                   type="button"
-                  className="px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  className="px-3.5 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer shadow-2xs"
                 >
                   <User className="w-3.5 h-3.5 text-slate-600" />
-                  <span className="hidden sm:inline">Patient Portal</span>
+                  <span className="hidden sm:inline">Login / Portal</span>
                   <ChevronDown className="w-3 h-3 text-slate-400" />
                 </button>
                 {/* Switch to Doctor or Admin Portal */}
@@ -381,16 +289,6 @@ export const Header = () => {
                   </button>
                 </div>
               </div>
-
-              {/* Notification Bell */}
-              <button
-                type="button"
-                onClick={() => showToast('No new notifications')}
-                className="relative p-2 text-slate-500 hover:text-slate-900 rounded-full hover:bg-slate-100 cursor-pointer border-none bg-transparent"
-              >
-                <Bell className="w-4 h-4" />
-                <span className="w-2 h-2 rounded-full bg-rose-500 absolute top-1.5 right-1.5 border border-white" />
-              </button>
 
               {/* Profile Avatar */}
               <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
@@ -418,7 +316,9 @@ export const Header = () => {
                   </div>
                 </div>
               </div>
+
             </div>
+
           </div>
         ) : (
           /* Clinical Staff Header (Doctor & Admin) */

@@ -412,3 +412,42 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius:
   box-shadow: 0 0 0 3px rgba(95, 46, 234, 0.1);
 }
 
+/* ── MediCare Video Prototype Animation Keyframes & Utilities ── */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes floatSlowReverse {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(8px); }
+}
+
+@keyframes marqueeWatermark {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+.animate-float-slow-reverse {
+  animation: floatSlowReverse 5.5s ease-in-out infinite;
+}
+
+.animate-marquee-watermark {
+  display: flex;
+  width: 200%;
+  animation: marqueeWatermark 40s linear infinite;
+  will-change: transform;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
