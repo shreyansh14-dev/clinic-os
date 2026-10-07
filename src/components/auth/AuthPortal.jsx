@@ -383,35 +383,49 @@ export const AuthPortal = () => {
                     <span className="text-xs font-bold text-slate-900 leading-tight">
                       {currentRoleConfig.portalTitle}
                     </span>
-                    {/* Persistent Patient Age Selector (Age <= 70 Adult vs >70 Senior UI) */}
+                    {/* User-editable Patient Age Input */}
                     {selectedRole === 'patient' && (
-                      <div className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-orange-200/80 shadow-2xs">
-                        <span className="text-[10px] font-semibold text-slate-400">Age:</span>
-                        <button
-                          type="button"
-                          onClick={() => setAge('29')}
-                          title="Standard Patient Dashboard (Age 29)"
-                          className={`text-[10px] px-1.5 py-0.2 rounded font-extrabold cursor-pointer border-none transition-all ${
-                            parseInt(age, 10) <= 70
-                              ? 'bg-orange-500 text-white'
-                              : 'text-slate-500 hover:text-slate-800 bg-transparent'
-                          }`}
-                        >
-                          29
-                        </button>
-                        <span className="text-slate-300 text-[10px]">|</span>
-                        <button
-                          type="button"
-                          onClick={() => setAge('75')}
-                          title="Senior Care Dashboard (Age >70)"
-                          className={`text-[10px] px-1.5 py-0.2 rounded font-extrabold cursor-pointer border-none transition-all ${
-                            parseInt(age, 10) > 70
-                              ? 'bg-orange-500 text-white'
-                              : 'text-slate-500 hover:text-slate-800 bg-transparent'
-                          }`}
-                        >
-                          75+ Senior
-                        </button>
+                      <div className="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-xl border border-orange-200/90 shadow-2xs">
+                        <label htmlFor="patient-age-input" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider cursor-pointer">
+                          Age:
+                        </label>
+                        <input
+                          id="patient-age-input"
+                          type="number"
+                          min="1"
+                          max="120"
+                          value={age}
+                          onChange={(e) => setAge(e.target.value)}
+                          placeholder="29"
+                          aria-label="Patient Age"
+                          className="w-11 text-center text-xs font-black text-orange-600 bg-orange-50/80 border border-orange-200 rounded-md py-0.5 px-1 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white transition-all font-heading"
+                        />
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setAge('29')}
+                            title="Quick tag: 29"
+                            className={`text-[9px] px-1.5 py-0.5 rounded font-extrabold cursor-pointer border-none transition-all ${
+                              parseInt(age, 10) <= 70
+                                ? 'bg-orange-500 text-white'
+                                : 'text-slate-400 hover:text-slate-700 bg-slate-100'
+                            }`}
+                          >
+                            29
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAge('75')}
+                            title="Quick tag: 75+"
+                            className={`text-[9px] px-1.5 py-0.5 rounded font-extrabold cursor-pointer border-none transition-all ${
+                              parseInt(age, 10) > 70
+                                ? 'bg-orange-500 text-white'
+                                : 'text-slate-400 hover:text-slate-700 bg-slate-100'
+                            }`}
+                          >
+                            75+
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -425,6 +439,34 @@ export const AuthPortal = () => {
 
           {/* Form Inputs */}
           <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
+            {/* Direct Patient Age Field */}
+            {selectedRole === 'patient' && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Patient Age *
+                  </label>
+                  <span className="text-[11px] font-bold text-orange-600">
+                    {parseInt(age, 10) > 70 ? '👴 Senior Care UI (>70)' : '🧑 Standard Patient UI (≤70)'}
+                  </span>
+                </div>
+                <div className="relative">
+                  <span className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center justify-center font-bold text-xs select-none">
+                    #
+                  </span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="120"
+                    required
+                    placeholder="Enter your age (e.g. 29 for adult, 75 for senior care)"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white transition-all font-medium font-heading"
+                  />
+                </div>
+              </div>
+            )}
             {/* Optional Registration Name */}
             {isSignUp && (
               <div>
