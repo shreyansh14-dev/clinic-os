@@ -95,8 +95,9 @@ const MainRoutes = () => {
 
 const AppContent = () => {
   const { currentUser } = useApp();
+  const location = useLocation();
 
-  if (!currentUser) {
+  if (!currentUser || location.pathname === '/login') {
     return <AuthPortal />;
   }
 

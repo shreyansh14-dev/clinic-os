@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   User,
@@ -6,19 +6,17 @@ import {
   Mail,
   Phone,
   Stethoscope,
-  Shield,
-  ArrowRight,
-  CheckCircle2,
-  AlertCircle,
   Building2,
-  Sparkles,
-  Database,
-  KeyRound,
-  Video,
-  FileText,
-  Clock,
-  Calendar
+  ArrowRight,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
+import { HealthcareIllustration } from './HealthcareIllustration';
+import { LoginTransitionOverlay } from './LoginTransitionOverlay';
+import { useAvatarExpressions } from './useAvatarExpressions';
 
 export const AuthPortal = () => {
   const { loginUser, registerUser } = useApp();
@@ -28,6 +26,8 @@ export const AuthPortal = () => {
   // Form State
   const [email, setEmail] = useState('patient@clinicos.com');
   const [password, setPassword] = useState('patient123');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [name, setName] = useState('');
   const [age, setAge] = useState('29');
   const [phone, setPhone] = useState('');
@@ -36,26 +36,145 @@ export const AuthPortal = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 3 Core Supported Roles
-  const rolesList = [
-    { id: 'patient', label: 'Patient Portal', desc: 'Book OPD, EMR, Vitals & Real-Time Telemedicine Call', icon: User, color: 'text-orange-600 bg-orange-50', demoEmail: 'patient@clinicos.com' },
-    { id: 'doctor', label: 'Doctor Console', desc: 'Patient Queue, Digital Rx & Telehealth Suite', icon: Stethoscope, color: 'text-blue-600 bg-blue-50', demoEmail: 'doctor@clinicos.com' },
-    { id: 'admin', label: 'Hospital Admin', desc: 'Financial Ledger, Ward Beds & Roster Control', icon: Building2, color: 'text-purple-600 bg-purple-50', demoEmail: 'admin@clinicos.com' }
+  // Animation Choreography Phases
+  const [phase, setPhase] = useState('phase1');
+  const [isOverlayActive, setIsOverlayActive] = useState(false);
+  const [isOverlayRetracting, setIsOverlayRetracting] = useState(false);
+  const [isTransitioningToDashboard, setIsTransitioningToDashboard] = useState(false);
+
+  // Form Field Focus State ('email' | 'password' | 'submit' | null)
+  const [focusState, setFocusState] = useState(null);
+  const containerRef = useRef(null);
+
+  // Avatar Expression Controller: 60fps RAF eye tracking, randomized blinking, contextual emotion
+  const {
+    patientBlink,
+    doctorBlink,
+    nurseBlink,
+    eyesClosed,
+    gaze,
+    faceShift,
+    bodyShift,
+    isLeaningRight,
+    patientExpression,
+    doctorExpression,
+    nurseExpression,
+    roleIntensity
+  } = useAvatarExpressions({
+    focusState,
+    showPassword,
+    selectedRole,
+    hasError: !!errorMsg,
+    isSuccess: isTransitioningToDashboard,
+    containerRef
+  });
+
+  // Reference Sequence Timing Choreography
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      setPhase('phase4');
+      return;
+    }
+
+    // Phase 1 -> Phase 2: Start purple brand transition at 1.2s
+    const t1 = setTimeout(() => {
+      setPhase('phase2');
+      setIsOverlayActive(true);
+      setIsOverlayRetracting(false);
+    }, 1200);
+
+    // Phase 2 -> Phase 3: Retract overlay at 2.4s
+    const t2 = setTimeout(() => {
+      setIsOverlayRetracting(true);
+      setPhase('phase3');
+    }, 2400);
+
+    // Phase 3 -> Phase 4: Settle into interactive character loop at 3.8s
+    const t3 = setTimeout(() => {
+      setIsOverlayActive(false);
+      setIsOverlayRetracting(false);
+      setPhase('phase4');
+    }, 3800);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+
+  // Replay brand intro transition on demand
+  const handleReplayIntro = () => {
+    setPhase('phase2');
+    setIsOverlayActive(true);
+    setIsOverlayRetracting(false);
+
+    setTimeout(() => {
+      setIsOverlayRetracting(true);
+      setPhase('phase3');
+    }, 1200);
+
+    setTimeout(() => {
+      setIsOverlayActive(false);
+      setIsOverlayRetracting(false);
+      setPhase('phase4');
+    }, 2400);
+  };
+
+  // Role Configurations
+  const roles = [
+    {
+      id: 'patient',
+      label: 'Patient',
+      portalTitle: 'Patient Portal',
+      desc: 'Book OPD, view EMR, check vitals & join telemedicine calls.',
+      icon: User,
+      demoEmail: 'patient@clinicos.com',
+      demoPass: 'patient123',
+      btnLabel: 'Sign in as Patient',
+      accentColor: '#FF5510'
+    },
+    {
+      id: 'doctor',
+      label: 'Doctor',
+      portalTitle: 'Doctor Console',
+      desc: 'Patient queue, digital Rx, lab test reviews & telehealth suite.',
+      icon: Stethoscope,
+      demoEmail: 'doctor@clinicos.com',
+      demoPass: 'doctor123',
+      btnLabel: 'Sign in as Doctor',
+      accentColor: '#6320EE'
+    },
+    {
+      id: 'admin',
+      label: 'Hospital Admin',
+      portalTitle: 'Hospital Admin',
+      desc: 'Financial ledger, ward bed allocation & hospital roster control.',
+      icon: Building2,
+      demoEmail: 'admin@clinicos.com',
+      demoPass: 'admin123',
+      btnLabel: 'Sign in as Hospital Admin',
+      accentColor: '#0F172A'
+    }
   ];
+
+  const currentRoleConfig = roles.find((r) => r.id === selectedRole) || roles[0];
 
   const handleRoleSelect = (roleId) => {
     setSelectedRole(roleId);
     setErrorMsg('');
     setSuccessMsg('');
-    const found = rolesList.find(r => r.id === roleId);
-    if (found && !isSignUp) {
-      setEmail(found.demoEmail);
-      setPassword(`${roleId}123`);
+    const target = roles.find((r) => r.id === roleId);
+    if (target && !isSignUp) {
+      setEmail(target.demoEmail);
+      setPassword(target.demoPass);
     }
   };
 
   const parsedAge = parseInt(age, 10);
 
+  // Submit Handler with Phase 6 Transition Sequence
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -63,7 +182,7 @@ export const AuthPortal = () => {
     setLoading(true);
 
     try {
-      if (selectedRole === 'patient') {
+      if (selectedRole === 'patient' && isSignUp) {
         if (!age || isNaN(parsedAge) || parsedAge < 1 || parsedAge > 120) {
           throw new Error('Please enter a valid age (1 to 120).');
         }
@@ -87,82 +206,148 @@ export const AuthPortal = () => {
         if (!email || !password) {
           throw new Error('Please enter email and password');
         }
-        await loginUser(email, password, selectedRole, selectedRole === 'patient' ? parsedAge : null);
-        setSuccessMsg('Session authenticated successfully.');
+
+        // Trigger Phase 6 Login Submission Animation
+        setIsTransitioningToDashboard(true);
+
+        // Allow 550ms for smooth scale & opacity transition into dashboard
+        await new Promise((resolve) => setTimeout(resolve, 550));
+
+        await loginUser(
+          email,
+          password,
+          selectedRole,
+          selectedRole === 'patient' ? (parsedAge || 29) : null
+        );
       }
     } catch (err) {
+      setIsTransitioningToDashboard(false);
       setErrorMsg(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setErrorMsg('');
+    setLoading(true);
+    try {
+      setIsTransitioningToDashboard(true);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await loginUser(currentRoleConfig.demoEmail, currentRoleConfig.demoPass, selectedRole, 29);
+    } catch (err) {
+      setIsTransitioningToDashboard(false);
+      setErrorMsg('Google Sign-In failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between relative overflow-hidden font-sans text-slate-900">
-      
-      {/* Top Header Navbar */}
-      <header className="bg-white text-slate-900 py-4 px-8 shadow-sm flex items-center justify-between z-10 border-b border-slate-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-orange-600 flex items-center justify-center font-black text-white text-xl shadow-md shadow-orange-600/30">
-            C
-          </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 m-0">
-              ClinicOS
-            </h1>
-            <p className="text-xs text-orange-600 m-0 font-bold">Smart Healthcare Management System</p>
-          </div>
+    <div className="min-h-screen w-full bg-[#EBF0F5] relative flex items-center justify-center p-3 sm:p-6 lg:p-8 font-sans text-slate-900 overflow-y-auto selection:bg-orange-500 selection:text-white">
+      {/* PHASE 2 & 3: Full-Screen Purple Brand Transition Overlay */}
+      <LoginTransitionOverlay
+        isActive={isOverlayActive}
+        isRetracting={isOverlayRetracting}
+      />
+
+      {/* Background Soft Ambient Lights */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-blue-100/35 blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-orange-100/35 blur-3xl" />
+      </div>
+
+      {/* Main Floating Authentication Card Container */}
+      <div
+        ref={containerRef}
+        className={`max-w-[1100px] w-full bg-white rounded-[32px] shadow-[0_24px_70px_rgba(15,23,42,0.08),0_4px_16px_rgba(15,23,42,0.02)] border border-slate-100/90 overflow-hidden flex flex-col lg:flex-row relative z-10 my-auto transition-all duration-700 ease-out ${
+          isTransitioningToDashboard
+            ? 'scale-[1.03] opacity-0 pointer-events-none'
+            : 'scale-100 opacity-100'
+        }`}
+      >
+        {/* ======================================================== */}
+        {/* LEFT PANEL: ANIMATED HEALTHCARE MASCOTS & HERO (58%)     */}
+        {/* ======================================================== */}
+        <div className="lg:w-[58%] w-full bg-[#FAFBFD] relative flex items-stretch overflow-hidden select-none">
+          <HealthcareIllustration
+            patientExpression={patientExpression}
+            doctorExpression={doctorExpression}
+            nurseExpression={nurseExpression}
+            patientBlink={patientBlink}
+            doctorBlink={doctorBlink}
+            nurseBlink={nurseBlink}
+            eyesClosed={eyesClosed}
+            gaze={gaze}
+            faceShift={faceShift}
+            bodyShift={bodyShift}
+            isLeaningRight={isLeaningRight}
+            roleIntensity={roleIntensity}
+            selectedRole={selectedRole}
+            phase={phase}
+          />
         </div>
 
-        <div className="hidden md:flex items-center space-x-2 text-xs bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 text-slate-700">
-          <Database className="w-3.5 h-3.5 text-orange-600" />
-          <span>Database Engine: <strong className="text-slate-900 font-mono">SQLite (clinic.db)</strong></span>
-        </div>
-      </header>
+        {/* ======================================================== */}
+        {/* RIGHT PANEL: INTERACTIVE LOGIN FORM (42%)                */}
+        {/* ======================================================== */}
+        <div className="lg:w-[42%] w-full bg-white p-6 sm:p-8 lg:p-10 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-100 relative">
+          
+          {/* Top Status Indicator & Intro Replay */}
+          <div className="flex items-center justify-between mb-2">
+            <button
+              type="button"
+              onClick={handleReplayIntro}
+              title="Replay brand transition animation"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-all border border-transparent hover:border-slate-200 cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3 text-purple-600" />
+              <span>Intro</span>
+            </button>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center z-10">
-        
-        {/* Left Features Highlight Panel (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          <div>
-            <div className="inline-flex items-center space-x-2 bg-orange-100 text-orange-700 px-3 py-1 rounded-full border border-orange-200 text-xs font-bold mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-orange-600" />
-              <span>Centralized Digital Healthcare Platform</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F2FBF6] border border-emerald-100 text-xs text-slate-600 font-medium shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>All systems operational</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight m-0">
-              Smart Clinical Operations & Telehealth
+          </div>
+
+          {/* Form Header */}
+          <div className="mt-1">
+            <div className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+              {isSignUp ? 'CREATE YOUR ACCOUNT' : 'WELCOME BACK'}
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1 mb-1">
+              {isSignUp ? 'Join ClinicOS' : 'Sign in to ClinicOS'}
             </h2>
-            <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-              Digitize patient records, schedule appointments, issue digital prescriptions, and conduct real-time video consultations.
+            <p className="text-xs text-slate-500 m-0">
+              {isSignUp
+                ? 'Register to access state-of-the-art clinical workflows.'
+                : 'Access your workspace and continue providing better care.'}
             </p>
           </div>
 
-          {/* Key Feature Badges */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2.5">
-              <Video className="w-4 h-4 text-orange-600" />
-              <span className="text-xs font-bold text-slate-800">Real WebRTC Video</span>
+          {/* Feedback Alerts */}
+          {errorMsg && (
+            <div className="mt-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{errorMsg}</span>
             </div>
-            <div className="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2.5">
-              <FileText className="w-4 h-4 text-cyan-600" />
-              <span className="text-xs font-bold text-slate-800">Digital Rx & EMR</span>
-            </div>
-            <div className="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2.5">
-              <Clock className="w-4 h-4 text-emerald-600" />
-              <span className="text-xs font-bold text-slate-800">OPD Appointments</span>
-            </div>
-            <div className="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2.5">
-              <Shield className="w-4 h-4 text-purple-600" />
-              <span className="text-xs font-bold text-slate-800">Role-Based Access</span>
-            </div>
-          </div>
+          )}
 
-          {/* Role Cards List */}
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Select Workspace Role</label>
-            <div className="space-y-2">
-              {rolesList.map((r) => {
+          {successMsg && (
+            <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-xs font-semibold flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span>{successMsg}</span>
+            </div>
+          )}
+
+          {/* Role Switcher ("Continue as") with Animated Sliding Indicator */}
+          <div className="mt-4 space-y-2">
+            <label className="block text-xs font-semibold text-slate-700">
+              Continue as
+            </label>
+            <div className="relative grid grid-cols-3 gap-1.5 bg-slate-100/80 p-1 rounded-2xl border border-slate-200/50">
+              {roles.map((r) => {
                 const IconComp = r.icon;
                 const isSelected = selectedRole === r.id;
                 return (
@@ -170,211 +355,283 @@ export const AuthPortal = () => {
                     key={r.id}
                     type="button"
                     onClick={() => handleRoleSelect(r.id)}
-                    className={`w-full p-3.5 rounded-2xl border transition-all text-left flex items-center justify-between cursor-pointer ${
+                    className={`relative z-10 flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${
                       isSelected
-                        ? 'bg-orange-600 border-orange-600 text-white font-bold shadow-lg shadow-orange-600/30'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+                        ? 'bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20'
+                        : 'text-slate-600 hover:text-slate-900 bg-transparent font-medium'
                     }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isSelected ? 'bg-white/20 text-white' : r.color}`}>
-                        <IconComp className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-extrabold">{r.label}</div>
-                        <div className={`text-[11px] font-normal ${isSelected ? 'text-orange-100' : 'text-slate-500'}`}>{r.desc}</div>
-                      </div>
-                    </div>
-                    <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-slate-400'}`} />
+                    <IconComp className="w-3.5 h-3.5" />
+                    <span>{r.label}</span>
                   </button>
                 );
               })}
             </div>
+
+            {/* Active Role Description Banner + Integrated Patient Age Selector */}
+            <div className="p-3 bg-orange-50/70 border border-orange-100/90 rounded-2xl flex items-center justify-between transition-all">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 shadow-2xs">
+                  <currentRoleConfig.icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900 leading-tight">
+                      {currentRoleConfig.portalTitle}
+                    </span>
+                    {/* Persistent Patient Age Selector (Age <= 70 Adult vs >70 Senior UI) */}
+                    {selectedRole === 'patient' && (
+                      <div className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-orange-200/80 shadow-2xs">
+                        <span className="text-[10px] font-semibold text-slate-400">Age:</span>
+                        <button
+                          type="button"
+                          onClick={() => setAge('29')}
+                          title="Standard Patient Dashboard (Age 29)"
+                          className={`text-[10px] px-1.5 py-0.2 rounded font-extrabold cursor-pointer border-none transition-all ${
+                            parseInt(age, 10) <= 70
+                              ? 'bg-orange-500 text-white'
+                              : 'text-slate-500 hover:text-slate-800 bg-transparent'
+                          }`}
+                        >
+                          29
+                        </button>
+                        <span className="text-slate-300 text-[10px]">|</span>
+                        <button
+                          type="button"
+                          onClick={() => setAge('75')}
+                          title="Senior Care Dashboard (Age >70)"
+                          className={`text-[10px] px-1.5 py-0.2 rounded font-extrabold cursor-pointer border-none transition-all ${
+                            parseInt(age, 10) > 70
+                              ? 'bg-orange-500 text-white'
+                              : 'text-slate-500 hover:text-slate-800 bg-transparent'
+                          }`}
+                        >
+                          75+ Senior
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5 leading-tight truncate">
+                    {currentRoleConfig.desc}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Right Form Card */}
-        <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-8 shadow-xl relative text-slate-900">
-          
-          <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
-            <div>
-              <h3 className="text-xl font-black text-slate-900 m-0">
-                {isSignUp ? 'Create Account' : 'System Login'}
-              </h3>
-              <p className="text-xs text-slate-500 m-0 mt-0.5">
-                Active Workspace: <strong className="text-orange-600 uppercase font-mono">{selectedRole}</strong>
-              </p>
-            </div>
-
-            <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-              <button
-                type="button"
-                onClick={() => { setIsSignUp(false); setErrorMsg(''); setSuccessMsg(''); }}
-                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer border-none ${
-                  !isSignUp ? 'bg-orange-600 text-white shadow' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => { setIsSignUp(true); setErrorMsg(''); setSuccessMsg(''); }}
-                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer border-none ${
-                  isSignUp ? 'bg-orange-600 text-white shadow' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Register
-              </button>
-            </div>
-          </div>
-
-          {errorMsg && (
-            <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          {successMsg && (
-            <div className="mb-5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-xs font-semibold flex items-center space-x-2">
-              <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
-              <span>{successMsg}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            
+          {/* Form Inputs */}
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
+            {/* Optional Registration Name */}
             {isSignUp && (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Full Legal Name *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Full Legal Name *
+                </label>
                 <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     required
                     placeholder="e.g. Shreyansh Kumar"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-orange-500 focus:bg-white"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white transition-all"
                   />
                 </div>
               </div>
             )}
 
-            {/* AGE INPUT FOR PATIENT */}
-            {selectedRole === 'patient' && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Age (Years) *</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    max="120"
-                    placeholder="Enter patient age (e.g. 29 or 75)"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-orange-500 focus:bg-white"
-                  />
-                </div>
-              </div>
-            )}
-
+            {/* Email Address Input */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address *</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Email address
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   required
                   placeholder={`${selectedRole}@clinicos.com`}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-orange-500 focus:bg-white"
+                  onFocus={() => setFocusState('email')}
+                  onBlur={() => setFocusState(null)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white transition-all"
                 />
               </div>
             </div>
 
+            {/* Password Input */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password *</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Password
+                </label>
+                {!isSignUp && (
+                  <button
+                    type="button"
+                    onClick={() => alert(`Password reset link simulated for ${email}`)}
+                    className="text-xs text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer p-0 font-medium"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-orange-500 focus:bg-white"
+                  onFocus={() => setFocusState('password')}
+                  onBlur={() => setFocusState(null)}
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white transition-all font-mono"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer p-0"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
+            {/* Optional Registration Details */}
             {isSignUp && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Phone Number</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Phone Number
+                  </label>
                   <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
                       placeholder="+91 98765 43210"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-orange-500 focus:bg-white"
+                      className="w-full pl-10 pr-3 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white"
                     />
                   </div>
                 </div>
 
                 {selectedRole === 'doctor' && (
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Specialty / Department</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Department
+                    </label>
                     <input
                       type="text"
                       placeholder="e.g. Cardiology"
                       value={specialty}
                       onChange={(e) => setSpecialty(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-orange-500 focus:bg-white"
+                      className="w-full px-3 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white"
                     />
                   </div>
                 )}
               </div>
             )}
 
+            {/* Remember Me */}
             {!isSignUp && (
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-2 text-slate-600">
-                  <KeyRound className="w-3.5 h-3.5 text-orange-600" />
-                  <span>Seed Credentials:</span>
-                </div>
-                <span className="font-mono bg-orange-100 text-orange-800 px-2.5 py-0.5 rounded border border-orange-200 font-bold">
-                  {email} / {password}
-                </span>
+              <div className="flex items-center justify-between pt-0.5">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-slate-300 text-slate-900 accent-slate-900 cursor-pointer"
+                  />
+                  <span className="text-xs text-slate-600 font-medium">Remember me for 30 days</span>
+                </label>
               </div>
             )}
 
+            {/* Primary Action Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 mt-2 bg-orange-600 hover:bg-orange-500 text-white font-black text-sm rounded-xl shadow-lg shadow-orange-600/30 active:scale-[0.99] transition-all flex items-center justify-center space-x-2 cursor-pointer border-none"
+              onMouseEnter={() => setFocusState('submit')}
+              onMouseLeave={() => setFocusState(null)}
+              className="w-full py-3 bg-[#1e222e] hover:bg-[#12151d] active:scale-[0.98] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border-none mt-2"
             >
               {loading ? (
-                <span className="animate-pulse">Authenticating against Database...</span>
+                <span className="animate-pulse">Authenticating...</span>
               ) : (
                 <>
-                  <span>{isSignUp ? `Register & Enter Workspace` : `Sign In as ${selectedRole.toUpperCase()}`}</span>
+                  <span>
+                    {isSignUp
+                      ? 'Create Account'
+                      : currentRoleConfig.btnLabel}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
-        </div>
-      </main>
 
-      <footer className="px-8 py-3 bg-white border-t border-slate-200 text-center text-xs text-slate-500">
-        ClinicOS Smart Healthcare Management System • Node.js + Express.js • SQLite Database Engine
-      </footer>
+          {/* Divider & Social Login */}
+          <div className="relative flex items-center justify-center my-3">
+            <div className="border-t border-slate-200 w-full" />
+            <span className="bg-white px-2.5 text-[11px] text-slate-400 font-medium uppercase absolute">
+              or
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="w-full py-2.5 bg-white hover:bg-slate-50 active:scale-[0.99] border border-slate-200 text-slate-700 font-semibold text-xs rounded-xl shadow-2xs transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.28-2.1 3.665-5.2 3.665-9.12z" />
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.13C3.26 21.36 7.33 24 12 24z" />
+              <path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.24C.45 8.15 0 9.99 0 12s.45 3.85 1.24 5.42l4.04-3.13z" />
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.13c.95-2.83 3.6-4.96 6.72-4.96z" />
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+
+          {/* Footer Toggle */}
+          <div className="text-center text-xs text-slate-500 mt-4">
+            {isSignUp ? (
+              <span>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignUp(false);
+                    setErrorMsg('');
+                    setSuccessMsg('');
+                  }}
+                  className="font-bold text-slate-900 hover:underline cursor-pointer border-none bg-transparent p-0"
+                >
+                  Sign in
+                </button>
+              </span>
+            ) : (
+              <span>
+                Don't have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignUp(true);
+                    setErrorMsg('');
+                    setSuccessMsg('');
+                  }}
+                  className="font-bold text-slate-900 hover:underline cursor-pointer border-none bg-transparent p-0"
+                >
+                  Sign up
+                </button>
+              </span>
+            )}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
