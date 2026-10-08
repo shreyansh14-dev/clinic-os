@@ -438,11 +438,11 @@ export const PatientDashboard = () => {
           1. HERO HEALTHCARE BANNER (Exact Design, Scaled Down & Centered)
           Exact "Healthcare" Banner with Pink "Book Consultation" Pill Button
           ───────────────────────────────────────────────────────────── */}
-      <section className="w-full px-4 sm:px-6 pt-2 pb-1.5">
-        <div className="max-w-[780px] lg:max-w-[820px] xl:max-w-[850px] mx-auto">
-          <div className="rv-hero-enter relative rounded-[16px] sm:rounded-[22px] overflow-hidden shadow-lg bg-[#242454] group">
+      <section className="w-full px-4 sm:px-6 lg:px-8 pt-2 pb-1.5">
+        <div className="max-w-[1360px] xl:max-w-[1440px] mx-auto">
+          <div className="rv-hero-enter relative rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-xl bg-[#242454] group">
             <img
-              src="/images/hero-banner-exact.png"
+              src="/images/hero-banner-compact.png"
               alt="Healthcare Banner"
               className="w-full h-auto block select-none"
             />
@@ -623,48 +623,48 @@ export const PatientDashboard = () => {
           2. THE 4 PASTEL SERVICE CARDS (Exact Design, Scaled Down & Centered)
           Soft Yellow, Mint, Soft Blush/Pink, and Pastel Blue
           ───────────────────────────────────────────────────────────── */}
-      <section className="w-full px-4 sm:px-6 pb-3">
-        <div className="max-w-[780px] lg:max-w-[820px] xl:max-w-[850px] mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+      <section className="w-full px-4 sm:px-6 lg:px-8 pb-3">
+        <div className="max-w-[1360px] xl:max-w-[1440px] mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             
             {/* Card 1: Soft Yellow - Instant Video Consultation */}
             <div
               onClick={() => navigate('/video-call')}
               title="Instant Video Consultation"
-              className={`rv-card rounded-[16px] sm:rounded-[20px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+              className={`rv-card rounded-[18px] sm:rounded-[24px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
               style={!cardsEntered ? { animationDelay: '320ms' } : {}}
             >
-              <img src="/images/card-video-exact.png" alt="Instant Video Consultation" className="w-full h-auto block pointer-events-none" />
+              <img src="/images/card-video-compact.png" alt="Instant Video Consultation" className="w-full h-auto block pointer-events-none" />
             </div>
 
             {/* Card 2: Mint - Find Doctors near you */}
             <div
               onClick={() => scrollToDestinationSection('in-clinic-doctors-section', '/book-appointment', 'In-Clinic Doctors Roster')}
               title="Find Doctors near you"
-              className={`rv-card rounded-[16px] sm:rounded-[20px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+              className={`rv-card rounded-[18px] sm:rounded-[24px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
               style={!cardsEntered ? { animationDelay: '440ms' } : {}}
             >
-              <img src="/images/card-doctors-exact.png" alt="Find Doctors near you" className="w-full h-auto block pointer-events-none" />
+              <img src="/images/card-doctors-compact.png" alt="Find Doctors near you" className="w-full h-auto block pointer-events-none" />
             </div>
 
             {/* Card 3: Pink - 24/7 Medicines */}
             <div
               onClick={() => scrollToDestinationSection('medicine-purchase-section', null, '24/7 Medicines & Daily Healthcare Deals')}
               title="24/7 Medicines & Daily Healthcare Deals (Tap to go to Medicine Purchase area)"
-              className={`rv-card rounded-[16px] sm:rounded-[20px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+              className={`rv-card rounded-[18px] sm:rounded-[24px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
               style={!cardsEntered ? { animationDelay: '560ms' } : {}}
             >
-              <img src="/images/card-medicines-exact.png" alt="24/7 Medicines" className="w-full h-auto block pointer-events-none" />
+              <img src="/images/card-medicines-compact.png" alt="24/7 Medicines" className="w-full h-auto block pointer-events-none" />
             </div>
 
             {/* Card 4: Pastel Blue - Lab Tests */}
             <div
               onClick={() => scrollToDestinationSection('lab-tests-section', '/lab-tests', 'Frequently Booked Diagnostic Lab Tests')}
               title="Book Diagnostic Lab Tests at Home (Tap to go to Lab Tests area)"
-              className={`rv-card rounded-[16px] sm:rounded-[20px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+              className={`rv-card rounded-[18px] sm:rounded-[24px] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
               style={!cardsEntered ? { animationDelay: '680ms' } : {}}
             >
-              <img src="/images/card-tests-exact.png" alt="Lab Tests" className="w-full h-auto block pointer-events-none" />
+              <img src="/images/card-tests-compact.png" alt="Lab Tests" className="w-full h-auto block pointer-events-none" />
             </div>
 
           </div>
