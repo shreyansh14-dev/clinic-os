@@ -38,7 +38,7 @@ export const VaccineTracker = () => {
   const due       = allVaccines.filter(v => v.status !== 'Completed').length;
 
   return (
-    <div className="w-full space-y-6 pb-16" style={{ fontFamily: "'Poppins', sans-serif" }}>
+    <div className="w-full space-y-6 pb-16">
 
       {/* ── Hero Passport Card ──────────────────────────────────────── */}
       <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-r from-[#16163B] via-[#242454] to-[#1a1a5e] p-8 text-white shadow-2xl">

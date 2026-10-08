@@ -165,13 +165,13 @@ export const MyMeds = () => {
 
   // Refill Order Confirmation
   const handleConfirmRefill = () => {
-    showToast(`Order Placed! 1-Pack of ${refillMed?.name} is on its way. Delivery in 15 mins via MediCare Express Pharmacy.`);
+    showToast(`Order Placed! 1-Pack of ${refillMed?.name} is on its way. Delivery in 15 mins via ClinicOS Express Pharmacy.`);
     confetti({ particleCount: 70, spread: 70, origin: { y: 0.7 } });
     setRefillMed(null);
   };
 
   return (
-    <div className="w-full space-y-6 pb-20 font-['Poppins']">
+    <div className="w-full space-y-6 pb-20">
 
       {/* ── Top Header & Title ─────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -684,7 +684,7 @@ export const MyMeds = () => {
 
               <div className="flex items-center justify-between text-[11px] text-emerald-700 font-extrabold">
                 <span>Delivery Time:</span>
-                <span>⚡ 15 Mins (MediCare Express)</span>
+                <span>⚡ 15 Mins (ClinicOS Express)</span>
               </div>
             </div>
 

@@ -1,13 +1,18 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 /* ============================================================
    CLINICOS — Clean Premium White Theme + Dark Sidebar
-   Matching original Gemini design exactly
+   Matching ClinicOS design reference exactly
    ============================================================ */
 
 :root {
-  --font-family:    'Poppins', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-heading:   'Poppins', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-family:    'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading:   'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* === REFERENCE DESIGN TOKENS === */
   --color-indigo-primary: #242454;
@@ -58,7 +63,33 @@ html, body, #root {
   color: var(--text-main);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.015em;
   background: var(--bg-page);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.03em;
+}
+
+button, input, select, textarea {
+  font-family: var(--font-family);
+}
+
+/* Universal Typography Enforcement: Plus Jakarta Sans across all elements */
+body, body *, button, input, select, textarea, p, span, h1, h2, h3, h4, h5, h6, label, a {
+  font-family: var(--font-family);
+}
+
+[class*="font-['Poppins']"], .font-\[\'Poppins\'\] {
+  font-family: var(--font-family) !important;
+}
+
+.font-heading {
+  font-family: var(--font-heading) !important;
+  letter-spacing: -0.03em;
 }
 
 /* ── Layout Shell ── */

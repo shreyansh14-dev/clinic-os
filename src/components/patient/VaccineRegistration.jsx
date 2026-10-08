@@ -237,7 +237,7 @@ export const VaccineRegistration = () => {
   };
 
   return (
-    <div className="w-full space-y-6 pb-24 font-['Poppins']">
+    <div className="w-full space-y-6 pb-24">
 
       {/* ── Top Navigation & Breadcrumbs ────────────────────────────── */}
       <div className="flex items-center justify-between gap-3">

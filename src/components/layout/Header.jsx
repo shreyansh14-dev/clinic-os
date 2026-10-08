@@ -205,19 +205,19 @@ export const Header = () => {
             
             {/* Left: Brand Logo & Location Selector */}
             <div className="flex items-center gap-3 shrink-0">
-              {/* Exact Stylized V Brand Logo with Dots (Frame 04) */}
-              <div className="rv-btn flex items-center gap-2 cursor-pointer rv-nav-fall" style={{ animationDelay: '0ms' }} onClick={() => navigate('/')}>
-                <svg width="32" height="24" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M32 20C32 13.3726 37.3726 8 44 8C50.6274 8 56 13.3726 56 20V45C56 47.7614 58.2386 50 61 50C63.7614 50 66 47.7614 66 45V20C66 13.3726 71.3726 8 78 8C84.6274 8 90 13.3726 90 20V45C90 61.5685 76.5685 75 60 75C43.4315 75 30 61.5685 30 45L32 20Z"
-                    fill="#16163B"
-                  />
-                  <circle cx="28" cy="55" r="10" fill="#E7B8D1" />
-                  <circle cx="92" cy="55" r="10" fill="#E7B8D1" />
-                </svg>
-                <span className="text-xl font-black tracking-tight text-[#16163B] font-['Poppins']">
-                  MediCare
-                </span>
+              {/* ClinicOS Brand Logo & Title matching reference */}
+              <div className="rv-btn flex items-center gap-2.5 cursor-pointer rv-nav-fall" style={{ animationDelay: '0ms' }} onClick={() => navigate('/')}>
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#FF5510] to-[#FF6E30] flex items-center justify-center font-black text-white text-xl shadow-md shadow-orange-500/25 shrink-0">
+                  C
+                </div>
+                <div>
+                  <span className="text-xl font-black tracking-[-0.03em] text-slate-900 leading-none block">
+                    ClinicOS
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400 leading-tight block mt-0.5 hidden sm:block">
+                    Smart Healthcare Management System
+                  </span>
+                </div>
               </div>
 
               {/* Vertical Divider */}

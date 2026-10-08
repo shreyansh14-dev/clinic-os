@@ -140,8 +140,8 @@ export const PharmacyStore = () => {
               </span>
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-black text-white m-0 tracking-tight">
-              MediCare Online Pharmacy
+            <h1 className="text-2xl md:text-3xl font-black text-white m-0 tracking-tight font-heading">
+              ClinicOS Online Pharmacy
             </h1>
             <p className="text-xs md:text-sm text-slate-300 font-medium m-0 mt-1.5">
               100% Genuine Medicines • Over 75+ Specialized Options • Flat 15% to 25% Off MRP
@@ -632,7 +632,7 @@ export const PharmacyStore = () => {
                 id="rx-upload-input"
                 onChange={() => {
                   setRxUploaded(true);
-                  showToast('Prescription uploaded! MediCare Pharmacist is preparing your order.');
+                  showToast('Prescription uploaded! ClinicOS Pharmacist is preparing your order.');
                   setTimeout(() => setIsRxUploadOpen(false), 800);
                 }}
               />
