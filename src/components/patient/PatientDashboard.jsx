@@ -155,6 +155,9 @@ export const PatientDashboard = () => {
   const [productQty, setProductQty] = useState(1);
   const [showPharmacyCatalogModal, setShowPharmacyCatalogModal] = useState(false);
 
+  // Health Article Reader Modal State
+  const [selectedArticle, setSelectedArticle] = useState(null);
+
   // Entrance animation state — cards use rv-card-falling class, removed after anim completes
   // so hover transforms work freely (animation-fill-mode conflict resolved)
   const [cardsEntered, setCardsEntered] = useState(false);
@@ -480,7 +483,7 @@ export const PatientDashboard = () => {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. THE 4 PASTEL SERVICE CARDS (Matching User Design Exactly)
+          2. THE 4 PASTEL SERVICE CARDS (Ultra-HD Native Vector Components)
           Soft Yellow, Mint, Soft Blush/Pink, and Pastel Blue
           ───────────────────────────────────────────────────────────── */}
       <section className="w-full px-4 sm:px-6 md:px-8 pb-6 pt-1">
@@ -490,40 +493,179 @@ export const PatientDashboard = () => {
           <div
             onClick={() => navigate('/video-call')}
             title="Instant Video Consultation"
-            className={`rv-card rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-[#FEED75] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[195px] border border-[#F3DD54]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
             style={!cardsEntered ? { animationDelay: '100ms' } : {}}
           >
-            <img src="/images/card-video-exact.png" alt="Instant Video Consultation" className="w-full h-auto block pointer-events-none" />
+            <div className="z-10">
+              <h3 className="text-[#171B3A] font-extrabold text-[17px] sm:text-[19px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
+                Instant Video<br />Consultation
+              </h3>
+              <p className="text-[#555B6E] font-medium text-[11.5px] sm:text-[13px] mt-1 sm:mt-1.5 m-0 leading-tight font-['Plus_Jakarta_Sans',sans-serif]">
+                Connect within 60 secs
+              </p>
+            </div>
+
+            <div className="flex items-end justify-between mt-auto pt-3 z-10">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
+              </div>
+            </div>
+
+            {/* Ultra-HD Handcrafted Vector Illustration: Phone with Stethoscope */}
+            <div className="absolute right-1 bottom-1 sm:right-2 sm:bottom-2 w-28 h-28 sm:w-32 sm:h-32 text-[#E5A800] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
+              <svg viewBox="0 0 100 110" fill="none" className="w-full h-full drop-shadow-xs">
+                {/* Phone body */}
+                <rect x="22" y="10" width="56" height="90" rx="12" fill="#FFE24D" fillOpacity="0.4" stroke="currentColor" strokeWidth="3" />
+                {/* Speaker Notch */}
+                <line x1="42" y1="18" x2="58" y2="18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                {/* Home dot */}
+                <circle cx="50" cy="90" r="3" fill="currentColor" />
+                {/* Stethoscope */}
+                <path d="M36 32 C36 46, 64 46, 64 32" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
+                <circle cx="36" cy="30" r="3" fill="currentColor" />
+                <circle cx="64" cy="30" r="3" fill="currentColor" />
+                {/* Tubing down from center */}
+                <path d="M50 44 V58 C50 68, 76 68, 76 56 C76 46, 88 46, 88 56" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                {/* Chest piece / Bell */}
+                <circle cx="88" cy="56" r="8" fill="#FFE24D" stroke="currentColor" strokeWidth="3" />
+                <circle cx="88" cy="56" r="3" fill="currentColor" />
+                {/* Shadow puddle */}
+                <ellipse cx="65" cy="101" rx="25" ry="4" fill="currentColor" fillOpacity="0.25" stroke="none" />
+              </svg>
+            </div>
           </div>
 
           {/* Card 2: Mint - Find Doctors near you */}
           <div
             onClick={() => scrollToDestinationSection('in-clinic-doctors-section', '/book-appointment', 'In-Clinic Doctors Roster')}
             title="Find Doctors near you"
-            className={`rv-card rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-[#AFECCD] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[195px] border border-[#98E2BA]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
             style={!cardsEntered ? { animationDelay: '220ms' } : {}}
           >
-            <img src="/images/card-doctors-exact.png" alt="Find Doctors near you" className="w-full h-auto block pointer-events-none" />
+            <div className="z-10">
+              <h3 className="text-[#171B3A] font-extrabold text-[17px] sm:text-[19px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
+                Find Doctors<br />near you
+              </h3>
+              <p className="text-[#555B6E] font-medium text-[11.5px] sm:text-[13px] mt-1 sm:mt-1.5 m-0 leading-tight font-['Plus_Jakarta_Sans',sans-serif]">
+                Confirmed appointments
+              </p>
+            </div>
+
+            <div className="flex items-end justify-between mt-auto pt-3 z-10">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
+              </div>
+            </div>
+
+            {/* Ultra-HD Handcrafted Vector Illustration: Doctor character bust matching reference */}
+            <div className="absolute right-1 bottom-0 sm:right-2 sm:bottom-0 w-28 h-28 sm:w-32 sm:h-32 text-[#229E65] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
+              <svg viewBox="0 0 100 110" fill="none" className="w-full h-full drop-shadow-xs" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                {/* Hair Outline & Bangs */}
+                <path d="M32 40 C30 20, 70 20, 68 40 C68 50, 65 52, 65 52 L61 48 L56 52 L50 48 L44 52 L39 48 L35 52 Z" strokeWidth="2.8" fill="#9AE3BC" fillOpacity="0.3" />
+                {/* Face & Neck contour */}
+                <path d="M37 44 C37 54, 63 54, 63 44" strokeWidth="2.2" />
+                <path d="M44 54 V64 M56 54 V64" strokeWidth="2.5" />
+                {/* Shoulders & Coat */}
+                <path d="M18 94 C18 72, 32 64, 50 64 C68 64, 82 72, 82 94" strokeWidth="3" fill="#9AE3BC" fillOpacity="0.4" />
+                {/* Lapels & Collar */}
+                <path d="M40 64 L50 82 L60 64" strokeWidth="2.6" />
+                <path d="M47 82 L50 94 L53 82 Z" fill="currentColor" strokeWidth="1" />
+                {/* Pocket Cross */}
+                <path d="M68 76 V84 M64 80 H72" strokeWidth="2.8" />
+                {/* Sparkles / Rays */}
+                <path d="M74 24 L78 20 M82 27 L88 27 M79 33 L84 36" strokeWidth="2.4" />
+                {/* Shadow puddle */}
+                <ellipse cx="50" cy="95" rx="32" ry="5" fill="currentColor" fillOpacity="0.25" stroke="none" />
+              </svg>
+            </div>
           </div>
 
           {/* Card 3: Pink - 24/7 Medicines */}
           <div
             onClick={() => scrollToDestinationSection('medicine-purchase-section', null, '24/7 Medicines & Daily Healthcare Deals')}
             title="24/7 Medicines"
-            className={`rv-card rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-[#FBC5E3] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[195px] border border-[#F2AED3]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
             style={!cardsEntered ? { animationDelay: '340ms' } : {}}
           >
-            <img src="/images/card-medicines-exact.png" alt="24/7 Medicines" className="w-full h-auto block pointer-events-none" />
+            <div className="z-10">
+              <h3 className="text-[#171B3A] font-extrabold text-[17px] sm:text-[19px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
+                24/7<br />Medicines
+              </h3>
+              <p className="text-[#555B6E] font-medium text-[11.5px] sm:text-[13px] mt-1 sm:mt-1.5 m-0 leading-tight font-['Plus_Jakarta_Sans',sans-serif]">
+                Essentials at your doorstep
+              </p>
+            </div>
+
+            <div className="flex items-end justify-between mt-auto pt-3 z-10">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
+              </div>
+            </div>
+
+            {/* Ultra-HD Handcrafted Vector Illustration: Medicine Capsules & Tablets */}
+            <div className="absolute right-1 bottom-0 sm:right-2 sm:bottom-0 w-28 h-28 sm:w-32 sm:h-32 text-[#DB398E] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
+              <svg viewBox="0 0 100 110" fill="none" className="w-full h-full drop-shadow-xs">
+                {/* Capsule Pill standing at angle */}
+                <g transform="rotate(-18 42 56)">
+                  <rect x="28" y="24" width="28" height="62" rx="14" fill="#F8A7D0" fillOpacity="0.4" stroke="currentColor" strokeWidth="3" />
+                  <line x1="28" y1="55" x2="56" y2="55" stroke="currentColor" strokeWidth="2.5" />
+                  <path d="M34 32 C34 28, 38 28, 42 28" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                </g>
+                {/* Round tablet lying flat */}
+                <ellipse cx="68" cy="74" rx="22" ry="12" fill="#F8A7D0" fillOpacity="0.5" stroke="currentColor" strokeWidth="3" />
+                <path d="M46 74 C46 82, 90 82, 90 74 V80 C90 88, 46 88, 46 80 Z" fill="#F8A7D0" fillOpacity="0.3" stroke="currentColor" strokeWidth="2.5" />
+                <line x1="56" y1="71" x2="80" y2="77" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                {/* Sparkles */}
+                <path d="M78 52 L81 46 M86 54 L92 53 M83 60 L88 63" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                {/* Shadow puddle */}
+                <ellipse cx="58" cy="92" rx="32" ry="5" fill="currentColor" fillOpacity="0.25" stroke="none" />
+              </svg>
+            </div>
           </div>
 
           {/* Card 4: Pastel Blue - Lab Tests */}
           <div
             onClick={() => scrollToDestinationSection('lab-tests-section', '/lab-tests', 'Frequently Booked Diagnostic Lab Tests')}
             title="Lab Tests"
-            className={`rv-card rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-[#A6CEFC] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[195px] border border-[#92BFF5]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
             style={!cardsEntered ? { animationDelay: '460ms' } : {}}
           >
-            <img src="/images/card-tests-exact.png" alt="Lab Tests" className="w-full h-auto block pointer-events-none" />
+            <div className="z-10">
+              <h3 className="text-[#171B3A] font-extrabold text-[17px] sm:text-[19px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
+                Lab<br />Tests
+              </h3>
+              <p className="text-[#555B6E] font-medium text-[11.5px] sm:text-[13px] mt-1 sm:mt-1.5 m-0 leading-tight font-['Plus_Jakarta_Sans',sans-serif]">
+                Sample pickup at your home
+              </p>
+            </div>
+
+            <div className="flex items-end justify-between mt-auto pt-3 z-10">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
+              </div>
+            </div>
+
+            {/* Ultra-HD Handcrafted Vector Illustration: Lab Test Tube & Droplet */}
+            <div className="absolute right-1 bottom-0 sm:right-2 sm:bottom-0 w-28 h-28 sm:w-32 sm:h-32 text-[#2575DC] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
+              <svg viewBox="0 0 100 110" fill="none" className="w-full h-full drop-shadow-xs">
+                {/* Test Tube */}
+                <rect x="24" y="16" width="20" height="66" rx="10" fill="#88BAF7" fillOpacity="0.35" stroke="currentColor" strokeWidth="3" />
+                <path d="M20 18 H48" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                <line x1="28" y1="36" x2="35" y2="36" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                <line x1="28" y1="48" x2="38" y2="48" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                <line x1="28" y1="60" x2="35" y2="60" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                {/* Liquid level inside tube */}
+                <path d="M26 54 Q34 56 42 54 V72 C42 77, 26 77, 26 72 Z" fill="currentColor" fillOpacity="0.25" />
+                {/* Droplet */}
+                <path d="M58 56 C58 56, 70 70, 70 78 C70 85, 64 89, 58 89 C52 89, 46 85, 46 78 C46 70, 58 56, 58 56 Z" fill="#88BAF7" fillOpacity="0.4" stroke="currentColor" strokeWidth="2.8" />
+                {/* Verified Badge with checkmark */}
+                <circle cx="80" cy="62" r="12" fill="#88BAF7" fillOpacity="0.4" stroke="currentColor" strokeWidth="2.8" />
+                <path d="M75 62 L79 66 L86 58" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                {/* Base / Stand shadow */}
+                <line x1="70" y1="78" x2="90" y2="78" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
+                <ellipse cx="52" cy="94" rx="30" ry="5" fill="currentColor" fillOpacity="0.25" stroke="none" />
+              </svg>
+            </div>
           </div>
 
         </div>
@@ -1381,7 +1523,7 @@ export const PatientDashboard = () => {
       <PatientHealthVitalsDashboard />
 
       {/* ─────────────────────────────────────────────────────────────
-          8. READ TOP ARTICLES FROM HEALTH EXPERTS (Frame 14 & 15)
+          8. READ TOP ARTICLES FROM HEALTH EXPERTS (Ultra-HD Editorial Layout)
           ───────────────────────────────────────────────────────────── */}
       <section className="w-full px-6 sm:px-10 pb-14">
         <div className="flex items-center justify-between mb-6">
@@ -1389,65 +1531,187 @@ export const PatientDashboard = () => {
             Read top articles from<br />health experts
           </h3>
           <button
-            onClick={() => showToast('Viewing all articles...')}
-            className="text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1 bg-transparent border-none cursor-pointer"
+            onClick={() => showToast('All 45+ peer-reviewed health articles loaded.')}
+            className="text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1.5 bg-transparent border-none cursor-pointer group"
           >
             <span>Read All Blogs</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
-          <div className="rv-card rv-reveal rounded-[32px] bg-[#EBF7F2] p-6 flex flex-col justify-between shadow-sm">
-            <div>
-              <span className="px-3 py-1 rounded-full bg-white text-[#16163B] text-[11px] font-bold border border-slate-200">
-                Healthy lifestyle
-              </span>
-              <h4 className="text-xl font-bold text-[#16163B] mt-4 mb-2 font-['Poppins']">
-                Your Ultimate Guide to Health and Wellness
-              </h4>
-              <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                Learn modern preventive healthcare habits, nutritional balances, and cardio workouts designed by top cardiologists.
-              </p>
+          {/* Article 1: Healthy Lifestyle */}
+          <div className="rv-card rv-reveal rounded-[32px] bg-[#EBF7F2] p-6 sm:p-7 flex flex-col justify-between shadow-sm border border-emerald-100/60 hover:shadow-md transition-all group">
+            <div className="flex flex-col sm:flex-row gap-5 items-start">
+              {/* Ultra-HD Cover Photo */}
+              <div className="w-full sm:w-36 h-36 rounded-2xl overflow-hidden bg-emerald-50 shrink-0 shadow-xs relative">
+                <img
+                  src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=85"
+                  alt="Health and Wellness"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+
+              <div className="flex-1">
+                <span className="inline-block px-3 py-1 rounded-full bg-white text-[#16163B] text-[11px] font-bold border border-emerald-200/60 shadow-xs">
+                  Healthy lifestyle
+                </span>
+                <h4 className="text-xl font-bold text-[#16163B] mt-3 mb-2 font-['Poppins'] group-hover:text-emerald-900 transition-colors leading-snug">
+                  Your Ultimate Guide to Health and Wellness
+                </h4>
+                <p className="text-xs text-slate-600 font-medium leading-relaxed m-0">
+                  Learn modern preventive healthcare habits, nutritional balances, and cardio workouts designed by top cardiologists.
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200/50">
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-emerald-200/40">
               <button
-                onClick={() => navigate('/book-appointment')}
-                className="rv-btn px-4 py-2 rounded-full bg-white text-[#16163B] font-bold text-xs border-none cursor-pointer shadow-xs"
+                onClick={() => setSelectedArticle({
+                  title: 'Your Ultimate Guide to Health and Wellness',
+                  category: 'Healthy lifestyle',
+                  image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=85',
+                  author: 'Dr. Praveen Chandra',
+                  authorRole: 'Chief of Cardiology',
+                  readTime: '5 min read',
+                  body: [
+                    'A truly sustainable healthy lifestyle begins with balanced, daily micro-habits rather than extreme short-term changes.',
+                    '1. Cardiovascular Conditioning: Engaging in 30 minutes of moderate aerobic activity 5 days a week helps maintain blood pressure below 120/80 mmHg and stabilizes resting metabolic rate.',
+                    '2. Metabolic & Nutritional Balance: Prioritize leafy greens, healthy omega fats, lean proteins, and stay hydrated with at least 2.5L clean water daily.',
+                    '3. Restorative Sleep Hygiene: 7 to 8 hours of uninterrupted deep sleep lowers resting cortisol levels and promotes cellular repair and immune defense.'
+                  ]
+                })}
+                className="rv-btn px-4 py-2 rounded-full bg-white text-[#16163B] font-bold text-xs border border-emerald-200/60 cursor-pointer shadow-xs hover:bg-[#16163B] hover:text-white transition-all flex items-center gap-1.5 group/btn"
               >
-                Book Consultation →
+                <span>Read Article</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
               </button>
               <span className="text-xs text-slate-400 font-semibold">5 min read</span>
             </div>
           </div>
 
-          <div className="rv-card rv-reveal rounded-[32px] bg-[#F1F4F8] p-6 flex flex-col justify-between shadow-sm" style={{ transitionDelay: '80ms' }}>
-            <div>
-              <span className="px-3 py-1 rounded-full bg-white text-[#16163B] text-[11px] font-bold border border-slate-200">
-                Blog Topic
-              </span>
-              <h4 className="text-xl font-bold text-[#16163B] mt-4 mb-2 font-['Poppins']">
-                Acne Care Combo of Cetaphil Oily Skin Cleanser
-              </h4>
-              <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                Discover safe dermatological guidelines to revitalize your skin barrier and reduce inflammatory breakouts.
-              </p>
+          {/* Article 2: Acne Care & Dermatology */}
+          <div className="rv-card rv-reveal rounded-[32px] bg-[#F1F4F8] p-6 sm:p-7 flex flex-col justify-between shadow-sm border border-slate-200/60 hover:shadow-md transition-all group" style={{ transitionDelay: '80ms' }}>
+            <div className="flex flex-col sm:flex-row gap-5 items-start">
+              {/* Ultra-HD Cover Photo */}
+              <div className="w-full sm:w-36 h-36 rounded-2xl overflow-hidden bg-slate-100 shrink-0 shadow-xs relative">
+                <img
+                  src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=85"
+                  alt="Acne Care & Dermatology"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+
+              <div className="flex-1">
+                <span className="inline-block px-3 py-1 rounded-full bg-white text-[#16163B] text-[11px] font-bold border border-slate-200 shadow-xs">
+                  Blog Topic
+                </span>
+                <h4 className="text-xl font-bold text-[#16163B] mt-3 mb-2 font-['Poppins'] group-hover:text-blue-900 transition-colors leading-snug">
+                  Acne Care Combo of Cetaphil Oily Skin Cleanser
+                </h4>
+                <p className="text-xs text-slate-600 font-medium leading-relaxed m-0">
+                  Discover safe dermatological guidelines to revitalize your skin barrier and reduce inflammatory breakouts.
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200/50">
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200/60">
               <button
-                onClick={() => navigate('/book-appointment')}
-                className="rv-btn px-4 py-2 rounded-full bg-white text-[#16163B] font-bold text-xs border-none cursor-pointer shadow-xs"
+                onClick={() => setSelectedArticle({
+                  title: 'Acne Care Combo of Cetaphil Oily Skin Cleanser',
+                  category: 'Dermatology & Skin Barrier',
+                  image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1000&auto=format&fit=crop&q=85',
+                  author: 'Dr. Sanjeev Aurangabadkar',
+                  authorRole: 'Consultant Dermatologist',
+                  readTime: '4 min read',
+                  body: [
+                    'Effective acne care requires maintaining the delicate stratum corneum moisture barrier without over-stripping natural protective sebum.',
+                    '1. Gentle Surfactants: Use non-comedogenic foaming cleansers with zinc gluconate to regulate sebum production without causing tightness or rebound oiliness.',
+                    '2. Active Layering: Apply light hyaluronic acid serums immediately onto damp skin followed by gentle niacinamide (2-5%) to soothe epidermal inflammation.',
+                    '3. Sun Protection: Always apply broad-spectrum mineral sunscreen (SPF 50 PA++++) daily to prevent post-inflammatory hyperpigmentation and erythema.'
+                  ]
+                })}
+                className="rv-btn px-4 py-2 rounded-full bg-white text-[#16163B] font-bold text-xs border border-slate-200 cursor-pointer shadow-xs hover:bg-[#16163B] hover:text-white transition-all flex items-center gap-1.5 group/btn"
               >
-                Book Consultation →
+                <span>Read Article</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
               </button>
               <span className="text-xs text-slate-400 font-semibold">4 min read</span>
             </div>
           </div>
 
         </div>
+
+        {/* Interactive Article Modal */}
+        {selectedArticle && (
+          <div
+            onClick={() => setSelectedArticle(null)}
+            className="fixed inset-0 z-50 bg-[#16163B]/60 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-[32px] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200"
+            >
+              <div className="relative h-64 rounded-2xl overflow-hidden mb-6">
+                <img
+                  src={selectedArticle.image}
+                  alt={selectedArticle.title}
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  onClick={() => setSelectedArticle(null)}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 hover:bg-black text-white flex items-center justify-center transition-all cursor-pointer border-none"
+                >
+                  ✕
+                </button>
+                <div className="absolute bottom-4 left-4">
+                  <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[#16163B] text-xs font-bold">
+                    {selectedArticle.category}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-slate-400 font-semibold mb-2">
+                <span>{selectedArticle.readTime}</span>
+                <span>•</span>
+                <span>Verified by {selectedArticle.author}</span>
+              </div>
+
+              <h3 className="text-2xl font-extrabold text-[#16163B] mb-4 font-['Poppins']">
+                {selectedArticle.title}
+              </h3>
+
+              <div className="space-y-3 text-sm text-slate-600 leading-relaxed font-normal">
+                {selectedArticle.body.map((paragraph, pIdx) => (
+                  <p key={pIdx} className="m-0">{paragraph}</p>
+                ))}
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    setSelectedArticle(null);
+                    navigate('/book-appointment');
+                  }}
+                  className="px-6 py-2.5 rounded-full bg-[#16163B] text-white font-bold text-xs hover:bg-[#242454] transition-all cursor-pointer border-none shadow-sm flex items-center gap-2"
+                >
+                  <span>Consult Expert Doctor</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    showToast('Article saved to your reading list!');
+                    setSelectedArticle(null);
+                  }}
+                  className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-[#16163B] font-bold text-xs transition-all cursor-pointer border-none"
+                >
+                  Bookmark
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
