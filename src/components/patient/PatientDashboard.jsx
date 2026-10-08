@@ -50,6 +50,7 @@ import { SeniorPatientDashboard } from './SeniorPatientDashboard';
 import { specialistDoctors } from '../../data/specialistDoctors';
 import { PatientHealthVitalsDashboard } from './PatientHealthVitalsDashboard';
 import { MEDICINE_CATALOG } from '../../data/medicineCatalog';
+import { HealthInsurancePlansSection } from './HealthInsurancePlansSection';
 import confetti from 'canvas-confetti';
 
 export const PatientDashboard = () => {
@@ -1583,112 +1584,10 @@ export const PatientDashboard = () => {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          9. CLINICOS FUNCTIONAL PATIENT CARE & EMR SNAPSHOT
-          Preserved Features: Upcoming Appointments, Vitals, Prescriptions
+          9. HEALTH INSURANCE PLANS & CASHLESS TPA COVERAGE
+          Comprehensive Insurance Options, Pricing, Tiers & Instant Policy
           ───────────────────────────────────────────────────────────── */}
-      <section className="w-full px-6 sm:px-10 pb-14">
-        <div className="bg-[#FAFBFD] rounded-[32px] border border-slate-100 p-6 sm:p-10 shadow-xs">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-2xl font-extrabold text-[#16163B] m-0 tracking-tight font-['Poppins']">
-                Your Health Snapshot &amp; Active Care
-              </h3>
-              <p className="text-xs text-slate-500 font-medium mt-1 m-0">
-                Connected to your real-time EMR database records
-              </p>
-            </div>
-
-            <button
-              onClick={() => navigate('/medical-records')}
-              className="px-4 py-2 rounded-full bg-white hover:bg-[#16163B] hover:text-white text-[#16163B] border border-slate-200 font-bold text-xs transition-colors cursor-pointer shadow-xs"
-            >
-              Full Medical Records →
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* Column 1: Upcoming Appointments */}
-            <div className="space-y-3">
-              <div className="text-xs font-bold uppercase text-slate-400 tracking-wider">
-                Upcoming Appointments
-              </div>
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
-                <div>
-                  <div className="text-xs font-bold text-[#16163B]">Dr. Arjun Sharma</div>
-                  <div className="text-[11px] text-slate-500">Cardiologist • Today 5:00 PM</div>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold">Today</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
-                <div>
-                  <div className="text-xs font-bold text-[#16163B]">Dr. Priya Menon</div>
-                  <div className="text-[11px] text-slate-500">Pediatrician • Tomorrow 4:00 PM</div>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold">Tomorrow</span>
-              </div>
-            </div>
-
-            {/* Column 2: Live Health Vitals */}
-            <div className="space-y-3">
-              <div className="text-xs font-bold uppercase text-slate-400 tracking-wider">
-                Health Vitals Log
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                  <div className="text-[10px] text-blue-700 font-bold">Heart Rate</div>
-                  <div className="text-xl font-extrabold text-[#16163B]">72 bpm</div>
-                  <div className="text-[10px] text-emerald-600 font-bold">Normal</div>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                  <div className="text-[10px] text-purple-700 font-bold">Blood Pressure</div>
-                  <div className="text-xl font-extrabold text-[#16163B]">120/80</div>
-                  <div className="text-[10px] text-emerald-600 font-bold">Optimal</div>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                  <div className="text-[10px] text-amber-700 font-bold">Blood Sugar</div>
-                  <div className="text-xl font-extrabold text-[#16163B]">98 mg/dL</div>
-                  <div className="text-[10px] text-emerald-600 font-bold">Normal</div>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                  <div className="text-[10px] text-emerald-700 font-bold">SpO2 Oxygen</div>
-                  <div className="text-xl font-extrabold text-[#16163B]">98 %</div>
-                  <div className="text-[10px] text-emerald-600 font-bold">Normal</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Column 3: Active Prescriptions */}
-            <div className="space-y-3">
-              <div className="text-xs font-bold uppercase text-slate-400 tracking-wider">
-                Active Prescriptions
-              </div>
-              <div className="p-3.5 rounded-2xl bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
-                <div>
-                  <div className="text-xs font-bold text-[#16163B]">Amlodipine 5mg</div>
-                  <div className="text-[11px] text-slate-500">1 tablet daily (Morning)</div>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">Active</span>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
-                <div>
-                  <div className="text-xs font-bold text-[#16163B]">Metformin 500mg</div>
-                  <div className="text-[11px] text-slate-500">1 tablet twice daily</div>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">Active</span>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
-                <div>
-                  <div className="text-xs font-bold text-[#16163B]">Atorvastatin 10mg</div>
-                  <div className="text-[11px] text-slate-500">1 tablet at night</div>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">Active</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
+      <HealthInsurancePlansSection />
 
       {/* ─────────────────────────────────────────────────────────────
           10. GRAND FOOTER (Frame 16)
