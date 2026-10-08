@@ -466,15 +466,15 @@ export const PatientDashboard = () => {
               navigate('/book-appointment');
             }}
             title="Book Consultation"
-            className="absolute bottom-[4.8%] right-[2.2%] w-[21.8%] h-[14.2%] rounded-full bg-[#FBC5E3] hover:bg-[#fad0e7] text-[#171E4B] flex items-center justify-start pl-2 sm:pl-3 pr-3.5 sm:pr-5 shadow-sm hover:shadow-[0_12px_28px_rgba(251,197,227,0.55)] hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 ease-out cursor-pointer border-none group/cta overflow-hidden select-none z-20"
+            className="absolute bottom-[4.8%] right-[2.2%] w-auto min-w-[23%] max-w-[30%] h-[14.2%] min-h-[36px] max-h-[58px] rounded-full bg-[#FBC5E3] hover:bg-[#fad0e7] text-[#171E4B] flex items-center justify-start pl-2 sm:pl-2.5 pr-5 sm:pr-7 shadow-sm hover:shadow-[0_12px_28px_rgba(251,197,227,0.55)] hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 ease-out cursor-pointer border-none group/cta overflow-hidden select-none z-20"
           >
             {/* Circular Arrow Badge with scale and slide animation */}
-            <div className="h-[74%] aspect-square rounded-full bg-[#171E4B] text-white flex items-center justify-center shadow-xs shrink-0 group-hover/cta:scale-110 group-hover/cta:translate-x-0.5 transition-all duration-300">
+            <div className="h-[76%] aspect-square rounded-full bg-[#171E4B] text-white flex items-center justify-center shadow-xs shrink-0 group-hover/cta:scale-110 group-hover/cta:translate-x-0.5 transition-all duration-300">
               <ArrowRight className="w-1/2 h-1/2 text-white group-hover/cta:translate-x-0.5 transition-transform duration-200" strokeWidth={2.5} />
             </div>
 
             {/* Button Text */}
-            <span className="ml-2 sm:ml-2.5 font-extrabold text-[clamp(10px,1.1vw,15.5px)] leading-none tracking-tight font-['Plus_Jakarta_Sans',sans-serif] whitespace-nowrap">
+            <span className="ml-2.5 sm:ml-3 font-extrabold text-[clamp(11px,1.02vw,14.5px)] leading-none tracking-tight font-['Plus_Jakarta_Sans',sans-serif] whitespace-nowrap">
               Book Consultation
             </span>
 
