@@ -507,26 +507,26 @@ export const PatientDashboard = () => {
           <div
             onClick={() => navigate('/video-call')}
             title="Instant Video Consultation"
-            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-[#FEED75] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[195px] border border-[#F3DD54]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
+            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-4.5 sm:p-5 flex flex-col justify-between relative overflow-hidden bg-[#FEED75] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[192px] border border-[#F3DD54]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
             style={!cardsEntered ? { animationDelay: '100ms' } : {}}
           >
-            <div className="z-10">
-              <h3 className="text-[#171B3A] font-extrabold text-[17px] sm:text-[19px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
+            <div className="z-10 max-w-[58%] sm:max-w-[60%]">
+              <h3 className="text-[#171B3A] font-extrabold text-[16px] sm:text-[18px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
                 Instant Video<br />Consultation
               </h3>
-              <p className="text-[#555B6E] font-medium text-[11.5px] sm:text-[13px] mt-1 sm:mt-1.5 m-0 leading-tight font-['Plus_Jakarta_Sans',sans-serif]">
+              <p className="text-[#555B6E] font-medium text-[11px] sm:text-[12px] mt-1 sm:mt-1.5 m-0 leading-[1.3] font-['Plus_Jakarta_Sans',sans-serif]">
                 Connect within 60 secs
               </p>
             </div>
 
             <div className="flex items-end justify-between mt-auto pt-3 z-10">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
+              <div className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
               </div>
             </div>
 
             {/* Ultra-HD Handcrafted Vector Illustration: Phone with Stethoscope */}
-            <div className="absolute right-1 bottom-1 sm:right-2 sm:bottom-2 w-28 h-28 sm:w-32 sm:h-32 text-[#E5A800] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
+            <div className="absolute right-0 bottom-0 sm:right-1 sm:bottom-1 w-[88px] h-[88px] sm:w-[102px] sm:h-[102px] text-[#E5A800] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
               <svg viewBox="0 0 100 110" fill="none" className="w-full h-full drop-shadow-xs">
                 {/* Phone body */}
                 <rect x="22" y="10" width="56" height="90" rx="12" fill="#FFE24D" fillOpacity="0.4" stroke="currentColor" strokeWidth="3" />
@@ -553,26 +553,26 @@ export const PatientDashboard = () => {
           <div
             onClick={() => scrollToDestinationSection('in-clinic-doctors-section', '/book-appointment', 'In-Clinic Doctors Roster')}
             title="Find Doctors near you"
-            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-[#AFECCD] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[195px] border border-[#98E2BA]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
+            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-4.5 sm:p-5 flex flex-col justify-between relative overflow-hidden bg-[#AFECCD] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[192px] border border-[#98E2BA]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
             style={!cardsEntered ? { animationDelay: '220ms' } : {}}
           >
-            <div className="z-10">
-              <h3 className="text-[#171B3A] font-extrabold text-[17px] sm:text-[19px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
+            <div className="z-10 max-w-[58%] sm:max-w-[60%]">
+              <h3 className="text-[#171B3A] font-extrabold text-[16px] sm:text-[18px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
                 Find Doctors<br />near you
               </h3>
-              <p className="text-[#555B6E] font-medium text-[11.5px] sm:text-[13px] mt-1 sm:mt-1.5 m-0 leading-tight font-['Plus_Jakarta_Sans',sans-serif]">
+              <p className="text-[#555B6E] font-medium text-[11px] sm:text-[12px] mt-1 sm:mt-1.5 m-0 leading-[1.3] font-['Plus_Jakarta_Sans',sans-serif]">
                 Confirmed appointments
               </p>
             </div>
 
             <div className="flex items-end justify-between mt-auto pt-3 z-10">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
+              <div className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
               </div>
             </div>
 
             {/* Ultra-HD Handcrafted Vector Illustration: Doctor character bust matching reference */}
-            <div className="absolute right-1 bottom-0 sm:right-2 sm:bottom-0 w-28 h-28 sm:w-32 sm:h-32 text-[#229E65] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
+            <div className="absolute right-0 bottom-0 sm:right-1 sm:bottom-0 w-[88px] h-[88px] sm:w-[102px] sm:h-[102px] text-[#229E65] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
               <svg viewBox="0 0 100 110" fill="none" className="w-full h-full drop-shadow-xs" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                 {/* Hair Outline & Bangs */}
                 <path d="M32 40 C30 20, 70 20, 68 40 C68 50, 65 52, 65 52 L61 48 L56 52 L50 48 L44 52 L39 48 L35 52 Z" strokeWidth="2.8" fill="#9AE3BC" fillOpacity="0.3" />
@@ -598,26 +598,26 @@ export const PatientDashboard = () => {
           <div
             onClick={() => scrollToDestinationSection('medicine-purchase-section', null, '24/7 Medicines & Daily Healthcare Deals')}
             title="24/7 Medicines"
-            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-[#FBC5E3] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[195px] border border-[#F2AED3]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
+            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-4.5 sm:p-5 flex flex-col justify-between relative overflow-hidden bg-[#FBC5E3] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[192px] border border-[#F2AED3]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
             style={!cardsEntered ? { animationDelay: '340ms' } : {}}
           >
-            <div className="z-10">
-              <h3 className="text-[#171B3A] font-extrabold text-[17px] sm:text-[19px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
+            <div className="z-10 max-w-[58%] sm:max-w-[60%]">
+              <h3 className="text-[#171B3A] font-extrabold text-[16px] sm:text-[18px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
                 24/7<br />Medicines
               </h3>
-              <p className="text-[#555B6E] font-medium text-[11.5px] sm:text-[13px] mt-1 sm:mt-1.5 m-0 leading-tight font-['Plus_Jakarta_Sans',sans-serif]">
+              <p className="text-[#555B6E] font-medium text-[11px] sm:text-[12px] mt-1 sm:mt-1.5 m-0 leading-[1.3] font-['Plus_Jakarta_Sans',sans-serif]">
                 Essentials at your doorstep
               </p>
             </div>
 
             <div className="flex items-end justify-between mt-auto pt-3 z-10">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
+              <div className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
               </div>
             </div>
 
             {/* Ultra-HD Handcrafted Vector Illustration: Medicine Capsules & Tablets */}
-            <div className="absolute right-1 bottom-0 sm:right-2 sm:bottom-0 w-28 h-28 sm:w-32 sm:h-32 text-[#DB398E] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
+            <div className="absolute right-0 bottom-0 sm:right-1 sm:bottom-0 w-[88px] h-[88px] sm:w-[102px] sm:h-[102px] text-[#DB398E] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
               <svg viewBox="0 0 100 110" fill="none" className="w-full h-full drop-shadow-xs">
                 {/* Capsule Pill standing at angle */}
                 <g transform="rotate(-18 42 56)">
@@ -641,26 +641,26 @@ export const PatientDashboard = () => {
           <div
             onClick={() => scrollToDestinationSection('lab-tests-section', '/lab-tests', 'Frequently Booked Diagnostic Lab Tests')}
             title="Lab Tests"
-            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-[#A6CEFC] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[195px] border border-[#92BFF5]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
+            className={`rv-card group rounded-[22px] sm:rounded-[28px] p-4.5 sm:p-5 flex flex-col justify-between relative overflow-hidden bg-[#A6CEFC] cursor-pointer shadow-xs min-h-[175px] sm:min-h-[192px] border border-[#92BFF5]/30${!cardsEntered ? ' rv-card-falling' : ''}`}
             style={!cardsEntered ? { animationDelay: '460ms' } : {}}
           >
-            <div className="z-10">
-              <h3 className="text-[#171B3A] font-extrabold text-[17px] sm:text-[19px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
+            <div className="z-10 max-w-[58%] sm:max-w-[60%]">
+              <h3 className="text-[#171B3A] font-extrabold text-[16px] sm:text-[18px] leading-[1.18] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight m-0">
                 Lab<br />Tests
               </h3>
-              <p className="text-[#555B6E] font-medium text-[11.5px] sm:text-[13px] mt-1 sm:mt-1.5 m-0 leading-tight font-['Plus_Jakarta_Sans',sans-serif]">
+              <p className="text-[#555B6E] font-medium text-[11px] sm:text-[12px] mt-1 sm:mt-1.5 m-0 leading-[1.3] font-['Plus_Jakarta_Sans',sans-serif]">
                 Sample pickup at your home
               </p>
             </div>
 
             <div className="flex items-end justify-between mt-auto pt-3 z-10">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
+              <div className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full bg-[#171E4B] flex items-center justify-center text-white shadow-sm group-hover:scale-110 active:scale-95 transition-transform duration-200">
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
               </div>
             </div>
 
             {/* Ultra-HD Handcrafted Vector Illustration: Lab Test Tube & Droplet */}
-            <div className="absolute right-1 bottom-0 sm:right-2 sm:bottom-0 w-28 h-28 sm:w-32 sm:h-32 text-[#2575DC] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
+            <div className="absolute right-0 bottom-0 sm:right-1 sm:bottom-0 w-[88px] h-[88px] sm:w-[102px] sm:h-[102px] text-[#2575DC] pointer-events-none select-none group-hover:scale-105 transition-transform duration-300">
               <svg viewBox="0 0 100 110" fill="none" className="w-full h-full drop-shadow-xs">
                 {/* Test Tube */}
                 <rect x="24" y="16" width="20" height="66" rx="10" fill="#88BAF7" fillOpacity="0.35" stroke="currentColor" strokeWidth="3" />
