@@ -16,7 +16,9 @@ async function request(endpoint, options = {}) {
     }
     return await res.json();
   } catch (error) {
-    console.warn(`API call ${endpoint} failed, falling back to local mode:`, error.message);
+    if (!endpoint.includes('/telehealth/active-call')) {
+      console.warn(`API call ${endpoint} failed, falling back to local mode:`, error.message);
+    }
     return null;
   }
 }

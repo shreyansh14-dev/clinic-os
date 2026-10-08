@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../../services/api';
+import { getTelehealthMediaStream } from '../../utils/telehealthMedia';
+import { telehealthBridge } from '../../utils/telehealthSignaling';
+import { UnifiedPaymentModal } from '../common/UnifiedPaymentModal';
 import {
   Video,
   VideoOff,
@@ -65,6 +68,7 @@ export const TelemedicineCall = () => {
   // If from appointment, mark as already paid
   const [isPaid, setIsPaid] = useState(!!incomingAppointment);
   const [invoiceId, setInvoiceId] = useState(incomingAppointment?.id || null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   // WebRTC Call State
   const [callState, setCallState] = useState('idle'); // 'idle' | 'calling' | 'connected'
@@ -83,45 +87,57 @@ export const TelemedicineCall = () => {
   const autoStartedRef = useRef(false);
   const startCallRef = useRef(null); // will be set after startCall is defined
 
-  // WebRTC & BroadcastChannel setup
+  // WebRTC & Telehealth Signaling setup
   useEffect(() => {
-    broadcastChannelRef.current = new BroadcastChannel('clinic_telehealth_channel');
-    
-    broadcastChannelRef.current.onmessage = async (event) => {
-      const { type, payload } = event.data;
+    const unsubscribe = telehealthBridge.subscribe(async ({ type, payload }) => {
       if (type === 'CALL_ANSWERED' && pcRef.current) {
         try {
-          await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.answer));
-          setCallState('connected');
-          showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call!`);
+          if (payload?.answer) {
+            await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.answer));
+            setCallState('connected');
+            showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call! Live consultation active.`);
+          }
         } catch (err) {
           console.warn('Error setting remote description:', err);
         }
-      } else if (type === 'ICE_CANDIDATE' && pcRef.current) {
+      } else if (type === 'ICE_CANDIDATE' && pcRef.current && payload?.candidate) {
         try {
           await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate));
         } catch (e) {}
+      } else if (type === 'CHAT_MESSAGE' && payload) {
+        if (payload.senderRole !== 'patient') {
+          setMessages(prev => [...prev, payload]);
+        }
       } else if (type === 'CALL_ENDED') {
         endCall(false);
       }
-    };
+    });
 
     const pollInterval = setInterval(async () => {
       if (callState === 'calling') {
-        const res = await apiService.getActiveTelehealthCall();
-        if (res?.activeCall?.status === 'connected' && res?.activeCall?.answer && pcRef.current?.signalingState !== 'stable') {
+        const storedAnswer = telehealthBridge.getActiveAnswer();
+        if (storedAnswer?.answer && pcRef.current && pcRef.current.signalingState !== 'stable') {
           try {
-            await pcRef.current.setRemoteDescription(new RTCSessionDescription(res.activeCall.answer));
+            await pcRef.current.setRemoteDescription(new RTCSessionDescription(storedAnswer.answer));
             setCallState('connected');
-            showToast(`Doctor accepted call! Video connection active.`);
+            showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call!`);
           } catch (e) {}
+        } else {
+          const res = await apiService.getActiveTelehealthCall();
+          if (res?.activeCall?.status === 'connected' && res?.activeCall?.answer && pcRef.current?.signalingState !== 'stable') {
+            try {
+              await pcRef.current.setRemoteDescription(new RTCSessionDescription(res.activeCall.answer));
+              setCallState('connected');
+              showToast(`Doctor accepted call! Video connection active.`);
+            } catch (e) {}
+          }
         }
       }
-    }, 2000);
+    }, 1200);
 
     return () => {
       clearInterval(pollInterval);
-      if (broadcastChannelRef.current) broadcastChannelRef.current.close();
+      unsubscribe();
     };
   }, [callState, selectedDoctor]);
 
@@ -130,13 +146,18 @@ export const TelemedicineCall = () => {
       showToast('Please describe your medical symptoms before proceeding to payment.', 'warn');
       return;
     }
+    // Launch dynamic UPI QR Payment interface
+    setIsPaymentModalOpen(true);
+  };
 
-    const txn = `TXN-TELE-${Math.floor(10000000 + Math.random() * 90000000)}`;
+  const handlePaymentDone = (paymentDetails) => {
+    const txn = paymentDetails?.transactionId || `TXN-TELE-${Math.floor(10000000 + Math.random() * 90000000)}`;
     setInvoiceId(txn);
     setIsPaid(true);
+    setIsPaymentModalOpen(false);
 
-    showToast(`Payment of ₹${(selectedDoctor?.fee || 500) + 149} Successful! Invoice ${txn} generated.`);
-    setBookingStep(4); // Advance to Unlocked Telemedicine Room
+    showToast(`Payment of ₹${totalPayable} Verified! Invoice ${txn} generated. Video Consultation Room Unlocked!`);
+    setBookingStep(4); // Advance to Unlocked Telemedicine Room strictly after tapping Done
   };
 
   const startCall = async () => {
@@ -149,14 +170,10 @@ export const TelemedicineCall = () => {
     try {
       setCallState('calling');
 
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(() => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 640;
-        canvas.height = 480;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, 640, 480);
-        return canvas.captureStream(30);
+      const stream = await getTelehealthMediaStream({
+        userName: activePatient?.name || 'Patient',
+        role: 'patient',
+        isDoctor: false
       });
 
       localStreamRef.current = stream;
@@ -180,10 +197,7 @@ export const TelemedicineCall = () => {
 
       pc.onicecandidate = (event) => {
         if (event.candidate) {
-          apiService.addIceCandidate(event.candidate).catch(() => {});
-          if (broadcastChannelRef.current) {
-            broadcastChannelRef.current.postMessage({ type: 'ICE_CANDIDATE', payload: { candidate: event.candidate } });
-          }
+          telehealthBridge.sendIceCandidate(event.candidate);
         }
       };
 
@@ -201,12 +215,7 @@ export const TelemedicineCall = () => {
         offer: { type: offer.type, sdp: offer.sdp }
       };
 
-      await apiService.startTelehealthCall(callPayload);
-
-      if (broadcastChannelRef.current) {
-        broadcastChannelRef.current.postMessage({ type: 'START_CALL', payload: callPayload });
-      }
-
+      await telehealthBridge.startCall(callPayload);
       showToast(`Ringing ${selectedDoctor?.name || 'Doctor'}...`);
     } catch (err) {
       console.error('Telehealth call error:', err);
@@ -218,15 +227,17 @@ export const TelemedicineCall = () => {
   const endCall = async (notify = true) => {
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(t => t.stop());
+      localStreamRef.current = null;
     }
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
     }
+    if (localVideoRef.current) localVideoRef.current.srcObject = null;
+    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
 
-    if (notify && broadcastChannelRef.current) {
-      broadcastChannelRef.current.postMessage({ type: 'CALL_ENDED' });
-      await apiService.hangupTelehealthCall().catch(() => {});
+    if (notify) {
+      await telehealthBridge.endCall();
     }
 
     setCallState('idle');
@@ -268,8 +279,14 @@ export const TelemedicineCall = () => {
   const sendMessage = (e) => {
     e.preventDefault();
     if (!inputMsg.trim()) return;
-    const newMsg = { sender: activePatient?.name || 'Patient', text: inputMsg, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+    const newMsg = {
+      sender: activePatient?.name || 'Patient',
+      senderRole: 'patient',
+      text: inputMsg,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
     setMessages(prev => [...prev, newMsg]);
+    telehealthBridge.sendChatMessage(newMsg);
     setInputMsg('');
   };
 
@@ -726,6 +743,22 @@ export const TelemedicineCall = () => {
 
         </div>
       )}
+
+      {/* Dynamic UPI QR Payment Modal for Telemedicine Consultation */}
+      <UnifiedPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onDone={handlePaymentDone}
+        amount={totalPayable}
+        title="Telemedicine Consultation Checkout"
+        subtitle="End-to-End Encrypted WebRTC Video Consultation Room"
+        particulars={`Dr. ${selectedDoctor?.name || 'Doctor'} (${selectedDoctor?.specialty || 'General'})`}
+        breakdown={[
+          { label: `Doctor Consultation (${selectedDoctor?.name})`, value: `₹${consultationFee}` },
+          { label: 'Telehealth Encrypted Server Fee', value: `₹${platformFee}` },
+          { label: 'GST Tax (18%)', value: `₹${gstTax}` }
+        ]}
+      />
 
     </div>
   );

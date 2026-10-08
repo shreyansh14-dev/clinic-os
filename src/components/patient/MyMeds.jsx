@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
+import { UnifiedPaymentModal } from '../common/UnifiedPaymentModal';
 import {
   Pill,
   CheckCircle2,
@@ -47,6 +48,7 @@ export const MyMeds = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [refillMed, setRefillMed] = useState(null); // Medicine selected for quick refill
+  const [isRefillPayOpen, setIsRefillPayOpen] = useState(false);
   const [waterGlasses, setWaterGlasses] = useState(5);
 
   // New Medication Form State
@@ -164,9 +166,11 @@ export const MyMeds = () => {
   };
 
   // Refill Order Confirmation
-  const handleConfirmRefill = () => {
-    showToast(`Order Placed! 1-Pack of ${refillMed?.name} is on its way. Delivery in 15 mins via ClinicOS Express Pharmacy.`);
+  const handleConfirmRefill = (paymentDetails) => {
+    const txn = paymentDetails?.transactionId || `TXN-MED-${Math.floor(100000 + Math.random() * 900000)}`;
+    showToast(`Order Placed! 1-Pack of ${refillMed?.name} is on its way. Delivery in 15 mins via ClinicOS Express Pharmacy (Txn: ${txn}).`);
     confetti({ particleCount: 70, spread: 70, origin: { y: 0.7 } });
+    setIsRefillPayOpen(false);
     setRefillMed(null);
   };
 
@@ -696,15 +700,32 @@ export const MyMeds = () => {
                 Cancel
               </button>
               <button
-                onClick={handleConfirmRefill}
+                onClick={() => setIsRefillPayOpen(true)}
                 className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl border-none cursor-pointer shadow-md flex items-center justify-center gap-1.5 transition-all hover:scale-105"
               >
                 <ShoppingCart className="w-4 h-4" />
-                <span>Place Order (₹85)</span>
+                <span>Pay ₹85 & Order</span>
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Dynamic UPI QR Payment Gateway for Medicine Refill */}
+      {refillMed && (
+        <UnifiedPaymentModal
+          isOpen={isRefillPayOpen}
+          onClose={() => setIsRefillPayOpen(false)}
+          onDone={handleConfirmRefill}
+          amount={85}
+          title={`Express Pharmacy Refill: ${refillMed.name}`}
+          subtitle="15-Minute Guaranteed Delivery via ClinicOS Pharmacy"
+          particulars={`1-Pack Refill (${refillMed.name})`}
+          breakdown={[
+            { label: 'Medicine Price (Strip of 15)', value: '₹85' },
+            { label: '15-Min Express Delivery', value: 'FREE' }
+          ]}
+        />
       )}
 
     </div>

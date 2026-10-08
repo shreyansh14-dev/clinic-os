@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { MEDICINE_CATALOG, MEDICINE_CATEGORIES } from '../../data/medicineCatalog';
 import confetti from 'canvas-confetti';
+import { UnifiedPaymentModal } from '../common/UnifiedPaymentModal';
 import {
   Search,
   ShoppingCart,
@@ -47,6 +48,8 @@ export const PharmacyStore = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isRxUploadOpen, setIsRxUploadOpen] = useState(false);
   const [rxUploaded, setRxUploaded] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [confirmedOrder, setConfirmedOrder] = useState(null);
 
   // Filter medicines
   const filteredMedicines = MEDICINE_CATALOG.filter(med => {
@@ -95,10 +98,23 @@ export const PharmacyStore = () => {
       showToast('Your cart is empty.', 'warn');
       return;
     }
-    confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-    showToast(`Order Placed Successfully! Your medicines will arrive in 15 minutes.`);
+    // Present the UPI QR payment interface
+    setIsPaymentModalOpen(true);
+  };
+
+  const handlePaymentDone = (paymentDetails) => {
+    const orderId = `ORD-PHARM-${Math.floor(100000 + Math.random() * 900000)}`;
+    setConfirmedOrder({
+      orderId,
+      transactionId: paymentDetails?.transactionId,
+      items: [...cartItems],
+      totalAmount: finalTotal,
+      paidAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
     clearPharmacyCart();
+    setIsPaymentModalOpen(false);
     setIsCartOpen(false);
+    showToast(`Payment of ₹${finalTotal} Verified! Order #${orderId} placed successfully. Delivery in 15 mins.`);
   };
 
   return (
@@ -643,6 +659,73 @@ export const PharmacyStore = () => {
                 Browse Files
               </label>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Dynamic UPI QR Payment Gateway Modal ────────────────────── */}
+      <UnifiedPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onDone={handlePaymentDone}
+        amount={finalTotal}
+        title="Pharmacy Order Checkout"
+        subtitle="ClinicOS 15-Minute Express Doorstep Delivery"
+        particulars={`Pharmacy Order (${cartItems.length} items)`}
+        breakdown={[
+          { label: 'Medicines Subtotal', value: `₹${cartSubtotal}` },
+          { label: 'Savings from MRP', value: `-₹${totalSavings}` },
+          { label: 'Express Delivery (15 Mins)', value: deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}` }
+        ]}
+      />
+
+      {/* ── Order Confirmed Receipt Modal ─────────────────────────────── */}
+      {confirmedOrder && (
+        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-[32px] p-7 max-w-md w-full shadow-2xl border border-slate-200 space-y-5 text-center">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-300">
+              <CheckCircle2 className="w-10 h-10" />
+            </div>
+
+            <div>
+              <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
+                Payment Verified & Order Dispatched
+              </span>
+              <h3 className="text-xl font-black text-slate-900 m-0 mt-2">15-Min Delivery in Transit!</h3>
+              <p className="text-xs text-slate-500 m-0 mt-1 font-medium">
+                Our rider has picked up your medicines from the nearest partner pharmacy hub.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs text-left space-y-2">
+              <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                <span className="text-slate-500">Order ID:</span>
+                <strong className="text-slate-900 font-mono">{confirmedOrder.orderId}</strong>
+              </div>
+              <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                <span className="text-slate-500">UPI Ref / Txn ID:</span>
+                <strong className="text-slate-900 font-mono">{confirmedOrder.transactionId}</strong>
+              </div>
+              <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                <span className="text-slate-500">Amount Paid:</span>
+                <strong className="text-emerald-600 font-black">₹{confirmedOrder.totalAmount}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Delivery Address:</span>
+                <strong className="text-slate-800">Flat 402, Bandra West, Mumbai</strong>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setConfirmedOrder(null);
+                navigate('/my-meds');
+              }}
+              className="w-full py-3 bg-[#16163B] hover:bg-[#242454] text-white font-extrabold text-xs rounded-xl border-none cursor-pointer shadow-md flex items-center justify-center gap-2"
+            >
+              <span>Track in Medication Tracker</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}

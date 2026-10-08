@@ -8,6 +8,7 @@ import {
   Zap, ArrowRight, UserCheck, Stethoscope
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { UnifiedPaymentModal } from '../common/UnifiedPaymentModal';
 
 export const HealthInsurancePlansSection = () => {
   const { activePatient, showToast, submitInsuranceClaim } = useApp();
@@ -27,6 +28,7 @@ export const HealthInsurancePlansSection = () => {
   const [hasPreExisting, setHasPreExisting] = useState(false);
   const [isProcessingBuy, setIsProcessingBuy] = useState(false);
   const [generatedPolicy, setGeneratedPolicy] = useState(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   // Health Insurance Plans Catalog
   const INSURANCE_PLANS = [
@@ -244,24 +246,29 @@ export const HealthInsurancePlansSection = () => {
 
   const handleConfirmPurchase = (e) => {
     e.preventDefault();
-    setIsProcessingBuy(true);
+    if (!applicantName.trim() || !applicantPhone.trim()) {
+      showToast('Please provide applicant name and phone number.', 'warn');
+      return;
+    }
+    // Present dynamic UPI QR payment interface
+    setIsPaymentModalOpen(true);
+  };
 
-    setTimeout(() => {
-      const polNo = `POL-COS-${Math.floor(100000 + Math.random() * 900000)}`;
-      setGeneratedPolicy(polNo);
-      setIsProcessingBuy(false);
+  const handlePaymentDone = (paymentDetails) => {
+    const polNo = `POL-COS-${Math.floor(100000 + Math.random() * 900000)}`;
+    setGeneratedPolicy(polNo);
+    setIsPaymentModalOpen(false);
 
-      // Submit linked policy into AppContext
-      submitInsuranceClaim({
-        provider: buyPlanModal.provider,
-        policyNo: polNo,
-        claimAmount: 0,
-        preApprovedAmount: 0
-      });
+    // Submit linked policy into AppContext
+    submitInsuranceClaim({
+      provider: buyPlanModal.provider,
+      policyNo: polNo,
+      claimAmount: 0,
+      preApprovedAmount: 0
+    });
 
-      confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 } });
-      showToast(`Congratulations! Health Insurance ${buyPlanModal.name} activated. Policy #${polNo}`);
-    }, 1200);
+    confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 } });
+    showToast(`Payment Verified! Health Insurance ${buyPlanModal.name} activated. Policy #${polNo}`);
   };
 
   return (
@@ -721,17 +728,10 @@ export const HealthInsurancePlansSection = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={isProcessingBuy}
-                    className="px-6 py-2.5 rounded-xl bg-[#16163B] hover:bg-slate-800 text-white font-black text-xs border-none cursor-pointer shadow-md flex items-center gap-2"
+                    className="px-6 py-2.5 rounded-xl bg-[#16163B] hover:bg-slate-800 text-white font-black text-xs border-none cursor-pointer shadow-md flex items-center gap-2 transition-all hover:scale-105"
                   >
-                    {isProcessingBuy ? (
-                      <span>Issuing Digital Policy...</span>
-                    ) : (
-                      <>
-                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                        <span>Confirm &amp; Activate Policy</span>
-                      </>
-                    )}
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>Pay Premium &amp; Activate (₹{getPlanPrice(buyPlanModal).price})</span>
                   </button>
                 </div>
               </form>
@@ -792,6 +792,26 @@ export const HealthInsurancePlansSection = () => {
 
           </div>
         </div>
+      )}
+
+      {/* Dynamic UPI QR Payment Gateway Modal for Health Insurance Policy */}
+      {buyPlanModal && (
+        <UnifiedPaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onDone={handlePaymentDone}
+          amount={getPlanPrice(buyPlanModal).price}
+          title="Health Insurance Policy Premium"
+          subtitle={`${buyPlanModal.name} (${getPlanPrice(buyPlanModal).sumLabel} Cashless)`}
+          particulars={`Policy Premium: ${applicantName} (${buyPlanModal.provider})`}
+          breakdown={[
+            { label: 'Policy Name', value: buyPlanModal.name },
+            { label: 'Cashless Sum Insured', value: getPlanPrice(buyPlanModal).sumLabel },
+            { label: `Base Premium (${billingPeriod})`, value: `₹${getPlanPrice(buyPlanModal).price}` },
+            { label: 'Cashless Hospitals Network', value: buyPlanModal.cashlessHospitals },
+            { label: 'Consumables & Room Rent', value: '100% Covered' }
+          ]}
+        />
       )}
 
     </section>

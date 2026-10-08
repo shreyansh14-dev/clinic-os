@@ -4,7 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarPlus, CalendarCheck, FileText, TestTube2,
   Receipt, HeartPulse, Pill, ShieldAlert, Stethoscope,
-  Activity, Bed, ShieldCheck, Syringe, Siren, Droplet, FlaskConical, Building2, Video
+  Activity, Bed, ShieldCheck, Syringe, Siren, Droplet, FlaskConical, Building2, Video,
+  Users
 } from 'lucide-react';
 
 /* ── Sidebar nav images per item ── */
@@ -62,14 +63,18 @@ export const Sidebar = () => {
 
   const adminNav = [
     { path: '/admin',               label: 'Authority Dashboard',  icon: LayoutDashboard },
+    { path: '/admin#admin-step-1',  label: '1. Admin Login',       icon: ShieldCheck     },
+    { path: '/admin#admin-step-2',  label: '2. Doctors & Depts',   icon: Stethoscope     },
+    { path: '/admin#admin-step-3',  label: '3. Patients Registry', icon: Users           },
+    { path: '/admin#admin-step-4',  label: '4. Triage & Reschedule', icon: CalendarCheck },
+    { path: '/admin#admin-step-5',  label: '5. Bills & Payments',  icon: Receipt         },
+    { path: '/admin#admin-step-6',  label: '6. Generate Reports',  icon: FileText        },
+    { path: '/admin#admin-step-7',  label: '7. Security Audit',    icon: ShieldAlert     },
+    { path: '/admin#admin-step-8',  label: '8. System Config',     icon: Activity        },
     { path: '/bed-management',      label: 'IPD Ward & Beds',      icon: Bed             },
     { path: '/insurance-approvals', label: 'TPA Insurance Desk',   icon: ShieldCheck     },
-    { path: '/manage-doctors',      label: 'Doctor & Staff Roster',icon: Stethoscope     },
-    { path: '/manage-departments',  label: 'Departments & Fees',   icon: Building2       },
-    { path: '/system-invoices',     label: 'Financial Ledger',     icon: Receipt         },
     { path: '/blood-bank',          label: 'Blood Bank Stock',     icon: Droplet         },
     { path: '/ambulance-fleet',     label: 'Ambulance Fleet',      icon: Siren           },
-    { path: '/audit-logs',          label: 'Security Audit Logs',  icon: ShieldAlert     },
   ];
 
   const navItems = currentRole === 'doctor' ? doctorNav
@@ -116,7 +121,23 @@ export const Sidebar = () => {
           return (
             <button
               key={path}
-              onClick={() => navigate(path)}
+              onClick={() => {
+                if (path.includes('#')) {
+                  const [route, hash] = path.split('#');
+                  if (location.pathname !== route) {
+                    navigate(route);
+                    setTimeout(() => {
+                      const el = document.getElementById(hash);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 120);
+                  } else {
+                    const el = document.getElementById(hash);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                } else {
+                  navigate(path);
+                }
+              }}
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.6rem',
                 padding: '0.55rem 0.75rem',

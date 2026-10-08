@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { apiService } from '../../services/api';
+import { getTelehealthMediaStream } from '../../utils/telehealthMedia';
+import { telehealthBridge } from '../../utils/telehealthSignaling';
 import { CreatePrescriptionModal } from './CreatePrescriptionModal';
 import {
   Stethoscope, CalendarCheck, Users, FileText, CheckCircle2,
@@ -33,6 +36,7 @@ export const DoctorConsole = () => {
     showToast
   } = useApp();
 
+  const location = useLocation();
   const [activeStepTab, setActiveStepTab] = useState(2); // Active step in the 8-step workflow
   const [selectedPatientForRx, setSelectedPatientForRx] = useState(null);
   const [searchFilter, setSearchFilter] = useState('');
@@ -163,22 +167,37 @@ export const DoctorConsole = () => {
     return `${mins.toString().padStart(2, '0')}:${remainingSec.toString().padStart(2, '0')}`;
   };
 
-  // Dual WebRTC Signaling (BroadcastChannel + Express REST Polling)
+  // Dual WebRTC Signaling (telehealthBridge + BroadcastChannel + Express REST Polling)
   useEffect(() => {
-    broadcastChannelRef.current = new BroadcastChannel('clinic_telehealth_channel');
+    // Check if routed with auto-accept from global header alert
+    if (location.state?.autoAcceptCall) {
+      const callToAutoAccept = location.state.autoAcceptCall;
+      acceptIncomingCall(callToAutoAccept);
+    } else {
+      const existingCall = telehealthBridge.getActiveCall();
+      if (existingCall && callState === 'idle') {
+        setIncomingCall(existingCall);
+        setActiveCaller(existingCall);
+        setCallState('incoming');
+        startRingingChime();
+      }
+    }
 
-    broadcastChannelRef.current.onmessage = async (event) => {
-      const { type, payload } = event.data;
+    const unsubscribe = telehealthBridge.subscribe(async ({ type, payload }) => {
       if (type === 'START_CALL') {
         setIncomingCall(payload);
         setActiveCaller(payload);
         setCallState('incoming');
         startRingingChime();
         showToast(`📞 INCOMING CALL: Patient ${payload.callerName} requesting video consultation!`, 'info');
-      } else if (type === 'ICE_CANDIDATE' && pcRef.current) {
+      } else if (type === 'ICE_CANDIDATE' && pcRef.current && payload?.candidate) {
         try {
           await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate));
         } catch (e) {}
+      } else if (type === 'CHAT_MESSAGE' && payload) {
+        if (payload.senderRole !== 'doctor') {
+          setMessages(prev => [...prev, payload]);
+        }
       } else if (type === 'CALL_ENDED') {
         stopRingingChime();
         setIncomingCall(null);
@@ -187,7 +206,7 @@ export const DoctorConsole = () => {
         }
         endTelehealthCall(false);
       }
-    };
+    });
 
     // Polling Express REST API for cross-device / different tab incoming calls
     const pollInterval = setInterval(async () => {
@@ -204,7 +223,7 @@ export const DoctorConsole = () => {
       } else if (callState === 'incoming' || callState === 'connected') {
         try {
           const res = await apiService.getActiveTelehealthCall();
-          if (!res?.activeCall) {
+          if (!res?.activeCall && !telehealthBridge.getActiveCall()) {
             stopRingingChime();
             setIncomingCall(null);
             endTelehealthCall(false);
@@ -216,9 +235,9 @@ export const DoctorConsole = () => {
     return () => {
       clearInterval(pollInterval);
       stopRingingChime();
-      if (broadcastChannelRef.current) broadcastChannelRef.current.close();
+      unsubscribe();
     };
-  }, [callState]);
+  }, [callState, location.state]);
 
   // Synchronize with global AppContext incoming call alert
   useEffect(() => {
@@ -232,7 +251,7 @@ export const DoctorConsole = () => {
 
   // Accept incoming video call from patient
   const acceptIncomingCall = async (callDataToAccept) => {
-    const callData = callDataToAccept || incomingCall || activeCaller;
+    const callData = callDataToAccept || incomingCall || activeCaller || telehealthBridge.getActiveCall();
     if (!callData) return;
 
     stopRingingChime();
@@ -244,23 +263,11 @@ export const DoctorConsole = () => {
     showToast(`Connecting video consultation with ${callData.callerName || 'Patient'}...`);
 
     try {
-      // 1. Acquire Doctor's real media stream (webcam & microphone)
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(async () => {
-        const videoOnly = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }).catch(() => null);
-        if (videoOnly) return videoOnly;
-        const canvas = document.createElement('canvas');
-        canvas.width = 640;
-        canvas.height = 480;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#16163B';
-        ctx.fillRect(0, 0, 640, 480);
-        ctx.fillStyle = '#E9DF70';
-        ctx.font = 'bold 22px sans-serif';
-        ctx.fillText(activeDoctor?.name || 'Dr. Souvik Sinha', 160, 230);
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = '16px sans-serif';
-        ctx.fillText('Encrypted WebRTC Consultation Stream', 170, 265);
-        return canvas.captureStream(30);
+      // 1. Acquire Doctor's media stream (real webcam or animated high-fidelity stream)
+      const stream = await getTelehealthMediaStream({
+        userName: activeDoctor?.name || 'Dr. Souvik Sinha',
+        role: 'doctor',
+        isDoctor: true
       });
 
       localStreamRef.current = stream;
@@ -288,13 +295,7 @@ export const DoctorConsole = () => {
       // Handle ICE candidates
       pc.onicecandidate = (event) => {
         if (event.candidate) {
-          apiService.addIceCandidate(event.candidate).catch(() => {});
-          if (broadcastChannelRef.current) {
-            broadcastChannelRef.current.postMessage({
-              type: 'ICE_CANDIDATE',
-              payload: { candidate: event.candidate }
-            });
-          }
+          telehealthBridge.sendIceCandidate(event.candidate);
         }
       };
 
@@ -308,14 +309,8 @@ export const DoctorConsole = () => {
           answer: { type: answer.type, sdp: answer.sdp }
         };
 
-        // Send Answer via backend API & broadcast channel
-        await apiService.answerTelehealthCall(answerPayload);
-        if (broadcastChannelRef.current) {
-          broadcastChannelRef.current.postMessage({
-            type: 'CALL_ANSWERED',
-            payload: answerPayload
-          });
-        }
+        // Send Answer via unified telehealthBridge
+        await telehealthBridge.answerCall(answerPayload);
       }
 
       setMessages(prev => [
@@ -339,10 +334,7 @@ export const DoctorConsole = () => {
     stopRingingChime();
     setIncomingCall(null);
     setCallState('idle');
-    if (broadcastChannelRef.current) {
-      broadcastChannelRef.current.postMessage({ type: 'CALL_ENDED' });
-    }
-    await apiService.hangupTelehealthCall().catch(() => {});
+    await telehealthBridge.endCall();
     showToast('Incoming patient video call declined.');
   };
 
@@ -362,10 +354,7 @@ export const DoctorConsole = () => {
     setRemoteStreamActive(false);
 
     if (notify) {
-      if (broadcastChannelRef.current) {
-        broadcastChannelRef.current.postMessage({ type: 'CALL_ENDED' });
-      }
-      await apiService.hangupTelehealthCall().catch(() => {});
+      await telehealthBridge.endCall();
     }
 
     setCallState('idle');
@@ -387,19 +376,10 @@ export const DoctorConsole = () => {
     showToast(`Initializing consultation room for ${callerData.callerName}...`);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(async () => {
-        const vOnly = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }).catch(() => null);
-        if (vOnly) return vOnly;
-        const canvas = document.createElement('canvas');
-        canvas.width = 640;
-        canvas.height = 480;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#16163B';
-        ctx.fillRect(0, 0, 640, 480);
-        ctx.fillStyle = '#E9DF70';
-        ctx.font = 'bold 22px sans-serif';
-        ctx.fillText(activeDoctor?.name || 'Dr. Souvik Sinha', 160, 230);
-        return canvas.captureStream(30);
+      const stream = await getTelehealthMediaStream({
+        userName: activeDoctor?.name || 'Dr. Souvik Sinha',
+        role: 'doctor',
+        isDoctor: true
       });
 
       localStreamRef.current = stream;
@@ -439,14 +419,14 @@ export const DoctorConsole = () => {
   const sendChatMessage = (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
-    setMessages(prev => [
-      ...prev,
-      {
-        sender: activeDoctor?.name || 'Dr. Souvik Sinha',
-        text: chatInput,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    ]);
+    const newMsg = {
+      sender: activeDoctor?.name || 'Dr. Souvik Sinha',
+      senderRole: 'doctor',
+      text: chatInput,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => [...prev, newMsg]);
+    telehealthBridge.sendChatMessage(newMsg);
     setChatInput('');
   };
 

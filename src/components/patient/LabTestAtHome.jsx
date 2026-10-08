@@ -480,10 +480,10 @@ export const LabTestAtHome = () => {
 
                   <button
                     onClick={() => handleFinalizeBooking(selectedGateway)}
-                    className="px-6 py-3 bg-blue-900 hover:bg-blue-800 text-white font-extrabold text-xs rounded-xl shadow-md border-none cursor-pointer flex items-center space-x-2"
+                    className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md border-none cursor-pointer flex items-center space-x-2 transition-all hover:scale-105 active:scale-95"
                   >
-                    <Lock className="w-4 h-4" />
-                    <span>Pay ₹{selectedPackage.price} & Complete Booking</span>
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                    <span>✓ Payment Done / I Have Paid</span>
                   </button>
                 </div>
 

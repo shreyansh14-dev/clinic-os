@@ -126,14 +126,270 @@ export const INITIAL_PATIENTS = [
     address: 'Bandra West, Mumbai',
     emergencyContact: '+91 98765 00000',
     insuranceId: 'INS-99214-AB',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    admitted: false,
+    diagnosis: 'Hypertension Evaluation'
+  },
+  {
+    id: 'usr-pat-2',
+    name: 'Priya Sharma',
+    age: 34,
+    gender: 'Female',
+    bloodGroup: 'B+',
+    phone: '+91 98201 44552',
+    email: 'priya.s@gmail.com',
+    address: 'Andheri East, Mumbai',
+    emergencyContact: '+91 98201 99887',
+    insuranceId: 'HDFC-ERGO-4412',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    admitted: false,
+    diagnosis: 'Type-2 Diabetes Review'
+  },
+  {
+    id: 'usr-pat-3',
+    name: 'Rajesh Malhotra',
+    age: 58,
+    gender: 'Male',
+    bloodGroup: 'A+',
+    phone: '+91 99300 12890',
+    email: 'rajesh.m@outlook.com',
+    address: 'Worli Sea Face, Mumbai',
+    emergencyContact: '+91 99300 55443',
+    insuranceId: 'STAR-HEALTH-8819',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    admitted: true,
+    diagnosis: 'Post-CABG Cardiac Recovery'
+  },
+  {
+    id: 'usr-pat-4',
+    name: 'Ananya Sen',
+    age: 26,
+    gender: 'Female',
+    bloodGroup: 'AB+',
+    phone: '+91 98112 33445',
+    email: 'ananya.sen@gmail.com',
+    address: 'Powai, Mumbai',
+    emergencyContact: '+91 98112 88990',
+    insuranceId: 'ICICI-LOMB-7761',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    admitted: false,
+    diagnosis: 'Dermatological Allergy'
+  },
+  {
+    id: 'usr-pat-5',
+    name: 'Vikram Patel',
+    age: 46,
+    gender: 'Male',
+    bloodGroup: 'O-',
+    phone: '+91 97245 66778',
+    email: 'vikram.p@yahoo.com',
+    address: 'Juhu Scheme, Mumbai',
+    emergencyContact: '+91 97245 11223',
+    insuranceId: 'MAX-BUPA-3302',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    admitted: false,
+    diagnosis: 'Lumbar Spine Spondylosis'
+  },
+  {
+    id: 'usr-pat-6',
+    name: 'Neha Deshmukh',
+    age: 42,
+    gender: 'Female',
+    bloodGroup: 'A-',
+    phone: '+91 98670 99881',
+    email: 'neha.d@gmail.com',
+    address: 'Thane West, Mumbai',
+    emergencyContact: '+91 98670 44332',
+    insuranceId: 'CARE-HEALTH-5541',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    admitted: false,
+    diagnosis: 'Thyroid Dysfunction'
   }
 ];
 
-export const INITIAL_APPOINTMENTS = [];
+export const INITIAL_APPOINTMENTS = [
+  {
+    id: 'apt-101',
+    patientId: 'usr-pat-1',
+    patientName: 'Shreyansh Kumar',
+    doctorId: 'doc-1-1',
+    doctorName: 'Dr. Souvik Sinha',
+    specialty: 'Cardiology',
+    date: '2026-10-09',
+    time: '10:00 AM',
+    type: 'In-Person',
+    status: 'Pending',
+    fee: 3000,
+    paid: true,
+    symptoms: 'Mild chest heaviness during exertion & irregular pulse'
+  },
+  {
+    id: 'apt-102',
+    patientId: 'usr-pat-2',
+    patientName: 'Priya Sharma',
+    doctorId: 'doc-15-1',
+    doctorName: 'Dr. Priya Nair',
+    specialty: 'Endocrinology',
+    date: '2026-10-09',
+    time: '11:30 AM',
+    type: 'Telehealth',
+    status: 'Pending',
+    fee: 2300,
+    paid: true,
+    symptoms: 'Quarterly HbA1c review & insulin dose titration'
+  },
+  {
+    id: 'apt-103',
+    patientId: 'usr-pat-3',
+    patientName: 'Rajesh Malhotra',
+    doctorId: 'doc-1-2',
+    doctorName: 'Dr. Arjun Sharma',
+    specialty: 'Cardiology',
+    date: '2026-10-10',
+    time: '02:00 PM',
+    type: 'In-Person',
+    status: 'Scheduled',
+    fee: 3200,
+    paid: false,
+    symptoms: 'Post-op 4-week echo review'
+  },
+  {
+    id: 'apt-104',
+    patientId: 'usr-pat-4',
+    patientName: 'Ananya Sen',
+    doctorId: 'doc-4-1',
+    doctorName: 'Dr. Kunal Sarkar',
+    specialty: 'Dermatology',
+    date: '2026-10-11',
+    time: '04:30 PM',
+    type: 'In-Person',
+    status: 'Rescheduled',
+    fee: 2000,
+    paid: true,
+    symptoms: 'Contact dermatitis flare-up on palms'
+  },
+  {
+    id: 'apt-105',
+    patientId: 'usr-pat-5',
+    patientName: 'Vikram Patel',
+    doctorId: 'doc-5-1',
+    doctorName: 'Dr. Henry D\'Souza',
+    specialty: 'Orthopedics',
+    date: '2026-10-08',
+    time: '09:30 AM',
+    type: 'In-Person',
+    status: 'Completed',
+    fee: 2500,
+    paid: true,
+    symptoms: 'L4-L5 disc protrusion follow-up'
+  },
+  {
+    id: 'apt-106',
+    patientId: 'usr-pat-6',
+    patientName: 'Neha Deshmukh',
+    doctorId: 'doc-2-1',
+    doctorName: 'Dr. Alok Roy',
+    specialty: 'General Medicine',
+    date: '2026-10-12',
+    time: '03:00 PM',
+    type: 'Telehealth',
+    status: 'Scheduled',
+    fee: 1500,
+    paid: true,
+    symptoms: 'Hypothyroidism lethargy & weight check'
+  }
+];
+
 export const INITIAL_PRESCRIPTIONS = [];
 export const INITIAL_LAB_TESTS = [];
-export const INITIAL_BILLS = [];
+
+export const INITIAL_BILLS = [
+  {
+    id: 'INV-2026-901',
+    patientId: 'usr-pat-1',
+    patientName: 'Shreyansh Kumar',
+    description: 'Executive Cardiac Consultation & 12-Lead ECG',
+    department: 'Cardiology',
+    issueDate: '2026-10-08',
+    dueDate: '2026-10-15',
+    totalAmount: 3500,
+    status: 'Paid',
+    paymentMethod: 'UPI / GPay',
+    transactionId: 'TXN-98124401',
+    insuranceCoverage: 0
+  },
+  {
+    id: 'INV-2026-902',
+    patientId: 'usr-pat-2',
+    patientName: 'Priya Sharma',
+    description: 'Comprehensive Diabetic Profile & Endocrinologist Telehealth',
+    department: 'Endocrinology',
+    issueDate: '2026-10-07',
+    dueDate: '2026-10-14',
+    totalAmount: 4200,
+    status: 'Paid',
+    paymentMethod: 'Credit Card',
+    transactionId: 'TXN-55198203',
+    insuranceCoverage: 0
+  },
+  {
+    id: 'INV-2026-903',
+    patientId: 'usr-pat-3',
+    patientName: 'Rajesh Malhotra',
+    description: 'IPD Ward Admission, Cardiac Monitor & Daily Consultant Rounds',
+    department: 'Cardiology',
+    issueDate: '2026-10-06',
+    dueDate: '2026-10-13',
+    totalAmount: 28500,
+    status: 'Unpaid',
+    paymentMethod: null,
+    transactionId: null,
+    insuranceCoverage: 20000
+  },
+  {
+    id: 'INV-2026-904',
+    patientId: 'usr-pat-4',
+    patientName: 'Ananya Sen',
+    description: 'Dermatological Biopsy & Patch Allergy Test',
+    department: 'Dermatology',
+    issueDate: '2026-10-05',
+    dueDate: '2026-10-12',
+    totalAmount: 2200,
+    status: 'Paid',
+    paymentMethod: 'NetBanking',
+    transactionId: 'TXN-77123904',
+    insuranceCoverage: 0
+  },
+  {
+    id: 'INV-2026-905',
+    patientId: 'usr-pat-5',
+    patientName: 'Vikram Patel',
+    description: 'Spine MRI Scan & Orthopedic Consultation',
+    department: 'Orthopedics',
+    issueDate: '2026-10-04',
+    dueDate: '2026-10-11',
+    totalAmount: 6800,
+    status: 'Unpaid',
+    paymentMethod: null,
+    transactionId: null,
+    insuranceCoverage: 4000
+  },
+  {
+    id: 'INV-2026-906',
+    patientId: 'usr-pat-6',
+    patientName: 'Neha Deshmukh',
+    description: 'Thyroid Function Panel (FT3/FT4/TSH) & Consultation',
+    department: 'General Medicine',
+    issueDate: '2026-10-03',
+    dueDate: '2026-10-10',
+    totalAmount: 1850,
+    status: 'Paid',
+    paymentMethod: 'Cash',
+    transactionId: 'TXN-44910283',
+    insuranceCoverage: 0
+  }
+];
+
 export const INITIAL_VITALS = [
   { id: 'v1', patientId: 'usr-pat-1', bpSystolic: 120, bpDiastolic: 80, heartRate: 72, spo2: 98, date: '2026-08-23' }
 ];
@@ -246,4 +502,61 @@ export const INITIAL_BLOOD_BANK = [
 export const INITIAL_AMBULANCE_FLEET = [
   { id: 'amb-1', vehicleNo: 'MH-02-AX-1080', driverName: 'Ramesh Shinde', status: 'Available', phone: '+91 98700 11080' }
 ];
-export const INITIAL_AUDIT_LOGS = [];
+export const INITIAL_AUDIT_LOGS = [
+  {
+    id: 'log-1',
+    timestamp: '2026-10-08 18:42:10',
+    user: 'Hospital Authority (ADMIN)',
+    action: 'Administrator authenticated into ClinicOS Authority Console',
+    level: 'SUCCESS',
+    ip: '192.168.1.100'
+  },
+  {
+    id: 'log-2',
+    timestamp: '2026-10-08 17:15:33',
+    user: 'Dr. Souvik Sinha (DOCTOR)',
+    action: 'Approved appointment clearance for patient Shreyansh Kumar',
+    level: 'INFO',
+    ip: '192.168.1.104'
+  },
+  {
+    id: 'log-3',
+    timestamp: '2026-10-08 16:50:18',
+    user: 'TPA Desk (ADMIN)',
+    action: 'Pre-authorized cashless insurance claim CLM-9912 (₹24,500)',
+    level: 'SUCCESS',
+    ip: '192.168.1.102'
+  },
+  {
+    id: 'log-4',
+    timestamp: '2026-10-08 15:22:04',
+    user: 'Billing Desk (ADMIN)',
+    action: 'Settled invoice INV-2026-901 via UPI Gateway',
+    level: 'INFO',
+    ip: '192.168.1.105'
+  },
+  {
+    id: 'log-5',
+    timestamp: '2026-10-08 14:10:49',
+    user: 'System Sentinel (SYSTEM)',
+    action: 'Automatic cryptographic verification of EMR ledger completed: 100% Valid',
+    level: 'SUCCESS',
+    ip: '127.0.0.1'
+  },
+  {
+    id: 'log-6',
+    timestamp: '2026-10-08 12:05:12',
+    user: 'Nurse Station (STAFF)',
+    action: 'Updated Bed #102 occupancy status to Reserved for Admitted Patient',
+    level: 'INFO',
+    ip: '192.168.1.118'
+  },
+  {
+    id: 'log-7',
+    timestamp: '2026-10-08 10:30:25',
+    user: 'Emergency SOS (SYSTEM)',
+    action: 'Dispatched 108 Advanced Cardiac Ambulance MH-02-AX-1080',
+    level: 'WARN',
+    ip: '127.0.0.1'
+  }
+];

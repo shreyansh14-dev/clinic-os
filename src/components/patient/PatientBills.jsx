@@ -16,6 +16,7 @@ import {
   Wallet,
   Building
 } from 'lucide-react';
+import { UnifiedPaymentModal } from '../common/UnifiedPaymentModal';
 
 export const PatientBills = () => {
   const { bills, payBill, showToast } = useApp();
@@ -214,10 +215,10 @@ export const PatientBills = () => {
                   
                   <button
                     onClick={handleConfirmPayment}
-                    className="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white font-extrabold text-xs rounded-xl shadow-md border-none cursor-pointer flex items-center space-x-2"
+                    className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md border-none cursor-pointer flex items-center space-x-2 transition-all hover:scale-105 active:scale-95"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Confirm & Clear ₹{selectedBill.totalAmount}</span>
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                    <span>✓ Payment Done / I Have Paid</span>
                   </button>
                 </div>
 

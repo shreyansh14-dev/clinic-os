@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { apiService } from '../../services/api';
+import { getTelehealthMediaStream } from '../../utils/telehealthMedia';
+import { telehealthBridge } from '../../utils/telehealthSignaling';
 import { CreatePrescriptionModal } from './CreatePrescriptionModal';
 import { Video, VideoOff, Mic, MicOff, PhoneOff, Send, PhoneCall, Stethoscope, User, FileText, CheckCircle2, MessageSquare } from 'lucide-react';
 
@@ -24,38 +26,33 @@ export const DoctorTelehealth = () => {
   const broadcastChannelRef = useRef(null);
 
   useEffect(() => {
-    broadcastChannelRef.current = new BroadcastChannel('clinic_telehealth_channel');
-    
-    broadcastChannelRef.current.onmessage = async (event) => {
-      const { type, payload } = event.data;
+    // Check initial active call from storage
+    const initialCall = telehealthBridge.getActiveCall();
+    if (initialCall && callState === 'idle') {
+      setActiveCaller(initialCall);
+      setCallState('incoming');
+    }
+
+    const unsubscribe = telehealthBridge.subscribe(async ({ type, payload }) => {
       if (type === 'START_CALL') {
         setActiveCaller(payload);
         setCallState('incoming');
         showToast(`📞 INCOMING CALL: Patient ${payload.callerName} is calling for Telemedicine Consultation!`);
-      } else if (type === 'ICE_CANDIDATE' && pcRef.current) {
+      } else if (type === 'ICE_CANDIDATE' && pcRef.current && payload?.candidate) {
         try {
           await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate));
         } catch (e) {}
+      } else if (type === 'CHAT_MESSAGE' && payload) {
+        if (payload.senderRole !== 'doctor') {
+          setMessages(prev => [...prev, payload]);
+        }
       } else if (type === 'CALL_ENDED') {
         endCall(false);
       }
-    };
-
-    // Polling Express Backend REST Signaling for cross-device calls
-    const pollInterval = setInterval(async () => {
-      if (callState === 'idle') {
-        const res = await apiService.getActiveTelehealthCall();
-        if (res?.activeCall?.status === 'calling') {
-          setActiveCaller(res.activeCall);
-          setCallState('incoming');
-          showToast(`📞 INCOMING CALL: Patient ${res.activeCall.callerName} is calling!`);
-        }
-      }
-    }, 2000);
+    });
 
     return () => {
-      clearInterval(pollInterval);
-      if (broadcastChannelRef.current) broadcastChannelRef.current.close();
+      unsubscribe();
     };
   }, [callState]);
 
@@ -63,15 +60,11 @@ export const DoctorTelehealth = () => {
     try {
       setCallState('connected');
 
-      // 1. Get Doctor's real camera & microphone media stream
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(() => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 640;
-        canvas.height = 480;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, 640, 480);
-        return canvas.captureStream(30);
+      // 1. Get Doctor's media stream (real webcam or animated high-fidelity stream)
+      const stream = await getTelehealthMediaStream({
+        userName: activeDoctor?.name || 'Dr. Souvik Sinha',
+        role: 'doctor',
+        isDoctor: true
       });
 
       localStreamRef.current = stream;
@@ -95,27 +88,22 @@ export const DoctorTelehealth = () => {
 
       pc.onicecandidate = (event) => {
         if (event.candidate) {
-          apiService.addIceCandidate(event.candidate).catch(() => {});
-          if (broadcastChannelRef.current) {
-            broadcastChannelRef.current.postMessage({ type: 'ICE_CANDIDATE', payload: { candidate: event.candidate } });
-          }
+          telehealthBridge.sendIceCandidate(event.candidate);
         }
       };
 
       // 3. Set Remote Description if offer exists
-      if (activeCaller?.offer) {
-        await pc.setRemoteDescription(new RTCSessionDescription(activeCaller.offer));
+      const callData = activeCaller || telehealthBridge.getActiveCall();
+      if (callData?.offer) {
+        await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
 
-        // 4. Send Answer via Backend REST API & BroadcastChannel
-        await apiService.answerTelehealthCall({ answer: { type: answer.type, sdp: answer.sdp } });
-        if (broadcastChannelRef.current) {
-          broadcastChannelRef.current.postMessage({ type: 'CALL_ANSWERED', payload: { answer: { type: answer.type, sdp: answer.sdp } } });
-        }
+        const answerPayload = { answer: { type: answer.type, sdp: answer.sdp } };
+        await telehealthBridge.answerCall(answerPayload);
       }
 
-      showToast(`Connected with ${activeCaller?.callerName || 'Patient'}`);
+      showToast(`Connected with ${callData?.callerName || 'Patient'}`);
     } catch (err) {
       console.error('Doctor answer call error:', err);
       showToast('Error accessing camera for video call.', 'danger');
@@ -125,15 +113,17 @@ export const DoctorTelehealth = () => {
   const endCall = async (notify = true) => {
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(t => t.stop());
+      localStreamRef.current = null;
     }
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
     }
+    if (localVideoRef.current) localVideoRef.current.srcObject = null;
+    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
 
-    if (notify && broadcastChannelRef.current) {
-      broadcastChannelRef.current.postMessage({ type: 'CALL_ENDED' });
-      await apiService.hangupTelehealthCall().catch(() => {});
+    if (notify) {
+      await telehealthBridge.endCall();
     }
 
     setCallState('idle');
@@ -164,8 +154,14 @@ export const DoctorTelehealth = () => {
   const sendMessage = (e) => {
     e.preventDefault();
     if (!inputMsg.trim()) return;
-    const newMsg = { sender: `Dr. ${activeDoctor?.name || 'Souvik Sinha'}`, text: inputMsg, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+    const newMsg = {
+      sender: `Dr. ${activeDoctor?.name || 'Souvik Sinha'}`,
+      senderRole: 'doctor',
+      text: inputMsg,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
     setMessages(prev => [...prev, newMsg]);
+    telehealthBridge.sendChatMessage(newMsg);
     setInputMsg('');
   };
 

@@ -194,9 +194,10 @@ export const Header = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                acceptIncomingCall();
+                const callToAccept = incomingCallAlert;
+                acceptIncomingCall(callToAccept);
                 setCurrentRole('doctor');
-                navigate('/doctor-console');
+                navigate('/doctor-console', { state: { autoAcceptCall: callToAccept } });
               }}
               className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer border-none flex items-center space-x-1.5 transition-all hover:scale-105"
             >
@@ -264,9 +265,10 @@ export const Header = () => {
 
               <button
                 onClick={() => {
-                  acceptIncomingCall();
+                  const callToAccept = incomingCallAlert;
+                  acceptIncomingCall(callToAccept);
                   setCurrentRole('doctor');
-                  navigate('/doctor-console');
+                  navigate('/doctor-console', { state: { autoAcceptCall: callToAccept } });
                 }}
                 className="py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs border-none cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >

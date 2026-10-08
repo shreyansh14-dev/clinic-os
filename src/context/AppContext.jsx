@@ -18,6 +18,7 @@ import {
   INITIAL_AUDIT_LOGS
 } from '../mockData';
 import { apiService } from '../services/api';
+import { telehealthBridge } from '../utils/telehealthSignaling';
 import confetti from 'canvas-confetti';
 
 const AppContext = createContext();
@@ -79,12 +80,16 @@ export const AppProvider = ({ children }) => {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Global WebRTC Signaling Listener (BroadcastChannel + REST Polling)
+  // Global WebRTC Signaling Listener (telehealthBridge + BroadcastChannel + REST Polling)
   useEffect(() => {
-    broadcastChannelRef.current = new BroadcastChannel('clinic_telehealth_channel');
+    // Check initial pending call if already ringing in another tab
+    const existingCall = telehealthBridge.getActiveCall();
+    if (existingCall) {
+      setActiveCallSignal(existingCall);
+      setIncomingCallAlert(existingCall);
+    }
 
-    broadcastChannelRef.current.onmessage = (event) => {
-      const { type, payload } = event.data;
+    const unsubscribe = telehealthBridge.subscribe(({ type, payload }) => {
       if (type === 'START_CALL') {
         setActiveCallSignal(payload);
         setIncomingCallAlert(payload);
@@ -93,40 +98,45 @@ export const AppProvider = ({ children }) => {
         setIncomingCallAlert(null);
         setActiveCallSignal(null);
       }
-    };
+    });
 
-    // Global REST Polling for cross-device incoming call signaling
+    // Global REST Polling for cross-device incoming call signaling (throttled to 5s)
     const pollInterval = setInterval(async () => {
       try {
+        const localCall = telehealthBridge.getActiveCall();
+        if (localCall?.status === 'calling') {
+          setActiveCallSignal(localCall);
+          setIncomingCallAlert(localCall);
+          return;
+        }
+
         const res = await apiService.getActiveTelehealthCall();
         if (res?.activeCall?.status === 'calling') {
           setActiveCallSignal(res.activeCall);
           setIncomingCallAlert(res.activeCall);
-        } else if (!res?.activeCall) {
+        } else if (!res?.activeCall && !telehealthBridge.getActiveCall()) {
           setIncomingCallAlert(null);
         }
       } catch (e) {}
-    }, 1500);
+    }, 5000);
 
     return () => {
       clearInterval(pollInterval);
-      if (broadcastChannelRef.current) broadcastChannelRef.current.close();
+      unsubscribe();
     };
   }, [currentRole, currentUser]);
 
-  const acceptIncomingCall = () => {
+  const acceptIncomingCall = (callData) => {
+    const callToAccept = callData || incomingCallAlert;
     setCurrentRole('doctor');
     setActiveTab('tele-health-suite');
-    showToast(`Joining video consultation with ${incomingCallAlert?.callerName || 'Patient'}...`);
+    showToast(`Joining video consultation with ${callToAccept?.callerName || 'Patient'}...`);
   };
 
   const declineIncomingCall = async () => {
     setIncomingCallAlert(null);
     setActiveCallSignal(null);
-    if (broadcastChannelRef.current) {
-      broadcastChannelRef.current.postMessage({ type: 'CALL_ENDED' });
-    }
-    await apiService.hangupTelehealthCall().catch(() => {});
+    await telehealthBridge.endCall();
     showToast('Call declined.');
   };
 
@@ -514,6 +524,41 @@ export const AppProvider = ({ children }) => {
     showToast(`Doctor removed from roster.`);
   };
 
+  const addDepartment = (deptData) => {
+    const newDept = {
+      id: `dept-${Date.now()}`,
+      doctorCount: 0,
+      fee: 2000,
+      icon: 'Activity',
+      description: 'Clinical Care Division',
+      ...deptData
+    };
+    setDepartments(prev => [...prev, newDept]);
+    addAuditLog(`Created department ${newDept.name} (Base Fee: ₹${newDept.fee})`, 'Hospital Admin');
+    showToast(`Department "${newDept.name}" created successfully!`);
+    return newDept;
+  };
+
+  const updateDepartmentFee = (deptId, newFee) => {
+    setDepartments(prev => prev.map(d => d.id === deptId ? { ...d, fee: parseFloat(newFee) } : d));
+    addAuditLog(`Updated base consultation fee for department ${deptId} to ₹${newFee}`, 'Hospital Admin');
+    showToast(`Department base fee updated to ₹${newFee}`);
+  };
+
+  const addPatient = (patientData) => {
+    const newPat = {
+      id: `usr-pat-${Date.now()}`,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      admitted: false,
+      diagnosis: 'Initial Clinical Evaluation',
+      ...patientData
+    };
+    setPatients(prev => [newPat, ...prev]);
+    addAuditLog(`Registered new patient profile for ${newPat.name} (UHID: ${newPat.id})`, 'Hospital Admin');
+    showToast(`Patient ${newPat.name} registered successfully!`);
+    return newPat;
+  };
+
   // Pharmacy Cart state for online medicine orders
   const [pharmacyCart, setPharmacyCart] = useState({
     'med-dolo650': 2,
@@ -617,6 +662,9 @@ export const AppProvider = ({ children }) => {
         deleteMedication,
         addDoctor,
         deleteDoctor,
+        addDepartment,
+        updateDepartmentFee,
+        addPatient,
         approveInsuranceClaim,
         updatePatientAge,
         pharmacyCart,

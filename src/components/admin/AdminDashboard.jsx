@@ -433,7 +433,7 @@ export const AdminDashboard = () => {
                 <Users className="w-6 h-6" />
               </div>
               <span className="text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900 px-2.5 py-1 rounded-full">
-                Step 2 · Doctors
+                2 · Doctors
               </span>
             </div>
             <div>
@@ -461,7 +461,7 @@ export const AdminDashboard = () => {
                 <CalendarCheck2 className="w-6 h-6" />
               </div>
               <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-200/80 text-emerald-900 px-2.5 py-1 rounded-full">
-                Step 4 · Triage
+                4 · Triage
               </span>
             </div>
             <div>
@@ -489,7 +489,7 @@ export const AdminDashboard = () => {
                 <Receipt className="w-6 h-6" />
               </div>
               <span className="text-[10px] font-black uppercase tracking-wider bg-pink-200/80 text-pink-900 px-2.5 py-1 rounded-full">
-                Step 5 · Billing
+                5 · Billing
               </span>
             </div>
             <div>
@@ -517,7 +517,7 @@ export const AdminDashboard = () => {
                 <BarChart3 className="w-6 h-6" />
               </div>
               <span className="text-[10px] font-black uppercase tracking-wider bg-sky-200/80 text-sky-900 px-2.5 py-1 rounded-full">
-                Step 6 · Reports
+                6 · Reports
               </span>
             </div>
             <div>
@@ -556,7 +556,7 @@ export const AdminDashboard = () => {
                 </h3>
               </div>
               <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
-                Click any step below to navigate directly to its dedicated administrative module
+                Click any module below to navigate directly to its dedicated administrative section
               </p>
             </div>
 
@@ -624,16 +624,16 @@ export const AdminDashboard = () => {
                 })}
               </div>
 
-              {/* Central Connecting Flow Indicator from Step 4 down to Step 5 */}
+              {/* Central Connecting Flow Indicator from 4 down to 5 */}
               <div className="flex items-center justify-between px-4 py-1 text-purple-800 text-xs font-black">
                 <span className="text-[11px] text-slate-400 font-semibold hidden md:inline">
-                  Step 1 to 4: Clinical & Patient Operations
+                  1 to 4: Clinical & Patient Operations
                 </span>
                 <span className="flex items-center gap-1.5 bg-purple-100 px-3 py-1 rounded-full border border-purple-200">
-                  <span>↓ Financial Governance, Audit &amp; System Configuration (Steps 5 to 8) ↓</span>
+                  <span>↓ Financial Governance, Audit &amp; System Configuration (5 to 8) ↓</span>
                 </span>
                 <span className="text-[11px] text-slate-400 font-semibold hidden md:inline">
-                  Step 5 to 8: Executive Governance
+                  5 to 8: Executive Governance
                 </span>
               </div>
 
@@ -698,7 +698,7 @@ export const AdminDashboard = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 m-0">
-                  Step 1: Login & Authority Authentication Control
+                  1. Login & Authority Authentication Control
                 </h2>
                 <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
                   Administrative session credentials, 2-Factor Authentication (2FA), and authority permissions
@@ -848,7 +848,7 @@ export const AdminDashboard = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 m-0">
-                  Step 2: Manage Doctors & Departments
+                  2. Manage Doctors & Departments
                 </h2>
                 <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
                   Register physicians, allocate clinical departments, set consultation fees and OPD quotas
@@ -1010,7 +1010,7 @@ export const AdminDashboard = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 m-0">
-                  Step 3: Manage Patients & Appointments
+                  3. Manage Patients & Appointments
                 </h2>
                 <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
                   Master Patient Index (EMR), demographic records, and hospital-wide appointments register
@@ -1156,7 +1156,7 @@ export const AdminDashboard = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 m-0">
-                  Step 4: Approve / Reschedule Appointments
+                  4. Approve / Reschedule Appointments
                 </h2>
                 <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
                   Triage queue, slot confirmation, date/time rescheduling, and attending physician reassignment
@@ -1288,7 +1288,7 @@ export const AdminDashboard = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 m-0">
-                  Step 5: Manage Bills & Payments
+                  5. Manage Bills & Payments
                 </h2>
                 <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
                   Financial ledger, GST invoices, online & counter collections, and TPA insurance claim settlements
@@ -1474,7 +1474,7 @@ export const AdminDashboard = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 m-0">
-                  Step 6: Generate Reports & Hospital Analytics
+                  6. Generate Reports & Hospital Analytics
                 </h2>
                 <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
                   Compile executive financial dossier, OPD consultation volumes, and IPD bed occupancy metrics
@@ -1694,7 +1694,7 @@ export const AdminDashboard = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 m-0">
-                  Step 7: Monitor Audit Logs
+                  7. Monitor Audit Logs
                 </h2>
                 <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
                   Cryptographic security event stream, user authorization tracking, and compliance logs
@@ -1813,7 +1813,7 @@ export const AdminDashboard = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 m-0">
-                  Step 8: System Configuration
+                  8. System Configuration
                 </h2>
                 <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
                   Hospital master parameters, OPD scheduling rules, maintenance mode, and database backups
