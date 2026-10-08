@@ -437,200 +437,55 @@ export const PatientDashboard = () => {
           ───────────────────────────────────────────────────────────── */}
       {/* ─────────────────────────────────────────────────────────────
           1. HERO HEALTHCARE BANNER (Matching Reference Frame 04 & User Screenshot)
-          Exact "Healthcare" Banner with Pink "Book Consultation" Pill Button
+      {/* ─────────────────────────────────────────────────────────────
+          1. HERO HEALTHCARE BANNER (Matching User Design Exactly)
+          Exact "Healthcare" Dark Navy Banner with Center Doctor & Badges
           ───────────────────────────────────────────────────────────── */}
-      <section className="w-full px-5 sm:px-8 pt-4 pb-4">
-        <div className="rv-hero-enter relative rounded-[24px] sm:rounded-[36px] overflow-hidden shadow-2xl bg-[#242454] group">
+      <section className="w-full px-4 sm:px-6 md:px-8 pt-4 pb-2">
+        <div className="rv-hero-enter relative rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-xl bg-[#161c3b] group">
           <img
             src="/images/hero-banner-exact.png"
             alt="Healthcare Banner"
             className="w-full h-auto block select-none"
           />
 
-          {/* Exact Pink "Book Consultation" Kinetic Animated Pill Button (Matching User Screenshot) */}
-          <div className="absolute bottom-[3.5%] right-[3.5%] z-20 group">
-            <div className="relative inline-flex items-center justify-center">
-
-              {/* Sonar Ripple Pulse Ring Wave (Continuous breathing radar shockwave) */}
-              <div
-                className="absolute inset-0 rounded-full border-2 border-[#E7B8D1]/60 pointer-events-none animate-pill-pulse-wave"
-              />
-
-              {/* Pulsing Ambient Glow Aura */}
-              <div
-                className="absolute inset-0 rounded-full bg-[#E7B8D1]/40 blur-xl pointer-events-none transition-all duration-500 animate-pill-glow group-hover:blur-2xl group-hover:bg-[#E7B8D1]/70"
-              />
-
-              {/* Echo Layer 3: Center-Top Translucent Capsule (Elevated back pill) */}
-              <div
-                className="absolute inset-0 rounded-full bg-[#E7B8D1]/35 pointer-events-none transition-all duration-700 ease-out animate-echo-pill-center group-hover:-translate-y-4 group-hover:scale-105 group-hover:opacity-75"
-              />
-
-              {/* Echo Layer 1: Left Translucent Capsule (Floating left orbital trail matching screenshot) */}
-              <div
-                className="absolute inset-0 rounded-full bg-[#E7B8D1]/50 pointer-events-none transition-all duration-700 ease-out animate-echo-pill-left group-hover:scale-110 group-hover:-translate-x-10 group-hover:-translate-y-3 group-hover:opacity-90"
-              />
-
-              {/* Echo Layer 2: Right Translucent Capsule (Floating right orbital trail matching screenshot) */}
-              <div
-                className="absolute inset-0 rounded-full bg-[#E7B8D1]/45 pointer-events-none transition-all duration-700 ease-out animate-echo-pill-right group-hover:scale-110 group-hover:translate-x-10 group-hover:-translate-y-3 group-hover:opacity-90"
-              />
-
-              {/* Sparkling Twinkle Accents */}
-              <span className="absolute -top-2.5 -left-3 text-[#FFDE7D] text-xs pointer-events-none select-none animate-star-twinkle-1 drop-shadow-[0_0_8px_rgba(255,222,125,0.85)]">
-                ✦
-              </span>
-              <span className="absolute -top-3 -right-2 text-[#FFDE7D] text-xs pointer-events-none select-none animate-star-twinkle-2 drop-shadow-[0_0_8px_rgba(255,222,125,0.85)]">
-                ✦
-              </span>
-
-              {/* Foreground Interactive Pill Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  confetti({ particleCount: 70, spread: 80, origin: { x: 0.88, y: 0.35 } });
-                  navigate('/book-appointment');
-                }}
-                className="relative z-10 inline-flex items-center gap-2 sm:gap-2.5 bg-[#E7B8D1] hover:bg-[#F2D2E4] active:scale-95 text-[#16163B] pl-2 sm:pl-2.5 pr-4 sm:pr-6 py-1.5 sm:py-2.5 rounded-full shadow-[0_10px_28px_-4px_rgba(231,184,209,0.65)] hover:shadow-[0_18px_40px_-4px_rgba(231,184,209,0.9)] transition-all duration-300 cursor-pointer border border-white/60 font-['Poppins'] overflow-hidden animate-main-pill-float hover:-translate-y-1 hover:scale-[1.02]"
-                title="Book Consultation"
-              >
-                {/* Luminous High-Gloss Diagonal Shimmer Beam */}
-                <div
-                  className="absolute inset-0 w-3/5 h-full bg-gradient-to-r from-transparent via-white/60 to-transparent skew-x-[-25deg] pointer-events-none animate-pill-shimmer"
-                />
-
-                {/* Arrow Icon Badge with Micro-Motion & Pulse */}
-                <span className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#16163B]/12 group-hover:bg-[#16163B]/20 flex items-center justify-center text-[#16163B] transition-all duration-300 font-black text-xs sm:text-base shadow-xs">
-                  <span className="inline-block transition-transform duration-300 animate-arrow-nudge group-hover:translate-x-1.5">
-                    →
-                  </span>
-                </span>
-
-                {/* Bold Typography */}
-                <span className="font-extrabold text-xs sm:text-sm text-[#16163B] tracking-tight whitespace-nowrap">
-                  Book Consultation
-                </span>
-              </button>
-
-            </div>
-          </div>
+          {/* Interactive Clickable Hotspot for "Book Consultation" Pill */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              confetti({ particleCount: 50, spread: 70, origin: { x: 0.88, y: 0.35 } });
+              navigate('/book-appointment');
+            }}
+            title="Book Consultation"
+            className="absolute bottom-[4.5%] right-[2.5%] w-[21%] h-[15%] rounded-full bg-transparent hover:bg-white/10 active:scale-95 transition-all cursor-pointer border-none"
+          />
 
           {/* Interactive Clickable Hotspots for Badges */}
           <button
             onClick={() => showToast('HbA1c monitoring and endocrinology consults active.')}
             title="Reduce HbA1c"
-            className="absolute top-[42%] left-[22%] sm:left-[24%] w-[16%] h-[8%] rounded-full bg-transparent hover:bg-white/10 transition-all cursor-pointer border-none"
+            className="absolute top-[48%] left-[21%] w-[18%] h-[10%] rounded-full bg-transparent hover:bg-white/10 transition-all cursor-pointer border-none"
           />
           <button
             onClick={() => showToast('Medication reduction & lifestyle management programs available.')}
             title="No more medications"
-            className="absolute top-[42%] right-[22%] sm:right-[24%] w-[18%] h-[8%] rounded-full bg-transparent hover:bg-white/10 transition-all cursor-pointer border-none"
+            className="absolute top-[48%] right-[20%] w-[21%] h-[10%] rounded-full bg-transparent hover:bg-white/10 transition-all cursor-pointer border-none"
           />
-
-          {/* Quick Video Preview Pill */}
-          <button
-            onClick={() => setShowHeroVideoModal(true)}
-            className="absolute top-[4%] right-[4%] z-20 hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[11px] font-bold border border-white/20 transition-all cursor-pointer"
-            title="Watch Healthcare Overview Video"
-          >
-            <Play className="w-3 h-3 fill-current" />
-            <span>Video</span>
-          </button>
         </div>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          FULLSCREEN / POPUP VIDEO PLAYER MODAL ON TAP
-          ───────────────────────────────────────────────────────────── */}
-      {showHeroVideoModal && (
-        <div
-          onClick={() => setShowHeroVideoModal(false)}
-          className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-fadeIn"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-4xl bg-[#0E1528] border border-white/20 rounded-[28px] overflow-hidden shadow-2xl flex flex-col"
-          >
-            {/* Modal Header */}
-            <div className="px-6 py-4 bg-[#141C35] border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#E9DF70] text-[#16163B] flex items-center justify-center font-black text-sm">
-                  ▶
-                </div>
-                <div>
-                  <h3 className="text-white text-sm sm:text-base font-extrabold m-0 font-['Poppins']">
-                    Healthcare Solutions — Your Health Is Our Top Priority
-                  </h3>
-                  <p className="text-xs text-slate-400 m-0">ClinicOS Official Telehealth & Care Video Experience</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setShowHeroVideoModal(false)}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center border-none cursor-pointer transition-colors"
-                title="Close Video"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Video Player */}
-            <div className="relative w-full aspect-video bg-black flex items-center justify-center">
-              <video
-                key={showHeroVideoModal ? 'open' : 'closed'}
-                poster="/images/runners-healthcare-banner.png"
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-full object-contain"
-              >
-                <source src="/videos/healthcare-hero.mp4" type="video/mp4" />
-                <source src="https://assets.mixkit.co/videos/preview/mixkit-group-of-athletes-running-on-the-track-40348-large.mp4" type="video/mp4" />
-              </video>
-            </div>
-
-            {/* Modal Footer Quick Actions */}
-            <div className="px-6 py-4 bg-[#141C35] border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>NABH Accredited • 100% Verified Specialists • 24/7 Care</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => {
-                    setShowHeroVideoModal(false);
-                    navigate('/book-appointment');
-                  }}
-                  className="px-5 py-2 rounded-full bg-[#E9DF70] hover:bg-[#F5ED88] text-[#16163B] text-xs font-black border-none cursor-pointer shadow-md transition-all font-['Poppins']"
-                >
-                  Book Appointment Now
-                </button>
-                <button
-                  onClick={() => setShowHeroVideoModal(false)}
-                  className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold border-none cursor-pointer transition-all"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ─────────────────────────────────────────────────────────────
-          2. THE 4 PASTEL SERVICE CARDS (Matching Reference Frame 04 & 05)
+          2. THE 4 PASTEL SERVICE CARDS (Matching User Design Exactly)
           Soft Yellow, Mint, Soft Blush/Pink, and Pastel Blue
           ───────────────────────────────────────────────────────────── */}
-      <section className="w-full px-5 sm:px-8 pb-6">
+      <section className="w-full px-4 sm:px-6 md:px-8 pb-6 pt-1">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           
           {/* Card 1: Soft Yellow - Instant Video Consultation */}
           <div
             onClick={() => navigate('/video-call')}
             title="Instant Video Consultation"
-            className={`rv-card rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-sm${!cardsEntered ? ' rv-card-falling' : ''}`}
-            style={!cardsEntered ? { animationDelay: '320ms' } : {}}
+            className="rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
           >
             <img src="/images/card-video-exact.png" alt="Instant Video Consultation" className="w-full h-auto block pointer-events-none" />
           </div>
@@ -639,8 +494,7 @@ export const PatientDashboard = () => {
           <div
             onClick={() => scrollToDestinationSection('in-clinic-doctors-section', '/book-appointment', 'In-Clinic Doctors Roster')}
             title="Find Doctors near you"
-            className={`rv-card rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-sm cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
-            style={!cardsEntered ? { animationDelay: '440ms' } : {}}
+            className="rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
           >
             <img src="/images/card-doctors-exact.png" alt="Find Doctors near you" className="w-full h-auto block pointer-events-none" />
           </div>
@@ -648,9 +502,8 @@ export const PatientDashboard = () => {
           {/* Card 3: Pink - 24/7 Medicines */}
           <div
             onClick={() => scrollToDestinationSection('medicine-purchase-section', null, '24/7 Medicines & Daily Healthcare Deals')}
-            title="24/7 Medicines & Daily Healthcare Deals (Tap to go to Medicine Purchase area)"
-            className={`rv-card rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-sm cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
-            style={!cardsEntered ? { animationDelay: '560ms' } : {}}
+            title="24/7 Medicines"
+            className="rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
           >
             <img src="/images/card-medicines-exact.png" alt="24/7 Medicines" className="w-full h-auto block pointer-events-none" />
           </div>
@@ -658,9 +511,8 @@ export const PatientDashboard = () => {
           {/* Card 4: Pastel Blue - Lab Tests */}
           <div
             onClick={() => scrollToDestinationSection('lab-tests-section', '/lab-tests', 'Frequently Booked Diagnostic Lab Tests')}
-            title="Book Diagnostic Lab Tests at Home (Tap to go to Lab Tests area)"
-            className={`rv-card rounded-[20px] sm:rounded-[26px] overflow-hidden shadow-sm cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
-            style={!cardsEntered ? { animationDelay: '680ms' } : {}}
+            title="Lab Tests"
+            className="rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
           >
             <img src="/images/card-tests-exact.png" alt="Lab Tests" className="w-full h-auto block pointer-events-none" />
           </div>
