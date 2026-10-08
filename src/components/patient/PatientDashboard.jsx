@@ -56,10 +56,15 @@ import confetti from 'canvas-confetti';
 export const PatientDashboard = () => {
   const { currentUser, activePatient, appointments, vitals, doctors, showToast, addToPharmacyCart } = useApp();
   const navigate = useNavigate();
-
-  // Reference Video Brand Intro State - disabled so main homepage dashboard renders instantly
-  const [showBrandIntro, setShowBrandIntro] = useState(false);
-  const [introStep, setIntroStep] = useState(3);
+  // Reference Video Brand Intro State (Opening animation from reference video)
+  const [showBrandIntro, setShowBrandIntro] = useState(() => {
+    try {
+      return !sessionStorage.getItem('clinicos_intro_seen');
+    } catch {
+      return false;
+    }
+  });
+  const [introStep, setIntroStep] = useState(1);
 
   const [activeCategory, setActiveCategory] = useState('Orthopedists');
   const [activeMedCategory, setActiveMedCategory] = useState('All Deals');
@@ -485,7 +490,8 @@ export const PatientDashboard = () => {
           <div
             onClick={() => navigate('/video-call')}
             title="Instant Video Consultation"
-            className="rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            className={`rv-card rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+            style={!cardsEntered ? { animationDelay: '100ms' } : {}}
           >
             <img src="/images/card-video-exact.png" alt="Instant Video Consultation" className="w-full h-auto block pointer-events-none" />
           </div>
@@ -494,7 +500,8 @@ export const PatientDashboard = () => {
           <div
             onClick={() => scrollToDestinationSection('in-clinic-doctors-section', '/book-appointment', 'In-Clinic Doctors Roster')}
             title="Find Doctors near you"
-            className="rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            className={`rv-card rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+            style={!cardsEntered ? { animationDelay: '220ms' } : {}}
           >
             <img src="/images/card-doctors-exact.png" alt="Find Doctors near you" className="w-full h-auto block pointer-events-none" />
           </div>
@@ -503,7 +510,8 @@ export const PatientDashboard = () => {
           <div
             onClick={() => scrollToDestinationSection('medicine-purchase-section', null, '24/7 Medicines & Daily Healthcare Deals')}
             title="24/7 Medicines"
-            className="rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            className={`rv-card rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+            style={!cardsEntered ? { animationDelay: '340ms' } : {}}
           >
             <img src="/images/card-medicines-exact.png" alt="24/7 Medicines" className="w-full h-auto block pointer-events-none" />
           </div>
@@ -512,7 +520,8 @@ export const PatientDashboard = () => {
           <div
             onClick={() => scrollToDestinationSection('lab-tests-section', '/lab-tests', 'Frequently Booked Diagnostic Lab Tests')}
             title="Lab Tests"
-            className="rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            className={`rv-card rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-xs cursor-pointer${!cardsEntered ? ' rv-card-falling' : ''}`}
+            style={!cardsEntered ? { animationDelay: '460ms' } : {}}
           >
             <img src="/images/card-tests-exact.png" alt="Lab Tests" className="w-full h-auto block pointer-events-none" />
           </div>
@@ -612,8 +621,14 @@ export const PatientDashboard = () => {
         </div>
 
         {/* Exact Sliding Progress Scrubber Bar (Frame 06 & 07) */}
-        <div className="w-64 mx-auto mt-8 h-1 bg-slate-200 rounded-full overflow-hidden">
-          <div className="w-1/3 h-full bg-[#16163B] rounded-full animate-pulse" />
+        <div className="w-64 mx-auto mt-8 h-1.5 bg-slate-200 rounded-full overflow-hidden relative">
+          <div
+            className="h-full bg-[#16163B] rounded-full transition-all duration-500 ease-out"
+            style={{
+              width: '33.33%',
+              transform: `translateX(${Math.max(0, categories.findIndex(c => c.id === activeCategory)) * 38}%)`
+            }}
+          />
         </div>
 
       </section>

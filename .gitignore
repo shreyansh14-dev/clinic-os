@@ -32,3 +32,4 @@ clinic.db
 
 # Temporary extraction assets
 public/clinicos_ref_frames/
+scratch/
