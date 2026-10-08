@@ -105,7 +105,7 @@ export const PatientHealthVitalsDashboard = () => {
   const adherencePct = Math.round((takenCount / meds.length) * 100);
 
   return (
-    <section className="w-full px-6 sm:px-10 pb-14 font-sans">
+    <section id="patient-vitals-device-hub" className="w-full px-6 sm:px-10 pb-14 font-sans scroll-mt-20">
       <div className="rounded-[36px] bg-gradient-to-br from-[#0E1528] via-[#141C35] to-[#161D36] text-white p-6 sm:p-10 shadow-2xl border border-white/10">
         
         {/* ── TOP HEADER & LIVE TELEMETRY BAR ── */}

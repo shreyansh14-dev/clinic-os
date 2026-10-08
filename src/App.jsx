@@ -24,6 +24,7 @@ import { VaccineRegistration } from './components/patient/VaccineRegistration';
 import { InpatientRoom } from './components/patient/InpatientRoom';
 import { TelemedicineCall } from './components/patient/TelemedicineCall';
 import { PharmacyStore } from './components/patient/PharmacyStore';
+import { PatientHealthVitalsDashboard } from './components/patient/PatientHealthVitalsDashboard';
 
 // Doctor Components
 import { DoctorConsole } from './components/doctor/DoctorConsole';
@@ -66,6 +67,8 @@ const MainRoutes = () => {
         <Route path="/insurance-claims" element={<InsuranceClaims />} />
         <Route path="/inpatient-room" element={<InpatientRoom />} />
         <Route path="/health-tracker" element={<HealthTracker />} />
+        <Route path="/health-vitals" element={<PatientHealthVitalsDashboard />} />
+        <Route path="/vitals-hub" element={<PatientHealthVitalsDashboard />} />
         <Route path="/my-meds" element={<MyMeds />} />
         <Route path="/vaccines" element={<VaccineTracker />} />
         <Route path="/vaccine-registration" element={<VaccineRegistration />} />

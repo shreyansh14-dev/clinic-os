@@ -35,9 +35,11 @@ import {
   Sparkles,
   Tag,
   ShoppingCart,
-  Truck
+  Truck,
+  Activity
 } from 'lucide-react';
 import { MEDICINE_CATALOG } from '../../data/medicineCatalog';
+import { AmbulanceLiveTrackerModal } from '../patient/AmbulanceLiveTrackerModal';
 
 export const Header = () => {
   const {
@@ -61,8 +63,9 @@ export const Header = () => {
   const [rolePassword, setRolePassword] = useState('');
   const [authError, setAuthError] = useState('');
 
-  // 108 Emergency SOS Dispatch Modal State
+  // 108 Emergency SOS Dispatch & Live GPS Tracker Modal State
   const [isSosModalOpen, setIsSosModalOpen] = useState(false);
+  const [isAmbulanceTrackerOpen, setIsAmbulanceTrackerOpen] = useState(false);
   const [sosLocation, setSosLocation] = useState('Flat 402, Sunshine Heights, Bandra West, Mumbai');
   const [sosPhone, setSosPhone] = useState('+91 91234 56789');
   const [sosDispatched, setSosDispatched] = useState(false);
@@ -621,8 +624,7 @@ export const Header = () => {
 
               <button
                 onClick={() => {
-                  setSosDispatched(false);
-                  setIsSosModalOpen(true);
+                  setIsAmbulanceTrackerOpen(true);
                 }}
                 className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-extrabold text-xs rounded-2xl shadow-md flex items-center space-x-1.5 whitespace-nowrap border-none cursor-pointer"
               >
@@ -697,69 +699,121 @@ export const Header = () => {
 
       </div>
 
-      {/* Quick Medicine Categories Navigation Strip for Patients */}
+      {/* Quick Website Services Navigation Strip for Patients */}
       {currentRole === 'patient' && (
         <div className="bg-[#FAFBFD] border-b border-slate-200/70 px-6 py-2 hidden sm:flex items-center justify-between text-xs overflow-x-auto scrollbar-none">
           <div className="flex items-center gap-2 lg:gap-3 shrink-0">
+            {/* Kept 15-Min Delivery Badge */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold text-[11px] shrink-0">
               <Truck className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
               <span>15-Min Delivery in {selectedCity}</span>
             </div>
             <div className="h-4 w-px bg-slate-200" />
+
+            {/* 1. 108 Emergency Ambulance with Live GPS Radar Map */}
             <button
-              onClick={() => navigate('/medicine-store')}
+              onClick={() => setIsAmbulanceTrackerOpen(true)}
+              className="px-2.5 py-1 rounded-lg text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/90 font-black text-xs cursor-pointer flex items-center gap-1.5 transition-all shadow-xs shrink-0 animate-pulse"
+              title="Track live 108 ambulance with GPS location detection and route map"
+            >
+              <Siren className="w-3.5 h-3.5 text-rose-600" />
+              <span>🚑 108 Ambulance (Live GPS Map)</span>
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+            </button>
+
+            {/* 2. Vaccine Center & Registration */}
+            <button
+              onClick={() => navigate('/vaccine-registration')}
               className="px-2.5 py-1 rounded-lg text-slate-700 hover:text-blue-600 hover:bg-blue-50 font-bold text-xs bg-transparent border-none cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+              title="Register and schedule preventive vaccinations"
             >
-              <Pill className="w-3.5 h-3.5 text-blue-500" />
-              <span>All 75+ Medicines</span>
+              <Syringe className="w-3.5 h-3.5 text-blue-500" />
+              <span>💉 Vaccine Center &amp; Registration</span>
             </button>
+
+            {/* 3. Patient Health Vitals & Device Hub */}
+            <button
+              onClick={() => {
+                if (location.pathname === '/') {
+                  const vitalsEl = document.getElementById('patient-vitals-device-hub');
+                  if (vitalsEl) {
+                    vitalsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return;
+                  }
+                }
+                navigate('/health-vitals');
+              }}
+              className="px-2.5 py-1 rounded-lg text-slate-700 hover:text-purple-600 hover:bg-purple-50 font-bold text-xs bg-transparent border-none cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+              title="Continuous smartwatch vitals, ECG, glucose & daily medicine hub"
+            >
+              <Activity className="w-3.5 h-3.5 text-purple-600" />
+              <span>🩺 Patient Health Vitals &amp; Device Hub</span>
+            </button>
+
+            {/* 4. Medicine Store (75+) */}
             <button
               onClick={() => navigate('/medicine-store')}
-              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+              className="px-2 py-1 rounded-lg text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 font-bold text-xs bg-transparent border-none cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+              title="Browse full catalog of 75+ branded medicines"
             >
-              <span>🌡️ Fever & Pain</span>
+              <Pill className="w-3.5 h-3.5 text-emerald-600" />
+              <span>💊 Medicine Store (75+)</span>
             </button>
+
+            {/* 5. In-Clinic Doctors */}
             <button
-              onClick={() => navigate('/medicine-store')}
-              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+              onClick={() => navigate('/book-appointment')}
+              className="px-2 py-1 rounded-lg text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 font-bold text-xs bg-transparent border-none cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+              title="Book verified specialist doctors"
             >
-              <span>💧 Acidity & Digestion</span>
+              <Stethoscope className="w-3.5 h-3.5 text-indigo-500" />
+              <span>👨‍⚕️ Book Doctor</span>
             </button>
+
+            {/* 6. Instant Video Consult */}
             <button
-              onClick={() => navigate('/medicine-store')}
-              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+              onClick={() => navigate('/video-call')}
+              className="px-2 py-1 rounded-lg text-slate-700 hover:text-cyan-700 hover:bg-cyan-50 font-bold text-xs bg-transparent border-none cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+              title="Start instant live video consultation with on-call doctor"
             >
-              <span>🫀 BP & Heart Care</span>
+              <Video className="w-3.5 h-3.5 text-cyan-600" />
+              <span>📹 Video Consult</span>
             </button>
+
+            {/* 7. Home Lab Tests */}
             <button
-              onClick={() => navigate('/medicine-store')}
-              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+              onClick={() => navigate('/lab-tests')}
+              className="px-2 py-1 rounded-lg text-slate-700 hover:text-amber-700 hover:bg-amber-50 font-bold text-xs bg-transparent border-none cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+              title="Book at-home blood tests & diagnostic health checkups"
             >
-              <span>🍬 Diabetes</span>
+              <FlaskConical className="w-3.5 h-3.5 text-amber-500" />
+              <span>🧪 Lab Tests</span>
             </button>
+
+            {/* 8. Medical Records */}
             <button
-              onClick={() => navigate('/medicine-store')}
-              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+              onClick={() => navigate('/medical-records')}
+              className="px-2 py-1 rounded-lg text-slate-700 hover:text-blue-600 hover:bg-blue-50 font-bold text-xs bg-transparent border-none cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+              title="View prescriptions, clinical histories and lab reports"
             >
-              <span>💊 Antibiotics</span>
-            </button>
-            <button
-              onClick={() => navigate('/medicine-store')}
-              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
-            >
-              <span>🍊 Vitamins & Supplements</span>
+              <FileText className="w-3.5 h-3.5 text-blue-500" />
+              <span>📋 Records</span>
             </button>
           </div>
-          <div className="flex items-center gap-3 shrink-0 text-[11px] font-semibold text-slate-500">
+
+          {/* Right Action: Direct Live Ambulance Radar Shortcut */}
+          <div className="flex items-center gap-3 shrink-0 text-[11px] font-semibold pl-2">
             <button
-              onClick={() => navigate('/medicine-store')}
-              className="text-blue-600 hover:underline font-bold bg-transparent border-none cursor-pointer flex items-center gap-1"
+              onClick={() => setIsAmbulanceTrackerOpen(true)}
+              className="text-rose-600 hover:text-rose-700 hover:underline font-black bg-transparent border-none cursor-pointer flex items-center gap-1.5"
             >
-              <span>Explore Medicine Store (75+) →</span>
+              <Navigation className="w-3.5 h-3.5 text-rose-600 animate-spin" />
+              <span>Track Live Ambulance (Map) →</span>
             </button>
           </div>
         </div>
       )}
+
 
       {/* Role Authentication Modal (Required to switch to Doctor or Admin Portal) */}
       {authTargetRole && (
@@ -1005,6 +1059,13 @@ export const Header = () => {
           </div>
         </div>
       )}
+
+      {/* 108 Emergency Ambulance Live GPS Location & Radar Map Modal */}
+      <AmbulanceLiveTrackerModal
+        isOpen={isAmbulanceTrackerOpen}
+        onClose={() => setIsAmbulanceTrackerOpen(false)}
+        defaultCity={selectedCity}
+      />
 
     </header>
   );

@@ -1,30 +1,44 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Siren, Phone, MapPin, CheckCircle2, ShieldAlert, Clock } from 'lucide-react';
+import { Siren, Phone, MapPin, CheckCircle2, ShieldAlert, Clock, Navigation } from 'lucide-react';
+import { AmbulanceLiveTrackerModal } from './AmbulanceLiveTrackerModal';
 
 export const EmergencySOS = () => {
-  const { activePatient, ambulanceFleet, dispatchAmbulance } = useApp();
+  const { activePatient, ambulanceFleet, dispatchAmbulance, showToast } = useApp();
   const [isDispatched, setIsDispatched] = useState(false);
+  const [isTrackerModalOpen, setIsTrackerModalOpen] = useState(false);
 
   const activeAmbulance = ambulanceFleet.find(a => a.status === 'Dispatched') || ambulanceFleet[0];
 
   const handleTriggerAmbulance = () => {
     dispatchAmbulance(activeAmbulance.id, activePatient.name, activePatient.address);
     setIsDispatched(true);
+    setIsTrackerModalOpen(true);
+    showToast('108 Emergency Ambulance Dispatched! Live GPS active.');
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '900px', margin: '0 auto', padding: '1rem' }}>
       {/* Top Banner */}
       <div className="glass-card" style={{ padding: '1.75rem 2rem', background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(15, 19, 29, 0.95))', border: '1px solid var(--red)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '1rem', background: 'var(--red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-            <Siren size={32} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '1rem', background: 'var(--red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+              <Siren size={32} />
+            </div>
+            <div>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#fff', margin: 0 }}>108 Emergency Ambulance Response</h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>24/7 Mobile ALS ICU Trauma Dispatch with live GPS location tracking</p>
+            </div>
           </div>
-          <div>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#fff' }}>108 Emergency Ambulance Response</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>24/7 Mobile ALS ICU Trauma Dispatch with live GPS location tracking</p>
-          </div>
+
+          <button
+            onClick={() => setIsTrackerModalOpen(true)}
+            className="px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-extrabold text-xs shadow-md border-none cursor-pointer flex items-center gap-2"
+          >
+            <Navigation className="w-4 h-4 text-emerald-600 animate-spin" />
+            <span>Open Live GPS Radar Map</span>
+          </button>
         </div>
       </div>
 
@@ -78,10 +92,25 @@ export const EmergencySOS = () => {
                 <span style={{ color: 'var(--text-muted)' }}>Current Status / Location:</span>
                 <strong style={{ color: 'var(--amber)' }}>{activeAmbulance.location}</strong>
               </div>
+
+              <button
+                onClick={() => setIsTrackerModalOpen(true)}
+                className="mt-3 w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-xl shadow-lg border-none cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Siren className="w-5 h-5 animate-pulse" />
+                <span>View Full Live Map & Telemetry</span>
+              </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Live Map Tracker Modal */}
+      <AmbulanceLiveTrackerModal
+        isOpen={isTrackerModalOpen}
+        onClose={() => setIsTrackerModalOpen(false)}
+      />
     </div>
   );
 };
+
