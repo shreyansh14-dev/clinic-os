@@ -457,7 +457,7 @@ export const PatientDashboard = () => {
             className="w-full h-auto block select-none"
           />
 
-          {/* Interactive Clickable Hotspot for "Book Consultation" Pill */}
+          {/* Ultra-HD Animated "Book Consultation" Pill Button with Rich Hover Physics */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -465,8 +465,21 @@ export const PatientDashboard = () => {
               navigate('/book-appointment');
             }}
             title="Book Consultation"
-            className="absolute bottom-[4.5%] right-[2.5%] w-[21%] h-[15%] rounded-full bg-transparent hover:bg-white/10 active:scale-95 transition-all cursor-pointer border-none"
-          />
+            className="absolute bottom-[4.8%] right-[2.2%] w-[21.8%] h-[14.2%] rounded-full bg-[#FBC5E3] hover:bg-[#fad0e7] text-[#171E4B] flex items-center justify-start pl-2 sm:pl-3 pr-3.5 sm:pr-5 shadow-sm hover:shadow-[0_12px_28px_rgba(251,197,227,0.55)] hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 ease-out cursor-pointer border-none group/cta overflow-hidden select-none z-20"
+          >
+            {/* Circular Arrow Badge with scale and slide animation */}
+            <div className="h-[74%] aspect-square rounded-full bg-[#171E4B] text-white flex items-center justify-center shadow-xs shrink-0 group-hover/cta:scale-110 group-hover/cta:translate-x-0.5 transition-all duration-300">
+              <ArrowRight className="w-1/2 h-1/2 text-white group-hover/cta:translate-x-0.5 transition-transform duration-200" strokeWidth={2.5} />
+            </div>
+
+            {/* Button Text */}
+            <span className="ml-2 sm:ml-2.5 font-extrabold text-[clamp(10px,1.1vw,15.5px)] leading-none tracking-tight font-['Plus_Jakarta_Sans',sans-serif] whitespace-nowrap">
+              Book Consultation
+            </span>
+
+            {/* Subtle Shimmer Highlight Sweep on Hover */}
+            <div className="absolute inset-0 -translate-x-full group-hover/cta:translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-in-out pointer-events-none" />
+          </button>
 
           {/* Interactive Clickable Hotspots for Badges */}
           <button
