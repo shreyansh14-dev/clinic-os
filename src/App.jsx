@@ -31,6 +31,9 @@ import { DoctorConsole } from './components/doctor/DoctorConsole';
 import { DoctorAppointments } from './components/doctor/DoctorAppointments';
 import { DoctorPatients } from './components/doctor/DoctorPatients';
 import { EMRTimeline } from './components/doctor/EMRTimeline';
+import { DoctorIPDRounds } from './components/doctor/DoctorIPDRounds';
+import { DoctorLabReview } from './components/doctor/DoctorLabReview';
+import { DoctorPrescriptionPad } from './components/doctor/DoctorPrescriptionPad';
 
 // Admin Components
 import { AdminDashboard } from './components/admin/AdminDashboard';
@@ -48,11 +51,21 @@ const MainRoutes = () => {
   const location = useLocation();
   const stateAppointment = location.state?.appointment;
 
+  const isDoctor = currentRole === 'doctor';
+  const isAdmin = currentRole === 'admin';
+
   return (
     <main className="content-area">
       <Routes>
+        {/* Root Route — Role-Aware Landing Page */}
+        <Route
+          path="/"
+          element={
+            isDoctor ? <DoctorConsole /> : isAdmin ? <AdminDashboard /> : <PatientDashboard />
+          }
+        />
+
         {/* Patient Routes */}
-        <Route path="/" element={<PatientDashboard />} />
         <Route path="/book-appointment" element={<BookAppointmentModal />} />
         <Route path="/booking-confirmation" element={<BookingConfirmationPage appointment={stateAppointment || appointments[0]} />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
@@ -81,11 +94,12 @@ const MainRoutes = () => {
 
         {/* Doctor Routes */}
         <Route path="/doctor-console" element={<DoctorConsole />} />
+        <Route path="/doctor-telehealth" element={<DoctorConsole />} />
         <Route path="/doctor-appointments" element={<DoctorAppointments />} />
         <Route path="/emr-timeline" element={<EMRTimeline />} />
-        <Route path="/create-prescription" element={<DoctorConsole />} />
-        <Route path="/ipd-rounds" element={<InpatientRoom />} />
-        <Route path="/lab-tests-review" element={<DiagnosticTests />} />
+        <Route path="/create-prescription" element={<DoctorPrescriptionPad />} />
+        <Route path="/ipd-rounds" element={<DoctorIPDRounds />} />
+        <Route path="/lab-tests-review" element={<DoctorLabReview />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminDashboard />} />
@@ -99,7 +113,12 @@ const MainRoutes = () => {
         <Route path="/audit-logs" element={<AuditLogs />} />
 
         {/* Fallback Route */}
-        <Route path="*" element={<PatientDashboard />} />
+        <Route
+          path="*"
+          element={
+            isDoctor ? <DoctorConsole /> : isAdmin ? <AdminDashboard /> : <PatientDashboard />
+          }
+        />
       </Routes>
     </main>
   );

@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarPlus, CalendarCheck, FileText, TestTube2,
   Receipt, HeartPulse, Pill, ShieldAlert, Stethoscope,
-  Activity, Bed, ShieldCheck, Syringe, Siren, Droplet, FlaskConical, Building2
+  Activity, Bed, ShieldCheck, Syringe, Siren, Droplet, FlaskConical, Building2, Video
 } from 'lucide-react';
 
 /* ── Sidebar nav images per item ── */
@@ -21,6 +21,13 @@ const NAV_IMAGES = {
   '/my-meds':          'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=60&h=60&fit=crop&auto=format',
   '/vaccines':         'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=60&h=60&fit=crop&auto=format',
   '/emergency-sos':    'https://images.unsplash.com/photo-1612277795421-9bc7706a4a34?w=60&h=60&fit=crop&auto=format',
+  '/doctor-console':   'https://images.unsplash.com/photo-1551076805-e1869033e561?w=60&h=60&fit=crop&auto=format',
+  '/doctor-telehealth':'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=60&h=60&fit=crop&auto=format',
+  '/doctor-appointments': 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=60&h=60&fit=crop&auto=format',
+  '/emr-timeline':     'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=60&h=60&fit=crop&auto=format',
+  '/create-prescription':'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=60&h=60&fit=crop&auto=format',
+  '/ipd-rounds':       'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=60&h=60&fit=crop&auto=format',
+  '/lab-tests-review': 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=60&h=60&fit=crop&auto=format',
 };
 
 export const Sidebar = () => {
@@ -45,6 +52,7 @@ export const Sidebar = () => {
 
   const doctorNav = [
     { path: '/doctor-console',      label: 'Doctor Console',       icon: LayoutDashboard },
+    { path: '/doctor-telehealth',   label: 'Live Telehealth Room', icon: Video           },
     { path: '/doctor-appointments', label: 'Consultation Queue',   icon: CalendarCheck   },
     { path: '/emr-timeline',        label: 'Patient EMR Records',  icon: FileText        },
     { path: '/create-prescription', label: 'Issue Digital Rx',     icon: Stethoscope     },

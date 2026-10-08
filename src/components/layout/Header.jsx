@@ -49,6 +49,10 @@ export const Header = () => {
     activeDoctor,
     logoutUser,
     incomingCallAlert,
+    acceptIncomingCall,
+    declineIncomingCall,
+    patients,
+    appointments,
     showToast,
     pharmacyCart,
     addToPharmacyCart
@@ -57,6 +61,11 @@ export const Header = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Doctor Clinical Header State
+  const [doctorDutyStatus, setDoctorDutyStatus] = useState('Available');
+  const [doctorPatientSearch, setDoctorPatientSearch] = useState('');
+  const [isDocSearchOpen, setIsDocSearchOpen] = useState(false);
 
   // Role Authentication Security Modal State
   const [authTargetRole, setAuthTargetRole] = useState(null); // 'doctor' | 'admin'
@@ -168,7 +177,7 @@ export const Header = () => {
   return (
     <header className="header-container relative">
       
-      {/* Incoming WebRTC Video Call Alert */}
+      {/* Incoming WebRTC Video Call Top Banner */}
       {incomingCallAlert && (
         <div className="bg-slate-900 text-white px-6 py-3 border-b border-slate-800 flex items-center justify-between animate-pulse z-50">
           <div className="flex items-center space-x-3">
@@ -184,6 +193,7 @@ export const Header = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
+                acceptIncomingCall();
                 setCurrentRole('doctor');
                 navigate('/doctor-console');
               }}
@@ -192,6 +202,77 @@ export const Header = () => {
               <Video className="w-4 h-4" />
               <span>Accept & Join in Doctor Console</span>
             </button>
+            <button
+              onClick={() => declineIncomingCall()}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-rose-900 text-slate-300 hover:text-white font-bold text-xs rounded-xl border border-slate-700 cursor-pointer"
+            >
+              Decline
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Global Doctor Incoming Call Ringing Modal (pops up anywhere in Doctor Workspace) */}
+      {incomingCallAlert && currentRole === 'doctor' && (
+        <div className="fixed inset-0 z-[200] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-[32px] p-7 sm:p-8 max-w-md w-full shadow-2xl border-2 border-emerald-500/50 text-center relative overflow-hidden">
+            <div className="relative mx-auto w-20 h-20 mb-4">
+              <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-30" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-lg relative z-10">
+                <Video className="w-10 h-10 animate-bounce" />
+              </div>
+            </div>
+
+            <span className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 mb-2">
+              ● Ringing Now · Live Video Consultation
+            </span>
+
+            <h3 className="text-xl font-black text-slate-900 m-0">
+              {incomingCallAlert.callerName || 'Patient Consultation Request'}
+            </h3>
+            
+            <p className="text-xs text-slate-500 font-semibold m-0 mt-1">
+              Patient ID: <strong>{incomingCallAlert.callerId || 'PT-101'}</strong>
+            </p>
+
+            <div className="my-5 p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-left space-y-1.5">
+              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+                Chief Complaints / Symptoms:
+              </span>
+              <p className="text-xs font-bold text-slate-800 m-0">
+                {incomingCallAlert.symptoms || 'General clinical review & consultation.'}
+              </p>
+              {incomingCallAlert.invoiceId && (
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 font-semibold">Consultation Fee:</span>
+                  <span className="text-emerald-700 font-extrabold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Paid &amp; Confirmed
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                onClick={() => declineIncomingCall()}
+                className="py-3 px-4 rounded-2xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-700 font-extrabold text-xs border border-slate-200 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
+              >
+                <X className="w-4 h-4" />
+                <span>Decline</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  acceptIncomingCall();
+                  setCurrentRole('doctor');
+                  navigate('/doctor-console');
+                }}
+                className="py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs border-none cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Video className="w-4 h-4 animate-pulse" />
+                <span>Accept &amp; Join</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -592,11 +673,184 @@ export const Header = () => {
             </div>
 
           </div>
+        ) : currentRole === 'doctor' ? (
+          /* Dedicated Doctor Clinical Header (Strictly Healthcare Features, Zero Consumer Features) */
+          <div className="w-full flex items-center justify-between gap-4">
+            {/* Left: Brand Logo & Clinician Workspace Badge */}
+            <div className="flex items-center space-x-3 cursor-pointer shrink-0" onClick={() => navigate('/doctor-console')}>
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#16163B] to-[#242454] text-white flex items-center justify-center font-black text-xl shadow-md border border-white/20">
+                <Stethoscope className="w-5 h-5 text-[#E9DF70]" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h1 className="text-base font-black tracking-tight text-slate-900 m-0 font-heading">ClinicOS</h1>
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">
+                    PHYSICIAN WORKSPACE
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 font-semibold m-0">
+                  {activeDoctor?.name || 'Dr. Souvik Sinha'} · {activeDoctor?.specialty || 'Senior Consultant Cardiologist'} · OPD Chamber 104
+                </p>
+              </div>
+            </div>
+
+            {/* Center: Clinical EMR Patient Search & Quick Rx Action */}
+            <div className="hidden lg:flex items-center space-x-3 flex-1 max-w-lg mx-2 relative">
+              <div className="relative w-full">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
+                <input
+                  type="text"
+                  placeholder="Search patient by Name, UHID, Phone, ABHA ID..."
+                  value={doctorPatientSearch}
+                  onChange={(e) => {
+                    setDoctorPatientSearch(e.target.value);
+                    setIsDocSearchOpen(true);
+                  }}
+                  onFocus={() => setIsDocSearchOpen(true)}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-100/90 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:border-[#16163B] focus:bg-white transition-all font-semibold"
+                />
+
+                {/* Instant Patient Search Results Popover */}
+                {isDocSearchOpen && doctorPatientSearch.trim().length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-fadeIn">
+                    <div className="flex justify-between items-center mb-2 px-1">
+                      <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Patient Records Found</span>
+                      <button
+                        onClick={() => setIsDocSearchOpen(false)}
+                        className="text-[10px] font-bold text-slate-400 hover:text-slate-700 border-none bg-transparent cursor-pointer"
+                      >
+                        Close
+                      </button>
+                    </div>
+
+                    <div className="space-y-1.5 max-h-56 overflow-y-auto">
+                      {(patients || [])
+                        .filter(p =>
+                          p.name.toLowerCase().includes(doctorPatientSearch.toLowerCase()) ||
+                          p.phone.includes(doctorPatientSearch) ||
+                          p.id.toLowerCase().includes(doctorPatientSearch.toLowerCase())
+                        )
+                        .slice(0, 4)
+                        .map(p => (
+                          <div key={p.id} className="p-2.5 bg-slate-50 hover:bg-purple-50/60 rounded-xl border border-slate-100 flex items-center justify-between text-xs transition-colors">
+                            <div>
+                              <strong className="text-slate-900 block font-extrabold">{p.name}</strong>
+                              <span className="text-[10px] text-slate-500 font-semibold">{p.gender}, {p.age} Yrs · Phone: {p.phone} · UHID: {p.id}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => {
+                                  setIsDocSearchOpen(false);
+                                  navigate('/emr-timeline');
+                                }}
+                                className="px-2 py-1 bg-white hover:bg-slate-100 text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200 cursor-pointer"
+                              >
+                                EMR
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setIsDocSearchOpen(false);
+                                  navigate('/create-prescription');
+                                }}
+                                className="px-2.5 py-1 bg-[#16163B] hover:bg-[#242454] text-white text-[10px] font-black rounded-lg border-none cursor-pointer"
+                              >
+                                Write Rx
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => navigate('/create-prescription')}
+                className="px-3.5 py-2 bg-[#16163B] hover:bg-[#242454] text-white font-extrabold text-xs rounded-2xl shadow-sm flex items-center space-x-1.5 whitespace-nowrap border-none cursor-pointer transition-all hover:scale-105"
+              >
+                <Plus className="w-3.5 h-3.5 text-[#E9DF70]" />
+                <span>New Rx</span>
+              </button>
+            </div>
+
+            {/* Right: Duty Status Toggle, Role Switcher & Profile */}
+            <div className="flex items-center space-x-3 shrink-0">
+              {/* Doctor Duty Status Indicator */}
+              <button
+                onClick={() => {
+                  const nextStatus = doctorDutyStatus === 'Available' ? 'In Consultation' : doctorDutyStatus === 'In Consultation' ? 'On Break' : 'Available';
+                  setDoctorDutyStatus(nextStatus);
+                  showToast(`Physician status updated: ${nextStatus}`);
+                }}
+                className={`px-3 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 cursor-pointer transition-all ${
+                  doctorDutyStatus === 'Available'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    : doctorDutyStatus === 'In Consultation'
+                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                }`}
+                title="Click to toggle consultation availability"
+              >
+                <span className={`w-2 h-2 rounded-full ${
+                  doctorDutyStatus === 'Available' ? 'bg-emerald-500 animate-ping' : doctorDutyStatus === 'In Consultation' ? 'bg-amber-500' : 'bg-slate-400'
+                }`} />
+                <span>{doctorDutyStatus === 'Available' ? 'Online & Available' : doctorDutyStatus}</span>
+              </button>
+
+              {/* Today's Queue Badge */}
+              <div
+                onClick={() => navigate('/doctor-appointments')}
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-800 border border-blue-200 rounded-xl text-xs font-black cursor-pointer hover:bg-blue-100 transition-colors"
+                title="View today's consultation queue"
+              >
+                <Clock className="w-3.5 h-3.5 text-blue-600" />
+                <span>OPD Queue: {(appointments || []).length} Today</span>
+              </div>
+
+              {/* Role Switcher */}
+              <div className="bg-slate-100 p-1 rounded-2xl border border-slate-200 flex items-center space-x-1 text-xs font-bold">
+                <button
+                  onClick={() => handleRoleSwitchClick('patient')}
+                  className="px-2.5 py-1 rounded-xl border-none cursor-pointer text-slate-600 hover:text-slate-900 bg-transparent flex items-center space-x-1 font-bold"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>Patient</span>
+                </button>
+                <span className="px-2.5 py-1 rounded-xl bg-slate-900 text-white font-extrabold flex items-center space-x-1 shadow-xs">
+                  <Stethoscope className="w-3.5 h-3.5 text-[#E9DF70]" />
+                  <span>Doctor</span>
+                </span>
+                <button
+                  onClick={() => handleRoleSwitchClick('admin')}
+                  className="px-2.5 py-1 rounded-xl border-none cursor-pointer text-slate-600 hover:text-slate-900 bg-transparent flex items-center space-x-1 font-bold"
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>Admin</span>
+                </button>
+              </div>
+
+              {/* Doctor Avatar & Log Out */}
+              <div className="flex items-center space-x-2 pl-2 border-l border-slate-200">
+                <img
+                  src={activeDoctor?.avatar || '/images/doctors/indian_doc_m1.jpg'}
+                  alt={activeDoctor?.name}
+                  className="w-9 h-9 rounded-full object-cover border-2 border-slate-300"
+                />
+                <button
+                  onClick={logout}
+                  title="Sign Out"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 bg-transparent border-none cursor-pointer transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
         ) : (
-          /* Clinical Staff Header (Doctor & Admin) */
+          /* Hospital Admin Header */
           <div className="w-full flex items-center justify-between">
             {/* Brand Logo */}
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/admin')}>
               <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#FF5510] to-[#FF6E30] text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/25">
                 C
               </div>
@@ -604,33 +858,11 @@ export const Header = () => {
                 <div className="flex items-center space-x-2">
                   <h1 className="text-base font-black tracking-tight text-slate-900 m-0 font-heading">ClinicOS</h1>
                   <span className="text-[9px] font-black uppercase tracking-wider bg-[#E8F1FD] text-[#1E62DC] px-2 py-0.5 rounded-full border border-[#D0E2FB]">
-                    SMART HOSPITAL
+                    HOSPITAL AUTHORITY
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium m-0">Digital Healthcare Platform & EMR Network</p>
+                <p className="text-[10px] text-slate-400 font-medium m-0">Administrative Control &amp; Bed Ledger</p>
               </div>
-            </div>
-
-            {/* Search Bar & 108 SOS Dispatch Trigger Button */}
-            <div className="hidden md:flex items-center space-x-3 flex-1 max-w-md mx-6">
-              <div className="relative w-full">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  placeholder="Search doctors, clinics, specialties..."
-                  className="w-full pl-10 pr-4 py-2 bg-slate-100/80 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:border-slate-900 focus:bg-white transition-all"
-                />
-              </div>
-
-              <button
-                onClick={() => {
-                  setIsAmbulanceTrackerOpen(true);
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-extrabold text-xs rounded-2xl shadow-md flex items-center space-x-1.5 whitespace-nowrap border-none cursor-pointer"
-              >
-                <Siren className="w-4 h-4 text-white animate-pulse" />
-                <span>108 SOS Ambulance</span>
-              </button>
             </div>
 
             {/* Role Switcher Pills & Profile */}
@@ -638,11 +870,7 @@ export const Header = () => {
               <div className="bg-slate-100 p-1 rounded-2xl border border-slate-200 flex items-center space-x-1 text-xs font-bold">
                 <button
                   onClick={() => handleRoleSwitchClick('patient')}
-                  className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
-                    currentRole === 'patient'
-                      ? 'bg-slate-900 text-white shadow-sm font-extrabold'
-                      : 'text-slate-600 hover:text-slate-900 bg-transparent'
-                  }`}
+                  className="px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 bg-transparent"
                 >
                   <User className="w-3.5 h-3.5" />
                   <span>Patient Portal</span>
@@ -650,11 +878,7 @@ export const Header = () => {
 
                 <button
                   onClick={() => handleRoleSwitchClick('doctor')}
-                  className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
-                    currentRole === 'doctor'
-                      ? 'bg-slate-900 text-white shadow-sm font-extrabold'
-                      : 'text-slate-600 hover:text-slate-900 bg-transparent'
-                  }`}
+                  className="px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 bg-transparent"
                 >
                   <Stethoscope className="w-3.5 h-3.5" />
                   <span>Doctor Console</span>
@@ -662,29 +886,15 @@ export const Header = () => {
 
                 <button
                   onClick={() => handleRoleSwitchClick('admin')}
-                  className={`px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 ${
-                    currentRole === 'admin'
-                      ? 'bg-slate-900 text-white shadow-sm font-extrabold'
-                      : 'text-slate-600 hover:text-slate-900 bg-transparent'
-                  }`}
+                  className="px-3 py-1.5 rounded-xl border-none cursor-pointer transition-all flex items-center space-x-1.5 bg-slate-900 text-white shadow-sm font-extrabold"
                 >
                   <Building2 className="w-3.5 h-3.5" />
                   <span>Hospital Admin</span>
                 </button>
               </div>
 
-              <button className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 relative border-none bg-transparent cursor-pointer">
-                <Bell className="w-4 h-4" />
-                <span className="w-2 h-2 rounded-full bg-slate-900 absolute top-2 right-2 border border-white"></span>
-              </button>
-
               <div className="flex items-center space-x-3 pl-3 border-l border-slate-200">
                 <img src={userInfo.avatar} alt={userInfo.name} className="w-9 h-9 rounded-full object-cover border border-slate-300" />
-                <div className="hidden lg:block">
-                  <div className="text-xs font-black text-slate-900 m-0">{userInfo.name}</div>
-                  <div className="text-[9px] font-black text-slate-700 tracking-wider m-0">{userInfo.sub}</div>
-                </div>
-
                 <button
                   onClick={logout}
                   title="Sign Out"
