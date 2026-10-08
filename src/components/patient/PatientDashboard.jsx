@@ -44,7 +44,8 @@ import {
   Plus,
   Minus,
   Building2,
-  Truck
+  Truck,
+  ExternalLink
 } from 'lucide-react';
 import { SeniorPatientDashboard } from './SeniorPatientDashboard';
 import { specialistDoctors } from '../../data/specialistDoctors';
@@ -1543,13 +1544,17 @@ export const PatientDashboard = () => {
           <h3 className="text-3xl font-extrabold text-[#16163B] m-0 tracking-tight font-['Poppins']">
             Read top articles from<br />health experts
           </h3>
-          <button
-            onClick={() => showToast('All 45+ peer-reviewed health articles loaded.')}
-            className="text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1.5 bg-transparent border-none cursor-pointer group"
+          <a
+            href="https://www.google.com/search?q=top+health+and+wellness+expert+articles+and+medical+blogs"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => showToast('Opening Top Health Blogs on Google...')}
+            className="text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1.5 no-underline cursor-pointer group"
+            title="Explore top health articles and blogs on Google"
           >
             <span>Read All Blogs</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-          </button>
+            <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1558,21 +1563,41 @@ export const PatientDashboard = () => {
           <div className="rv-card rv-reveal rounded-[32px] bg-[#EBF7F2] p-6 sm:p-7 flex flex-col justify-between shadow-sm border border-emerald-100/60 hover:shadow-md transition-all group">
             <div className="flex flex-col sm:flex-row gap-5 items-start">
               {/* Ultra-HD Cover Photo */}
-              <div className="w-full sm:w-36 h-36 rounded-2xl overflow-hidden bg-emerald-50 shrink-0 shadow-xs relative">
+              <a
+                href="https://www.google.com/search?q=Your+Ultimate+Guide+to+Health+and+Wellness+preventive+healthcare+habits"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => showToast('Loading Health & Wellness Guide on Google...')}
+                className="w-full sm:w-36 h-36 rounded-2xl overflow-hidden bg-emerald-50 shrink-0 shadow-xs relative block group/img"
+                title="Open Health & Wellness Guide on Google"
+              >
                 <img
                   src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=85"
                   alt="Health and Wellness"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
                 />
-              </div>
+                <span className="absolute bottom-2 right-2 p-1.5 rounded-full bg-white/90 text-slate-700 shadow-xs opacity-0 group-hover/img:opacity-100 transition-opacity">
+                  <ExternalLink className="w-3 h-3" />
+                </span>
+              </a>
 
               <div className="flex-1">
                 <span className="inline-block px-3 py-1 rounded-full bg-white text-[#16163B] text-[11px] font-bold border border-emerald-200/60 shadow-xs">
                   Healthy lifestyle
                 </span>
-                <h4 className="text-xl font-bold text-[#16163B] mt-3 mb-2 font-['Poppins'] group-hover:text-emerald-900 transition-colors leading-snug">
-                  Your Ultimate Guide to Health and Wellness
-                </h4>
+                <a
+                  href="https://www.google.com/search?q=Your+Ultimate+Guide+to+Health+and+Wellness+preventive+healthcare+habits"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => showToast('Loading Health & Wellness Guide on Google...')}
+                  className="no-underline block group/title"
+                  title="Search this guide on Google"
+                >
+                  <h4 className="text-xl font-bold text-[#16163B] mt-3 mb-2 font-['Poppins'] group-hover/title:text-emerald-800 transition-colors leading-snug flex items-center gap-1.5">
+                    <span>Your Ultimate Guide to Health and Wellness</span>
+                    <ExternalLink className="w-4 h-4 opacity-0 group-hover/title:opacity-100 transition-opacity text-emerald-600 shrink-0" />
+                  </h4>
+                </a>
                 <p className="text-xs text-slate-600 font-medium leading-relaxed m-0">
                   Learn modern preventive healthcare habits, nutritional balances, and cardio workouts designed by top cardiologists.
                 </p>
@@ -1580,26 +1605,40 @@ export const PatientDashboard = () => {
             </div>
 
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-emerald-200/40">
-              <button
-                onClick={() => setSelectedArticle({
-                  title: 'Your Ultimate Guide to Health and Wellness',
-                  category: 'Healthy lifestyle',
-                  image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=85',
-                  author: 'Dr. Praveen Chandra',
-                  authorRole: 'Chief of Cardiology',
-                  readTime: '5 min read',
-                  body: [
-                    'A truly sustainable healthy lifestyle begins with balanced, daily micro-habits rather than extreme short-term changes.',
-                    '1. Cardiovascular Conditioning: Engaging in 30 minutes of moderate aerobic activity 5 days a week helps maintain blood pressure below 120/80 mmHg and stabilizes resting metabolic rate.',
-                    '2. Metabolic & Nutritional Balance: Prioritize leafy greens, healthy omega fats, lean proteins, and stay hydrated with at least 2.5L clean water daily.',
-                    '3. Restorative Sleep Hygiene: 7 to 8 hours of uninterrupted deep sleep lowers resting cortisol levels and promotes cellular repair and immune defense.'
-                  ]
-                })}
-                className="rv-btn px-4 py-2 rounded-full bg-white text-[#16163B] font-bold text-xs border border-emerald-200/60 cursor-pointer shadow-xs hover:bg-[#16163B] hover:text-white transition-all flex items-center gap-1.5 group/btn"
-              >
-                <span>Read Article</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
-              </button>
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://www.google.com/search?q=Your+Ultimate+Guide+to+Health+and+Wellness+preventive+healthcare+habits"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => showToast('Loading Health & Wellness Guide on Google...')}
+                  className="rv-btn px-4 py-2 rounded-full bg-white text-[#16163B] font-bold text-xs border border-emerald-200/60 no-underline shadow-xs hover:bg-[#16163B] hover:text-white transition-all flex items-center gap-1.5 group/btn"
+                  title="Open Health & Wellness article on Google"
+                >
+                  <span>Read on Google</span>
+                  <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setSelectedArticle({
+                    title: 'Your Ultimate Guide to Health and Wellness',
+                    category: 'Healthy lifestyle',
+                    googleUrl: 'https://www.google.com/search?q=Your+Ultimate+Guide+to+Health+and+Wellness+preventive+healthcare+habits',
+                    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=85',
+                    author: 'Dr. Praveen Chandra',
+                    authorRole: 'Chief of Cardiology',
+                    readTime: '5 min read',
+                    body: [
+                      'A truly sustainable healthy lifestyle begins with balanced, daily micro-habits rather than extreme short-term changes.',
+                      '1. Cardiovascular Conditioning: Engaging in 30 minutes of moderate aerobic activity 5 days a week helps maintain blood pressure below 120/80 mmHg and stabilizes resting metabolic rate.',
+                      '2. Metabolic & Nutritional Balance: Prioritize leafy greens, healthy omega fats, lean proteins, and stay hydrated with at least 2.5L clean water daily.',
+                      '3. Restorative Sleep Hygiene: 7 to 8 hours of uninterrupted deep sleep lowers resting cortisol levels and promotes cellular repair and immune defense.'
+                    ]
+                  })}
+                  className="text-xs font-semibold text-slate-500 hover:text-emerald-800 bg-transparent border-none cursor-pointer underline underline-offset-2 transition-colors"
+                >
+                  Quick Preview
+                </button>
+              </div>
               <span className="text-xs text-slate-400 font-semibold">5 min read</span>
             </div>
           </div>
@@ -1608,21 +1647,41 @@ export const PatientDashboard = () => {
           <div className="rv-card rv-reveal rounded-[32px] bg-[#F1F4F8] p-6 sm:p-7 flex flex-col justify-between shadow-sm border border-slate-200/60 hover:shadow-md transition-all group" style={{ transitionDelay: '80ms' }}>
             <div className="flex flex-col sm:flex-row gap-5 items-start">
               {/* Ultra-HD Cover Photo */}
-              <div className="w-full sm:w-36 h-36 rounded-2xl overflow-hidden bg-slate-100 shrink-0 shadow-xs relative">
+              <a
+                href="https://www.google.com/search?q=Cetaphil+Oily+Skin+Cleanser+Acne+Care+Combo+dermatology+guide"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => showToast('Loading Acne Care Guide on Google...')}
+                className="w-full sm:w-36 h-36 rounded-2xl overflow-hidden bg-slate-100 shrink-0 shadow-xs relative block group/img"
+                title="Open Cetaphil Acne Care Guide on Google"
+              >
                 <img
                   src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=85"
                   alt="Acne Care & Dermatology"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
                 />
-              </div>
+                <span className="absolute bottom-2 right-2 p-1.5 rounded-full bg-white/90 text-slate-700 shadow-xs opacity-0 group-hover/img:opacity-100 transition-opacity">
+                  <ExternalLink className="w-3 h-3" />
+                </span>
+              </a>
 
               <div className="flex-1">
                 <span className="inline-block px-3 py-1 rounded-full bg-white text-[#16163B] text-[11px] font-bold border border-slate-200 shadow-xs">
                   Blog Topic
                 </span>
-                <h4 className="text-xl font-bold text-[#16163B] mt-3 mb-2 font-['Poppins'] group-hover:text-blue-900 transition-colors leading-snug">
-                  Acne Care Combo of Cetaphil Oily Skin Cleanser
-                </h4>
+                <a
+                  href="https://www.google.com/search?q=Cetaphil+Oily+Skin+Cleanser+Acne+Care+Combo+dermatology+guide"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => showToast('Loading Acne Care Guide on Google...')}
+                  className="no-underline block group/title"
+                  title="Search Cetaphil Acne Care Guide on Google"
+                >
+                  <h4 className="text-xl font-bold text-[#16163B] mt-3 mb-2 font-['Poppins'] group-hover/title:text-blue-900 transition-colors leading-snug flex items-center gap-1.5">
+                    <span>Acne Care Combo of Cetaphil Oily Skin Cleanser</span>
+                    <ExternalLink className="w-4 h-4 opacity-0 group-hover/title:opacity-100 transition-opacity text-blue-600 shrink-0" />
+                  </h4>
+                </a>
                 <p className="text-xs text-slate-600 font-medium leading-relaxed m-0">
                   Discover safe dermatological guidelines to revitalize your skin barrier and reduce inflammatory breakouts.
                 </p>
@@ -1630,26 +1689,40 @@ export const PatientDashboard = () => {
             </div>
 
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200/60">
-              <button
-                onClick={() => setSelectedArticle({
-                  title: 'Acne Care Combo of Cetaphil Oily Skin Cleanser',
-                  category: 'Dermatology & Skin Barrier',
-                  image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1000&auto=format&fit=crop&q=85',
-                  author: 'Dr. Sanjeev Aurangabadkar',
-                  authorRole: 'Consultant Dermatologist',
-                  readTime: '4 min read',
-                  body: [
-                    'Effective acne care requires maintaining the delicate stratum corneum moisture barrier without over-stripping natural protective sebum.',
-                    '1. Gentle Surfactants: Use non-comedogenic foaming cleansers with zinc gluconate to regulate sebum production without causing tightness or rebound oiliness.',
-                    '2. Active Layering: Apply light hyaluronic acid serums immediately onto damp skin followed by gentle niacinamide (2-5%) to soothe epidermal inflammation.',
-                    '3. Sun Protection: Always apply broad-spectrum mineral sunscreen (SPF 50 PA++++) daily to prevent post-inflammatory hyperpigmentation and erythema.'
-                  ]
-                })}
-                className="rv-btn px-4 py-2 rounded-full bg-white text-[#16163B] font-bold text-xs border border-slate-200 cursor-pointer shadow-xs hover:bg-[#16163B] hover:text-white transition-all flex items-center gap-1.5 group/btn"
-              >
-                <span>Read Article</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
-              </button>
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://www.google.com/search?q=Cetaphil+Oily+Skin+Cleanser+Acne+Care+Combo+dermatology+guide"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => showToast('Loading Acne Care Guide on Google...')}
+                  className="rv-btn px-4 py-2 rounded-full bg-white text-[#16163B] font-bold text-xs border border-slate-200 no-underline shadow-xs hover:bg-[#16163B] hover:text-white transition-all flex items-center gap-1.5 group/btn"
+                  title="Open Acne Care Guide on Google"
+                >
+                  <span>Read on Google</span>
+                  <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setSelectedArticle({
+                    title: 'Acne Care Combo of Cetaphil Oily Skin Cleanser',
+                    category: 'Dermatology & Skin Barrier',
+                    googleUrl: 'https://www.google.com/search?q=Cetaphil+Oily+Skin+Cleanser+Acne+Care+Combo+dermatology+guide',
+                    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1000&auto=format&fit=crop&q=85',
+                    author: 'Dr. Sanjeev Aurangabadkar',
+                    authorRole: 'Consultant Dermatologist',
+                    readTime: '4 min read',
+                    body: [
+                      'Effective acne care requires maintaining the delicate stratum corneum moisture barrier without over-stripping natural protective sebum.',
+                      '1. Gentle Surfactants: Use non-comedogenic foaming cleansers with zinc gluconate to regulate sebum production without causing tightness or rebound oiliness.',
+                      '2. Active Layering: Apply light hyaluronic acid serums immediately onto damp skin followed by gentle niacinamide (2-5%) to soothe epidermal inflammation.',
+                      '3. Sun Protection: Always apply broad-spectrum mineral sunscreen (SPF 50 PA++++) daily to prevent post-inflammatory hyperpigmentation and erythema.'
+                    ]
+                  })}
+                  className="text-xs font-semibold text-slate-500 hover:text-blue-900 bg-transparent border-none cursor-pointer underline underline-offset-2 transition-colors"
+                >
+                  Quick Preview
+                </button>
+              </div>
               <span className="text-xs text-slate-400 font-semibold">4 min read</span>
             </div>
           </div>
@@ -1701,17 +1774,28 @@ export const PatientDashboard = () => {
                 ))}
               </div>
 
-              <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <button
-                  onClick={() => {
-                    setSelectedArticle(null);
-                    navigate('/book-appointment');
-                  }}
-                  className="px-6 py-2.5 rounded-full bg-[#16163B] text-white font-bold text-xs hover:bg-[#242454] transition-all cursor-pointer border-none shadow-sm flex items-center gap-2"
-                >
-                  <span>Consult Expert Doctor</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+              <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-2">
+                  <a
+                    href={selectedArticle.googleUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-5 py-2.5 rounded-full bg-[#16163B] text-white font-bold text-xs hover:bg-[#242454] transition-all no-underline shadow-sm flex items-center gap-2"
+                  >
+                    <span>Open on Google</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <button
+                    onClick={() => {
+                      setSelectedArticle(null);
+                      navigate('/book-appointment');
+                    }}
+                    className="px-4 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition-all cursor-pointer border border-emerald-200 flex items-center gap-1.5"
+                  >
+                    <span>Consult Doctor</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
                 <button
                   onClick={() => {
                     showToast('Article saved to your reading list!');
