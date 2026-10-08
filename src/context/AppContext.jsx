@@ -288,6 +288,29 @@ export const AppProvider = ({ children }) => {
     showToast(`Appointment status updated to ${newStatus}.`);
   };
 
+  const rescheduleAppointment = async (id, newDate, newTime, doctorName = null) => {
+    setAppointments(prev => prev.map(a => {
+      if (a.id === id) {
+        return {
+          ...a,
+          date: newDate || a.date,
+          time: newTime || a.time,
+          doctorName: doctorName || a.doctorName,
+          status: 'Rescheduled'
+        };
+      }
+      return a;
+    }));
+    await apiService.updateAppointment(id, {
+      date: newDate,
+      time: newTime,
+      doctorName: doctorName,
+      status: 'Rescheduled'
+    }).catch(() => {});
+    addAuditLog(`Rescheduled appointment ${id} to ${newDate} at ${newTime}`, 'Hospital Admin');
+    showToast(`Appointment ${id} rescheduled to ${newDate} at ${newTime}!`);
+  };
+
   const createPrescription = async (rxData) => {
     const newRx = {
       id: `rx-${Date.now()}`,
@@ -578,6 +601,8 @@ export const AppProvider = ({ children }) => {
         showToast,
         bookAppointment,
         updateAppointmentStatus,
+        rescheduleAppointment,
+        addAuditLog,
         createPrescription,
         payBill,
         createBill,
