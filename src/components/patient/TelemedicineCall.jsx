@@ -50,7 +50,7 @@ export const TelemedicineCall = () => {
         name: incomingAppointment.doctorName,
         specialty: incomingAppointment.specialty,
         fee: incomingAppointment.fee || 1500,
-        avatar: incomingAppointment.doctorAvatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+        avatar: incomingAppointment.doctorAvatar || '/images/doctors/indian_doc_m1.jpg',
       };
     }
     return doctors[0] || null;
@@ -296,14 +296,70 @@ export const TelemedicineCall = () => {
         </div>
 
         {/* Wizard Progress Steps Indicator */}
-        <div className="flex items-center space-x-2 bg-slate-50 px-4 py-2 rounded-full border border-slate-200 text-xs font-bold">
-          <span className={`px-2.5 py-1 rounded-full ${bookingStep === 1 ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-700'}`}>1. Doctor</span>
-          <span className="text-slate-300">→</span>
-          <span className={`px-2.5 py-1 rounded-full ${bookingStep === 2 ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-700'}`}>2. Symptoms & Labs</span>
-          <span className="text-slate-300">→</span>
-          <span className={`px-2.5 py-1 rounded-full ${bookingStep === 3 ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-700'}`}>3. Payment</span>
-          <span className="text-slate-300">→</span>
-          <span className={`px-2.5 py-1 rounded-full ${bookingStep === 4 ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}`}>4. Live Video Call</span>
+        <div className="flex items-center space-x-1.5 bg-slate-50 p-1.5 rounded-full border border-slate-200 text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => {
+              setBookingStep(1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`px-3 py-1.5 rounded-full border-none transition-all cursor-pointer font-bold text-xs flex items-center space-x-1 ${
+              bookingStep === 1
+                ? 'bg-orange-600 text-white shadow-md ring-2 ring-orange-500/20'
+                : 'bg-slate-200/90 text-slate-700 hover:bg-orange-100 hover:text-orange-700 active:scale-95'
+            }`}
+            title="Go to Step 1: Doctor"
+          >
+            <span>1. Doctor</span>
+          </button>
+          <span className="text-slate-300 select-none">→</span>
+          <button
+            type="button"
+            onClick={() => {
+              setBookingStep(2);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`px-3 py-1.5 rounded-full border-none transition-all cursor-pointer font-bold text-xs flex items-center space-x-1 ${
+              bookingStep === 2
+                ? 'bg-orange-600 text-white shadow-md ring-2 ring-orange-500/20'
+                : 'bg-slate-200/90 text-slate-700 hover:bg-orange-100 hover:text-orange-700 active:scale-95'
+            }`}
+            title="Go to Step 2: Symptoms & Labs"
+          >
+            <span>2. Symptoms & Labs</span>
+          </button>
+          <span className="text-slate-300 select-none">→</span>
+          <button
+            type="button"
+            onClick={() => {
+              setBookingStep(3);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`px-3 py-1.5 rounded-full border-none transition-all cursor-pointer font-bold text-xs flex items-center space-x-1 ${
+              bookingStep === 3
+                ? 'bg-orange-600 text-white shadow-md ring-2 ring-orange-500/20'
+                : 'bg-slate-200/90 text-slate-700 hover:bg-orange-100 hover:text-orange-700 active:scale-95'
+            }`}
+            title="Go to Step 3: Payment"
+          >
+            <span>3. Payment</span>
+          </button>
+          <span className="text-slate-300 select-none">→</span>
+          <button
+            type="button"
+            onClick={() => {
+              setBookingStep(4);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`px-3 py-1.5 rounded-full border-none transition-all cursor-pointer font-bold text-xs flex items-center space-x-1 ${
+              bookingStep === 4
+                ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-500/20'
+                : 'bg-slate-200/90 text-slate-700 hover:bg-emerald-100 hover:text-emerald-700 active:scale-95'
+            }`}
+            title="Go to Step 4: Live Video Call"
+          >
+            <span>4. Live Video Call</span>
+          </button>
         </div>
       </div>
 
@@ -321,18 +377,40 @@ export const TelemedicineCall = () => {
               return (
                 <div
                   key={doc.id}
-                  onClick={() => setSelectedDoctor(doc)}
-                  className={`p-5 rounded-2xl border transition-all cursor-pointer space-y-3 ${
+                  onClick={() => {
+                    setSelectedDoctor(doc);
+                    setBookingStep(2);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    showToast(`Selected ${doc.name}. Continuing to Symptoms & Intake...`);
+                  }}
+                  className={`p-5 rounded-2xl border transition-all cursor-pointer space-y-3 group ${
                     isSelected
-                      ? 'bg-orange-50 border-orange-500 shadow-md'
-                      : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                      ? 'bg-orange-50 border-orange-500 shadow-md ring-2 ring-orange-500/20'
+                      : 'bg-white border-slate-200 hover:border-orange-400 hover:bg-orange-50/40 hover:shadow-lg hover:-translate-y-0.5'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <img src={doc.avatar} alt={doc.name} className="w-12 h-12 rounded-xl object-cover border border-orange-200" />
-                    <div>
-                      <h4 className="text-sm font-black text-slate-900 m-0">{doc.name}</h4>
-                      <p className="text-xs text-orange-600 font-bold m-0">{doc.specialty}</p>
+                  <div className="flex items-center space-x-3.5">
+                    <img
+                      src={doc.avatar}
+                      alt={doc.name}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDoctor(doc);
+                        setBookingStep(2);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        showToast(`Selected ${doc.name}. Continuing to Symptoms & Intake...`);
+                      }}
+                      className="w-14 h-14 rounded-2xl object-cover border border-orange-200 shadow-sm transition-transform group-hover:scale-105 cursor-pointer"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-black text-slate-900 m-0 truncate group-hover:text-orange-600 transition-colors">{doc.name}</h4>
+                        <span className="text-[10px] font-extrabold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full shrink-0 ml-1">
+                          Select →
+                        </span>
+                      </div>
+                      <p className="text-xs text-orange-600 font-bold m-0 mt-0.5 truncate">{doc.specialty}</p>
+                      <p className="text-[11px] text-slate-400 font-medium m-0 mt-0.5">⭐ 4.9 • {doc.experience || '8+ Years'}</p>
                     </div>
                   </div>
 
@@ -347,7 +425,10 @@ export const TelemedicineCall = () => {
 
           <div className="flex justify-end pt-4">
             <button
-              onClick={() => setBookingStep(2)}
+              onClick={() => {
+                setBookingStep(2);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center space-x-2 border-none cursor-pointer"
             >
               <span>Next: Symptoms & Lab Reports</span>

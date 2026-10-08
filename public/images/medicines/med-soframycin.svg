@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" width="100%" height="100%">
+  <defs>
+    <linearGradient id="tubeGrad-med-soframycin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="25%" stop-color="#f1f5f9" />
+      <stop offset="60%" stop-color="#cbd5e1" />
+      <stop offset="100%" stop-color="#94a3b8" />
+    </linearGradient>
+    <filter id="shadow-med-soframycin">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <rect width="320" height="220" rx="20" fill="#f8fafc" />
+  <circle cx="160" cy="110" r="80" fill="#99f6e4" opacity="0.12" />
+
+  <g filter="url(#shadow-med-soframycin)" transform="rotate(-12 160 110)">
+    <!-- Tube Body -->
+    <path d="M 60 88 L 220 74 C 235 74 245 84 245 100 L 245 120 C 245 136 235 146 220 146 L 60 132 Z" fill="url(#tubeGrad-med-soframycin)" stroke="#64748b" stroke-width="1.5" />
+    <rect x="50" y="88" width="12" height="44" rx="2" fill="#94a3b8" stroke="#475569" stroke-width="1" />
+
+    <!-- Brand Design Band -->
+    <path d="M 100 85 L 180 78 L 180 142 L 100 135 Z" fill="#0f766e" />
+    <path d="M 180 78 L 195 76 L 195 144 L 180 142 Z" fill="#99f6e4" />
+    <text x="140" y="115" fill="#ffffff" font-family="'Poppins',sans-serif" font-weight="900" font-size="11" text-anchor="middle">SOFRAMYCIN</text>
+    <text x="140" y="128" fill="#f8fafc" font-family="sans-serif" font-weight="700" font-size="7" text-anchor="middle">30g Cream</text>
+
+    <!-- Screw Cap -->
+    <path d="M 245 92 L 255 95 L 255 125 L 245 128 Z" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5" />
+    <rect x="255" y="94" width="28" height="32" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
+  </g>
+</svg>

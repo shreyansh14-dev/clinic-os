@@ -20,8 +20,10 @@ import { InsuranceClaims } from './components/patient/InsuranceClaims';
 import { LabTestAtHome } from './components/patient/LabTestAtHome';
 import { EmergencySOS } from './components/patient/EmergencySOS';
 import { VaccineTracker } from './components/patient/VaccineTracker';
+import { VaccineRegistration } from './components/patient/VaccineRegistration';
 import { InpatientRoom } from './components/patient/InpatientRoom';
 import { TelemedicineCall } from './components/patient/TelemedicineCall';
+import { PharmacyStore } from './components/patient/PharmacyStore';
 
 // Doctor Components
 import { DoctorConsole } from './components/doctor/DoctorConsole';
@@ -54,6 +56,10 @@ const MainRoutes = () => {
         <Route path="/booking-confirmation" element={<BookingConfirmationPage appointment={stateAppointment || appointments[0]} />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
         <Route path="/lab-tests" element={<LabTestAtHome />} />
+        <Route path="/medicine-store" element={<PharmacyStore />} />
+        <Route path="/pharmacy-inventory" element={<PharmacyStore />} />
+        <Route path="/pharmacy-store" element={<PharmacyStore />} />
+        <Route path="/buy-medicines" element={<PharmacyStore />} />
         <Route path="/medical-records" element={<MedicalRecords />} />
         <Route path="/diagnostic-tests" element={<DiagnosticTests />} />
         <Route path="/bills" element={<PatientBills />} />
@@ -62,6 +68,9 @@ const MainRoutes = () => {
         <Route path="/health-tracker" element={<HealthTracker />} />
         <Route path="/my-meds" element={<MyMeds />} />
         <Route path="/vaccines" element={<VaccineTracker />} />
+        <Route path="/vaccine-registration" element={<VaccineRegistration />} />
+        <Route path="/book-vaccine" element={<VaccineRegistration />} />
+        <Route path="/register-vaccine" element={<VaccineRegistration />} />
         <Route path="/ai-assistant" element={<AISymptomAssistant />} />
         <Route path="/emergency-sos" element={<EmergencySOS />} />
         <Route path="/video-call" element={<TelemedicineCall />} />

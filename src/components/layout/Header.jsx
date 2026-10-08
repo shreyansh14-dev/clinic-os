@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -34,8 +34,10 @@ import {
   BookOpen,
   Sparkles,
   Tag,
-  ShoppingCart
+  ShoppingCart,
+  Truck
 } from 'lucide-react';
+import { MEDICINE_CATALOG } from '../../data/medicineCatalog';
 
 export const Header = () => {
   const {
@@ -45,7 +47,9 @@ export const Header = () => {
     activeDoctor,
     logoutUser,
     incomingCallAlert,
-    showToast
+    showToast,
+    pharmacyCart,
+    addToPharmacyCart
   } = useApp();
   const logout = logoutUser;
 
@@ -62,6 +66,40 @@ export const Header = () => {
   const [sosLocation, setSosLocation] = useState('Flat 402, Sunshine Heights, Bandra West, Mumbai');
   const [sosPhone, setSosPhone] = useState('+91 91234 56789');
   const [sosDispatched, setSosDispatched] = useState(false);
+
+  // City Selector & Live Medicine Search Options State
+  const [selectedCity, setSelectedCity] = useState('Mumbai');
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+  const [medSearchInput, setMedSearchInput] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchCategory, setSearchCategory] = useState('All');
+  const [previewMedicine, setPreviewMedicine] = useState(null);
+
+  const searchInputRef = useRef(null);
+  const searchContainerRef = useRef(null);
+
+  // Close search popover on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearchClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // NEVER REDIRECT: Just toggle search dropdown and focus input!
+    setIsSearchOpen(prev => !prev);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 50);
+  };
+
+  const cartCount = Object.values(pharmacyCart || {}).reduce((acc, qty) => acc + qty, 0);
 
   const handleRoleSwitchClick = (targetRole) => {
     if (targetRole === currentRole) return;
@@ -105,7 +143,7 @@ export const Header = () => {
       return {
         name: activeDoctor?.name || 'Dr. Souvik Sinha',
         sub: 'SENIOR CARDIOLOGIST',
-        avatar: activeDoctor?.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80'
+        avatar: activeDoctor?.avatar || '/images/doctors/indian_doc_m1.jpg'
       };
     }
     if (currentRole === 'admin') {
@@ -128,25 +166,30 @@ export const Header = () => {
     <header className="header-container relative">
       
       {/* Incoming WebRTC Video Call Alert */}
-      {incomingCallAlert && currentRole === 'doctor' && (
-        <div className="bg-slate-900 text-white px-6 py-3 border-b border-slate-800 flex items-center justify-between animate-pulse">
+      {incomingCallAlert && (
+        <div className="bg-slate-900 text-white px-6 py-3 border-b border-slate-800 flex items-center justify-between animate-pulse z-50">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-full bg-white text-slate-900 flex items-center justify-center font-bold">
+            <div className="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold shadow-lg">
               <PhoneCall className="w-5 h-5 animate-bounce" />
             </div>
             <div>
-              <span className="font-black text-sm">INCOMING TELEHEALTH CALL: </span>
-              <span className="text-xs text-slate-300">Patient <strong>{incomingCallAlert.callerName}</strong> requesting Video Consultation ({incomingCallAlert.symptoms})</span>
+              <span className="font-black text-sm text-emerald-400">INCOMING PATIENT VIDEO CALL: </span>
+              <span className="text-xs text-slate-200">Patient <strong>{incomingCallAlert.callerName}</strong> requesting Video Consultation {incomingCallAlert.symptoms ? `(${incomingCallAlert.symptoms})` : ''}</span>
             </div>
           </div>
 
-          <button
-            onClick={() => navigate('/doctor-console')}
-            className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer border-none flex items-center space-x-1"
-          >
-            <Video className="w-4 h-4" />
-            <span>Accept & Join Call</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setCurrentRole('doctor');
+                navigate('/doctor-console');
+              }}
+              className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer border-none flex items-center space-x-1.5 transition-all hover:scale-105"
+            >
+              <Video className="w-4 h-4" />
+              <span>Accept & Join in Doctor Console</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -160,7 +203,7 @@ export const Header = () => {
             {/* Left: Brand Logo & Location Selector */}
             <div className="flex items-center gap-3 shrink-0">
               {/* Exact Stylized V Brand Logo with Dots (Frame 04) */}
-              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+              <div className="rv-btn flex items-center gap-2 cursor-pointer rv-nav-fall" style={{ animationDelay: '0ms' }} onClick={() => navigate('/')}>
                 <svg width="32" height="24" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M32 20C32 13.3726 37.3726 8 44 8C50.6274 8 56 13.3726 56 20V45C56 47.7614 58.2386 50 61 50C63.7614 50 66 47.7614 66 45V20C66 13.3726 71.3726 8 78 8C84.6274 8 90 13.3726 90 20V45C90 61.5685 76.5685 75 60 75C43.4315 75 30 61.5685 30 45L32 20Z"
@@ -177,67 +220,278 @@ export const Header = () => {
               {/* Vertical Divider */}
               <div className="h-6 w-px bg-slate-200 hidden md:block mx-1" />
 
-              {/* Select Location (Frame 04: Select Location / New York ⌵) */}
-              <div className="hidden md:flex flex-col text-left cursor-pointer">
-                <div className="flex items-center gap-1 text-[10px] text-slate-400 font-semibold leading-none">
-                  <MapPin className="w-2.5 h-2.5 text-slate-400" />
-                  <span>Select Location</span>
+              {/* Select Location Dropdown */}
+              <div className="relative hidden md:block">
+                <div
+                  onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                  className="rv-btn flex flex-col text-left cursor-pointer rv-nav-fall py-1 px-2 rounded-xl hover:bg-slate-100 transition-colors select-none"
+                  style={{ animationDelay: '60ms' }}
+                >
+                  <div className="flex items-center gap-1 text-[10px] text-slate-400 font-semibold leading-none">
+                    <MapPin className="w-2.5 h-2.5 text-slate-400" />
+                    <span>Select City</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-bold text-slate-800 mt-1 leading-none">
+                    <span>{selectedCity}</span>
+                    <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isCityDropdownOpen ? 'rotate-180' : ''}`} />
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-xs font-bold text-slate-800 mt-1 leading-none">
-                  <span>New York</span>
-                  <ChevronDown className="w-3 h-3 text-slate-400" />
-                </div>
+
+                {/* City Selection Dropdown Popover */}
+                {isCityDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-fadeIn">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 py-1 block">
+                      Select Delivery City
+                    </span>
+                    <div className="max-h-60 overflow-y-auto space-y-0.5">
+                      {['Mumbai', 'Delhi NCR', 'Bengaluru', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Chandigarh'].map(city => (
+                        <button
+                          key={city}
+                          onClick={() => {
+                            setSelectedCity(city);
+                            setIsCityDropdownOpen(false);
+                            showToast(`Delivery location set to ${city}! 15-Min delivery active.`);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer border-none text-left ${
+                            selectedCity === city
+                              ? 'bg-[#16163B] text-white'
+                              : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <MapPin className="w-3.5 h-3.5 opacity-60" />
+                            <span>{city}</span>
+                          </span>
+                          {selectedCity === city && <CheckCircle2 className="w-3.5 h-3.5 text-[#E9DF70]" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Center: Search Bar with Yellow Circle Button (Frame 04) */}
-            <div className="hidden lg:flex flex-1 max-w-sm mx-2">
-              <div className="relative w-full flex items-center bg-[#F8FAFC] hover:bg-slate-100/80 border border-slate-200/80 rounded-full pl-1.5 pr-4 py-1 transition-all cursor-pointer">
-                <div className="w-7 h-7 rounded-full bg-[#E9DF70] flex items-center justify-center text-[#16163B] shrink-0 mr-2.5 shadow-2xs">
+            {/* Center: Search Bar with Live Medicine Options Autocomplete Dropdown */}
+            <div ref={searchContainerRef} className="relative flex flex-1 max-w-xs sm:max-w-md mx-2 rv-nav-fall" style={{ animationDelay: '90ms' }}>
+              <div className="relative w-full flex items-center bg-[#F8FAFC] hover:bg-slate-50 hover:shadow-md border border-slate-200/80 hover:border-[#242454]/30 rounded-full pl-1.5 pr-4 py-1 transition-all duration-300">
+                <button
+                  type="button"
+                  onClick={handleSearchClick}
+                  className="w-7 h-7 rounded-full bg-[#E9DF70] hover:bg-[#ebd54c] flex items-center justify-center text-[#16163B] shrink-0 mr-2.5 shadow-sm cursor-pointer hover:scale-105 transition-transform border-none p-0"
+                  title="Search medicines"
+                >
                   <Search className="w-3.5 h-3.5" />
-                </div>
+                </button>
                 <input
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="Medicine and healthcare items"
-                  onClick={() => navigate('/pharmacy-inventory')}
-                  className="w-full bg-transparent border-none text-xs text-slate-800 font-medium placeholder-slate-400 focus:outline-none cursor-pointer"
+                  placeholder="Search medicines (e.g. Dolo, Pan 40, Telma)..."
+                  value={medSearchInput}
+                  onChange={(e) => {
+                    setMedSearchInput(e.target.value);
+                    setIsSearchOpen(true);
+                  }}
+                  onFocus={() => setIsSearchOpen(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      setIsSearchOpen(true);
+                    } else if (e.key === 'Escape') {
+                      setIsSearchOpen(false);
+                    }
+                  }}
+                  className="w-full bg-transparent border-none text-xs text-slate-800 font-medium placeholder-slate-400 focus:outline-none"
                 />
+                {medSearchInput && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMedSearchInput('');
+                      searchInputRef.current?.focus();
+                    }}
+                    className="text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer p-0 ml-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
+
+              {/* Live Medicine Options Dropdown (In-Place, No Redirects) */}
+              {isSearchOpen && (
+                <div
+                  className="absolute top-full left-0 right-0 sm:-right-20 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3 z-50 animate-fadeIn"
+                  style={{ minWidth: '320px', maxWidth: '480px' }}
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 px-1">
+                    <div className="flex items-center gap-1.5">
+                      <Pill className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-600">
+                        Available Medicine Options ({MEDICINE_CATALOG.length}+)
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsSearchOpen(false)}
+                      className="text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer p-0"
+                      title="Close"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Category Filter Pills */}
+                  <div className="flex items-center gap-1 py-2 overflow-x-auto scrollbar-none">
+                    {['All', 'Pain & Fever', 'Acidity', 'Heart & BP', 'Diabetes', 'Antibiotics', 'Vitamins', 'Ayurveda'].map(cat => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setSearchCategory(cat)}
+                        className={`px-2 py-0.5 text-[10px] font-bold rounded-lg border-none cursor-pointer shrink-0 transition-colors ${
+                          searchCategory === cat
+                            ? 'bg-[#16163B] text-white shadow-sm'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Matching Results List */}
+                  <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
+                    {MEDICINE_CATALOG.filter(m => {
+                      const matchesCat = searchCategory === 'All' ||
+                        (searchCategory === 'Acidity' && m.category.includes('Acidity')) ||
+                        (searchCategory === 'Heart & BP' && m.category.includes('Pressure')) ||
+                        (searchCategory === 'Diabetes' && m.category.includes('Diabetes')) ||
+                        (searchCategory === 'Pain & Fever' && m.category.includes('Pain')) ||
+                        (searchCategory === 'Antibiotics' && m.category.includes('Antibiotics')) ||
+                        (searchCategory === 'Vitamins' && m.category.includes('Vitamins')) ||
+                        (searchCategory === 'Ayurveda' && m.category.includes('Ayurveda'));
+
+                      const matchesQuery = !medSearchInput ||
+                        m.name.toLowerCase().includes(medSearchInput.toLowerCase()) ||
+                        m.genericName.toLowerCase().includes(medSearchInput.toLowerCase()) ||
+                        m.category.toLowerCase().includes(medSearchInput.toLowerCase()) ||
+                        m.manufacturer.toLowerCase().includes(medSearchInput.toLowerCase());
+
+                      return matchesCat && matchesQuery;
+                    }).slice(0, 10).map(med => (
+                      <div
+                        key={med.id}
+                        onClick={() => setPreviewMedicine(med)}
+                        className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group"
+                        title="Click to preview medicine details"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden p-1">
+                            {med.image ? (
+                              <img
+                                src={med.image}
+                                alt={med.name}
+                                className="w-full h-full object-contain mix-blend-multiply"
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop&q=80';
+                                }}
+                              />
+                            ) : (
+                              <Pill className="w-4 h-4 text-blue-600" />
+                            )}
+                          </div>
+                          <div className="truncate">
+                            <strong className="text-xs font-bold text-slate-900 group-hover:text-blue-600 block leading-tight truncate">
+                              {med.name}
+                            </strong>
+                            <span className="text-[10px] text-slate-400 font-medium block truncate">
+                              {med.genericName} • {med.packSize}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="text-right">
+                            <div className="flex items-center gap-1 justify-end">
+                              <span className="text-xs font-black text-slate-900">₹{med.price}</span>
+                              <span className="text-[9px] text-slate-400 line-through">₹{med.mrp}</span>
+                            </div>
+                            <span className="text-[9px] font-black text-emerald-600 uppercase">
+                              {med.discount}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToPharmacyCart(med.id, 1);
+                              showToast(`Added ${med.name} to cart!`);
+                            }}
+                            className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-[#16163B] hover:text-white text-slate-800 text-[10px] font-black cursor-pointer border-none transition-all"
+                            title="Add to cart"
+                          >
+                            + Add
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Bottom Footer */}
+                  <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                    <span className="flex items-center gap-1 text-emerald-700 font-bold text-[10px]">
+                      <Truck className="w-3.5 h-3.5" /> 15-Min Delivery in {selectedCity}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">
+                      Click medicine to preview
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right: Navigation Links, Cart, SOS, & Portal Switcher */}
-            <div className="flex items-center gap-4 sm:gap-5 shrink-0">
+            <div className="flex items-center gap-3 sm:gap-5 shrink-0">
               
+              {/* Home Link */}
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="rv-btn hidden sm:inline-flex items-center gap-1.5 text-xs font-black text-slate-800 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer rv-nav-fall"
+                style={{ animationDelay: '120ms' }}
+              >
+                <span>Home</span>
+              </button>
+
               {/* Healthcare Services Dropdown with "New" Tag */}
-              <div className="relative group hidden xl:block">
+              <div className="relative group hidden xl:block rv-nav-fall" style={{ animationDelay: '140ms' }}>
                 <div className="flex flex-col items-start cursor-pointer">
                   <span className="px-1 py-0.2 rounded-sm bg-[#FF5510] text-white text-[8px] font-black uppercase tracking-wider mb-0.5">New</span>
                   <button
                     type="button"
-                    className="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer p-0"
+                    className="rv-btn flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer p-0"
                   >
                     <span>Healthcare Services</span>
                     <ChevronDown className="w-3 h-3 text-slate-400 group-hover:rotate-180 transition-transform" />
                   </button>
                 </div>
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50" style={{ transition: 'opacity 0.2s ease, transform 0.3s cubic-bezier(0.34,1.48,0.64,1)', transform: 'translateY(-4px)', transformOrigin: 'top' }}>
                   <button
                     onClick={() => navigate('/book-appointment')}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
                     <Stethoscope className="w-4 h-4 text-blue-500 shrink-0" />
                     <span>In-Clinic Doctors</span>
                   </button>
                   <button
                     onClick={() => navigate('/video-call')}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
                     <Video className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>Instant Telehealth</span>
                   </button>
                   <button
                     onClick={() => navigate('/pathology-worklist')}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
                     <FlaskConical className="w-4 h-4 text-purple-500 shrink-0" />
                     <span>Home Lab Tests</span>
@@ -251,26 +505,35 @@ export const Header = () => {
                   showToast('Offer applied: 60% OFF on all Lab Tests & Scans!');
                   navigate('/pathology-worklist');
                 }}
-                className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer"
+                className="rv-btn hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer rv-nav-fall"
+                style={{ animationDelay: '190ms' }}
               >
                 <Tag className="w-3.5 h-3.5 text-amber-500" />
                 <span>Offer</span>
               </button>
 
-              {/* Cart Button */}
+              {/* Cart Button with Live Badge */}
               <button
                 onClick={() => navigate('/pharmacy-inventory')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none"
+                className="rv-btn relative inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none rv-nav-fall"
+                style={{ animationDelay: '230ms' }}
               >
-                <ShoppingCart className="w-3.5 h-3.5 text-slate-600" />
+                <div className="relative">
+                  <ShoppingCart className="w-3.5 h-3.5 text-slate-600" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center animate-pulse shadow-sm">
+                      {cartCount}
+                    </span>
+                  )}
+                </div>
                 <span>Cart</span>
               </button>
 
               {/* Login / Portal Switcher Dropdown */}
-              <div className="relative group">
+              <div className="relative group rv-nav-fall" style={{ animationDelay: '270ms' }}>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none"
+                  className="rv-btn inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none"
                 >
                   <User className="w-3.5 h-3.5 text-slate-600" />
                   <span>Login</span>
@@ -280,14 +543,14 @@ export const Header = () => {
                   <div className="text-[10px] font-bold text-slate-400 uppercase px-2 py-1 tracking-wider">Switch Portal</div>
                   <button
                     onClick={() => handleRoleSwitchClick('doctor')}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-purple-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-purple-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
                     <Stethoscope className="w-3.5 h-3.5 text-purple-600" />
                     <span>Doctor Console</span>
                   </button>
                   <button
                     onClick={() => handleRoleSwitchClick('admin')}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
                     <Building2 className="w-3.5 h-3.5 text-slate-700" />
                     <span>Hospital Admin</span>
@@ -296,12 +559,13 @@ export const Header = () => {
               </div>
 
               {/* Profile Avatar */}
-              <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                <div className="relative cursor-pointer group">
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-200 rv-nav-fall" style={{ animationDelay: '310ms' }}>
+                <div className="relative cursor-pointer group rv-btn">
                   <img
                     src={userInfo.avatar}
                     alt={userInfo.name}
-                    className="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-2xs"
+                    className="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-sm"
+                    style={{ transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease' }}
                   />
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white absolute bottom-0 right-0" />
                   
@@ -432,6 +696,70 @@ export const Header = () => {
         )}
 
       </div>
+
+      {/* Quick Medicine Categories Navigation Strip for Patients */}
+      {currentRole === 'patient' && (
+        <div className="bg-[#FAFBFD] border-b border-slate-200/70 px-6 py-2 hidden sm:flex items-center justify-between text-xs overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-2 lg:gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold text-[11px] shrink-0">
+              <Truck className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+              <span>15-Min Delivery in {selectedCity}</span>
+            </div>
+            <div className="h-4 w-px bg-slate-200" />
+            <button
+              onClick={() => navigate('/medicine-store')}
+              className="px-2.5 py-1 rounded-lg text-slate-700 hover:text-blue-600 hover:bg-blue-50 font-bold text-xs bg-transparent border-none cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+            >
+              <Pill className="w-3.5 h-3.5 text-blue-500" />
+              <span>All 75+ Medicines</span>
+            </button>
+            <button
+              onClick={() => navigate('/medicine-store')}
+              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+            >
+              <span>🌡️ Fever & Pain</span>
+            </button>
+            <button
+              onClick={() => navigate('/medicine-store')}
+              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+            >
+              <span>💧 Acidity & Digestion</span>
+            </button>
+            <button
+              onClick={() => navigate('/medicine-store')}
+              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+            >
+              <span>🫀 BP & Heart Care</span>
+            </button>
+            <button
+              onClick={() => navigate('/medicine-store')}
+              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+            >
+              <span>🍬 Diabetes</span>
+            </button>
+            <button
+              onClick={() => navigate('/medicine-store')}
+              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+            >
+              <span>💊 Antibiotics</span>
+            </button>
+            <button
+              onClick={() => navigate('/medicine-store')}
+              className="px-2 py-1 rounded-lg text-slate-600 hover:text-blue-600 font-medium text-xs bg-transparent border-none cursor-pointer flex items-center gap-1 transition-colors shrink-0"
+            >
+              <span>🍊 Vitamins & Supplements</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-3 shrink-0 text-[11px] font-semibold text-slate-500">
+            <button
+              onClick={() => navigate('/medicine-store')}
+              className="text-blue-600 hover:underline font-bold bg-transparent border-none cursor-pointer flex items-center gap-1"
+            >
+              <span>Explore Medicine Store (75+) →</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Role Authentication Modal (Required to switch to Doctor or Admin Portal) */}
       {authTargetRole && (
@@ -612,6 +940,68 @@ export const Header = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Quick Medicine Detail Modal (In-Place, No Redirect) */}
+      {previewMedicine && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex justify-between items-start border-b border-slate-100 pb-3">
+              <div>
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-blue-100 text-blue-800">
+                  {previewMedicine.category}
+                </span>
+                <h3 className="text-base font-black text-slate-900 m-0 mt-1">{previewMedicine.name}</h3>
+                <span className="text-xs text-slate-500 font-semibold">{previewMedicine.genericName}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewMedicine(null)}
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border-none cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 font-medium leading-relaxed m-0">
+              {previewMedicine.description}
+            </p>
+
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200 space-y-1.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Manufacturer:</span>
+                <strong className="text-slate-800">{previewMedicine.manufacturer}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Packaging:</span>
+                <strong className="text-slate-800">{previewMedicine.packSize}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Dosage Advice:</span>
+                <strong className="text-slate-800">{previewMedicine.dosage}</strong>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <div className="text-[10px] text-slate-400 line-through">₹{previewMedicine.mrp}</div>
+                <div className="text-lg font-black text-[#16163B]">₹{previewMedicine.price}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  addToPharmacyCart(previewMedicine.id, 1);
+                  showToast(`Added ${previewMedicine.name} to cart!`);
+                  setPreviewMedicine(null);
+                }}
+                className="px-5 py-2.5 bg-[#16163B] hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl border-none cursor-pointer shadow-md transition-all flex items-center gap-1.5"
+              >
+                <ShoppingCart className="w-3.5 h-3.5" />
+                <span>Add to Cart</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

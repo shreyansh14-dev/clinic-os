@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" width="100%" height="100%">
+  <defs>
+    <linearGradient id="foil-med-becosules" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="50%" stop-color="#e2e8f0" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </linearGradient>
+    <filter id="shadow-med-becosules">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <rect width="320" height="220" rx="20" fill="#f8fafc" />
+  <circle cx="240" cy="80" r="70" fill="#831843" opacity="0.12" />
+
+  <g filter="url(#shadow-med-becosules)">
+    <rect x="30" y="24" width="260" height="172" rx="14" fill="url(#foil-med-becosules)" stroke="#94a3b8" stroke-width="1.5" />
+    <rect x="30" y="24" width="260" height="30" rx="12" fill="#831843" />
+    <rect x="30" y="44" width="260" height="10" fill="#831843" />
+    <text x="44" y="45" fill="#ffffff" font-family="'Poppins',sans-serif" font-weight="900" font-size="12">BECOSULES</text>
+    <text x="270" y="45" fill="#ffffff" font-family="sans-serif" font-weight="800" font-size="9" text-anchor="end">B-Complex</text>
+
+    <!-- Capsules -->
+    <g transform="translate(73, 90)">
+      <rect x="-11" y="-24" width="22" height="24" rx="11" fill="#831843" />
+      <rect x="-11" y="0" width="22" height="24" rx="11" fill="#18181b" stroke="#94a3b8" stroke-width="0.8" />
+    </g>
+    <g transform="translate(160, 90)">
+      <rect x="-11" y="-24" width="22" height="24" rx="11" fill="#831843" />
+      <rect x="-11" y="0" width="22" height="24" rx="11" fill="#18181b" stroke="#94a3b8" stroke-width="0.8" />
+    </g>
+    <g transform="translate(247, 90)">
+      <rect x="-11" y="-24" width="22" height="24" rx="11" fill="#831843" />
+      <rect x="-11" y="0" width="22" height="24" rx="11" fill="#18181b" stroke="#94a3b8" stroke-width="0.8" />
+    </g>
+
+    <g transform="translate(73, 150)">
+      <rect x="-11" y="-24" width="22" height="24" rx="11" fill="#831843" />
+      <rect x="-11" y="0" width="22" height="24" rx="11" fill="#18181b" stroke="#94a3b8" stroke-width="0.8" />
+    </g>
+    <g transform="translate(160, 150)">
+      <rect x="-11" y="-24" width="22" height="24" rx="11" fill="#831843" />
+      <rect x="-11" y="0" width="22" height="24" rx="11" fill="#18181b" stroke="#94a3b8" stroke-width="0.8" />
+    </g>
+    <g transform="translate(247, 150)">
+      <rect x="-11" y="-24" width="22" height="24" rx="11" fill="#831843" />
+      <rect x="-11" y="0" width="22" height="24" rx="11" fill="#18181b" stroke="#94a3b8" stroke-width="0.8" />
+    </g>
+  </g>
+</svg>

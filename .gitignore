@@ -29,3 +29,6 @@ clinic.db
 .env
 .env.*
 !.env.example
+
+# Temporary extraction assets
+public/clinicos_ref_frames/

@@ -35,12 +35,37 @@ const titles = [
   'Visiting Specialist'
 ];
 
+const DEPARTMENT_AVATARS = {
+  'Cardiology': ['/images/doctors/cardio_1.jpg', '/images/doctors/cardio_2.jpg', '/images/doctors/cardio_3.jpg', '/images/doctors/cardio_4.jpg'],
+  'General Medicine': ['/images/doctors/ortho_1.jpg', '/images/doctors/ortho_2.jpg', '/images/doctors/ortho_3.jpg', '/images/doctors/ortho_4.jpg'],
+  'Neurology': ['/images/doctors/neuro_1.jpg', '/images/doctors/neuro_2.jpg', '/images/doctors/neuro_3.jpg', '/images/doctors/neuro_4.jpg'],
+  'Dermatology': ['/images/doctors/derm_1.jpg', '/images/doctors/derm_2.jpg', '/images/doctors/derm_3.jpg', '/images/doctors/derm_4.jpg'],
+  'Orthopedics': ['/images/doctors/ortho_1.jpg', '/images/doctors/ortho_2.jpg', '/images/doctors/ortho_3.jpg', '/images/doctors/ortho_4.jpg'],
+  'Pediatrics': ['/images/doctors/pedia_1.jpg', '/images/doctors/pedia_2.jpg', '/images/doctors/pedia_3.jpg', '/images/doctors/pedia_4.jpg'],
+  'General Surgery': ['/images/doctors/indian_doc_m2.jpg', '/images/doctors/indian_doc_f2.jpg', '/images/doctors/neuro_3.jpg', '/images/doctors/indian_doc_neuro_m1.jpg'],
+  'Oncology': ['/images/doctors/psych_1.jpg', '/images/doctors/psych_2.jpg', '/images/doctors/psych_3.jpg', '/images/doctors/psych_4.jpg'],
+  'Gynecology & Obstetrics': ['/images/doctors/gyn_1.jpg', '/images/doctors/gyn_2.jpg', '/images/doctors/gyn_3.jpg', '/images/doctors/gyn_4.jpg'],
+  'ENT (Ear, Nose, Throat)': ['/images/doctors/ent_1.jpg', '/images/doctors/ent_2.jpg', '/images/doctors/ent_3.jpg', '/images/doctors/ent_4.jpg'],
+  'Ophthalmology': ['/images/doctors/eye_1.jpg', '/images/doctors/eye_2.jpg', '/images/doctors/eye_3.jpg', '/images/doctors/eye_4.jpg'],
+  'Nephrology': ['/images/doctors/diab_1.jpg', '/images/doctors/diab_2.jpg', '/images/doctors/diab_3.jpg', '/images/doctors/diab_4.jpg'],
+  'Gastroenterology': ['/images/doctors/indian_doc_m1.jpg', '/images/doctors/indian_doc_f1.jpg', '/images/doctors/cardio_2.jpg', '/images/doctors/pedia_1.jpg'],
+  'Pulmonology': ['/images/doctors/cardio_3.jpg', '/images/doctors/neuro_1.jpg', '/images/doctors/gyn_2.jpg', '/images/doctors/eye_2.jpg'],
+  'Endocrinology': ['/images/doctors/diab_1.jpg', '/images/doctors/diab_2.jpg', '/images/doctors/diab_3.jpg', '/images/doctors/diab_4.jpg'],
+  'Emergency & Trauma': ['/images/doctors/indian_doc_cardio_m1.jpg', '/images/doctors/indian_doc_cardio_f1.jpg', '/images/doctors/neuro_2.jpg', '/images/doctors/gyn_1.jpg']
+};
+
 export const generate160Doctors = () => {
   const doctors = [];
   let globalDocIndex = 1;
 
   INITIAL_DEPARTMENTS.forEach((dept, deptIndex) => {
     const deptNum = deptIndex + 1;
+    const deptAvatars = DEPARTMENT_AVATARS[dept.name] || [
+      '/images/doctors/cardio_1.jpg',
+      '/images/doctors/neuro_1.jpg',
+      '/images/doctors/gyn_1.jpg',
+      '/images/doctors/ortho_1.jpg'
+    ];
 
     for (let i = 0; i < 10; i++) {
       const isFemale = i % 2 === 1;
@@ -59,11 +84,8 @@ export const generate160Doctors = () => {
       const fee = dept.fee + (i % 3) * 200;
       const availability = i % 2 === 0 ? 'Mon - Fri (09:00 AM - 04:00 PM)' : 'Tue - Sat (10:00 AM - 05:00 PM)';
 
-      // Generate 100% UNIQUE Avatar Photo for each of the 160 doctors!
-      const portraitIndex = (globalDocIndex * 7) % 99 + 1;
-      const avatar = isFemale
-        ? `https://randomuser.me/api/portraits/med/women/${portraitIndex}.jpg`
-        : `https://randomuser.me/api/portraits/med/men/${portraitIndex}.jpg`;
+      // Assign authentic department-specific Indian doctor photo
+      const avatar = deptAvatars[i % deptAvatars.length];
 
       doctors.push({
         id: docId,
@@ -116,7 +138,98 @@ export const INITIAL_VITALS = [
   { id: 'v1', patientId: 'usr-pat-1', bpSystolic: 120, bpDiastolic: 80, heartRate: 72, spo2: 98, date: '2026-08-23' }
 ];
 
-export const INITIAL_MEDS_SCHEDULE = [];
+export const INITIAL_MEDS_SCHEDULE = [
+  {
+    id: 'med-1',
+    name: 'Telmisartan 40mg',
+    dose: '1 Tablet',
+    dosage: '1 Tablet',
+    timing: 'Morning',
+    time: '08:00 AM',
+    instructions: 'Take with warm water after breakfast',
+    purpose: 'Blood Pressure Control',
+    prescribedBy: 'Dr. Souvik Sinha',
+    taken: true,
+    takenAt: '08:15 AM',
+    stockLeft: 18,
+    color: '#3B82F6'
+  },
+  {
+    id: 'med-2',
+    name: 'Pantoprazole 40mg',
+    dose: '1 Capsule',
+    dosage: '1 Capsule',
+    timing: 'Morning',
+    time: '07:30 AM',
+    instructions: 'Take 30 mins before breakfast on empty stomach',
+    purpose: 'Acid Reflux & Gastric Protection',
+    prescribedBy: 'Dr. Souvik Sinha',
+    taken: true,
+    takenAt: '07:35 AM',
+    stockLeft: 12,
+    color: '#10B981'
+  },
+  {
+    id: 'med-3',
+    name: 'Metformin 500mg SR',
+    dose: '1 Tablet',
+    dosage: '1 Tablet',
+    timing: 'Morning',
+    time: '08:30 AM',
+    instructions: 'Take immediately after breakfast',
+    purpose: 'Blood Sugar Regulation',
+    prescribedBy: 'Dr. Priya Nair',
+    taken: false,
+    takenAt: null,
+    stockLeft: 24,
+    color: '#8B5CF6'
+  },
+  {
+    id: 'med-4',
+    name: 'Calcium 500mg + Vitamin D3',
+    dose: '1 Tablet',
+    dosage: '1 Tablet',
+    timing: 'Afternoon',
+    time: '01:30 PM',
+    instructions: 'Take with glass of water post lunch',
+    purpose: 'Bone Density & Joint Health',
+    prescribedBy: 'Dr. Rajesh Sundaram',
+    taken: false,
+    takenAt: null,
+    stockLeft: 30,
+    color: '#F59E0B'
+  },
+  {
+    id: 'med-5',
+    name: 'Atorvastatin 10mg',
+    dose: '1 Tablet',
+    dosage: '1 Tablet',
+    timing: 'Night',
+    time: '09:30 PM',
+    instructions: 'Take post dinner before bedtime',
+    purpose: 'Lipid Management & Cardiac Care',
+    prescribedBy: 'Dr. Souvik Sinha',
+    taken: false,
+    takenAt: null,
+    stockLeft: 15,
+    color: '#EC4899'
+  },
+  {
+    id: 'med-6',
+    name: 'Neurobion Forte',
+    dose: '1 Tablet',
+    dosage: '1 Tablet',
+    timing: 'Night',
+    time: '09:45 PM',
+    instructions: 'Take with milk or water before sleep',
+    purpose: 'Nerve Health & Vitamin B-Complex',
+    prescribedBy: 'Dr. Priya Nair',
+    taken: false,
+    takenAt: null,
+    stockLeft: 22,
+    color: '#06B6D4'
+  }
+];
 export const INITIAL_BEDS = [
   { id: 'b101', ward: 'General Ward A', number: '101', status: 'Available', type: 'General' },
   { id: 'b102', ward: 'ICU Unit 1', number: '201', status: 'Occupied', patientName: 'Rahul Verma', type: 'ICU' }

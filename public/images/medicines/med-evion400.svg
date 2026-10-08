@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" width="100%" height="100%">
+  <defs>
+    <radialGradient id="softgelGrad-med-evion400" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#10b981" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#059669" />
+    </radialGradient>
+    <filter id="shadow-med-evion400">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <rect width="320" height="220" rx="20" fill="#f8fafc" />
+  <circle cx="240" cy="80" r="70" fill="#10b981" opacity="0.15" />
+
+  <g filter="url(#shadow-med-evion400)">
+    <rect x="30" y="24" width="260" height="172" rx="14" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" />
+    <rect x="30" y="24" width="260" height="30" rx="12" fill="#059669" />
+    <rect x="30" y="44" width="260" height="10" fill="#059669" />
+    <text x="44" y="45" fill="#ffffff" font-family="'Poppins',sans-serif" font-weight="900" font-size="12">EVION 400</text>
+    <text x="270" y="45" fill="#ffffff" font-family="sans-serif" font-weight="800" font-size="9" text-anchor="end">400 mg</text>
+
+    <!-- Shiny Translucent Softgels -->
+    <ellipse cx="73" cy="95" rx="24" ry="15" fill="url(#softgelGrad-med-evion400)" stroke="#059669" stroke-width="1" />
+    <ellipse cx="160" cy="95" rx="24" ry="15" fill="url(#softgelGrad-med-evion400)" stroke="#059669" stroke-width="1" />
+    <ellipse cx="247" cy="95" rx="24" ry="15" fill="url(#softgelGrad-med-evion400)" stroke="#059669" stroke-width="1" />
+
+    <ellipse cx="73" cy="148" rx="24" ry="15" fill="url(#softgelGrad-med-evion400)" stroke="#059669" stroke-width="1" />
+    <ellipse cx="160" cy="148" rx="24" ry="15" fill="url(#softgelGrad-med-evion400)" stroke="#059669" stroke-width="1" />
+    <ellipse cx="247" cy="148" rx="24" ry="15" fill="url(#softgelGrad-med-evion400)" stroke="#059669" stroke-width="1" />
+  </g>
+</svg>

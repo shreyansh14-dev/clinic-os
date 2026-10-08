@@ -27,10 +27,21 @@ export const AppProvider = ({ children }) => {
   const [currentRole, setCurrentRole] = useState('patient');
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Auth & Active User State
+  // Auth & Active User State (Defaults to active demo patient for instant access)
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('clinic_user');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return {
+      id: 'usr-pat-1',
+      name: 'Shreyansh Kumar',
+      email: 'patient@clinicos.com',
+      role: 'patient',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    };
   });
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
@@ -76,10 +87,8 @@ export const AppProvider = ({ children }) => {
       const { type, payload } = event.data;
       if (type === 'START_CALL') {
         setActiveCallSignal(payload);
-        if (currentRole === 'doctor' || currentUser?.role === 'doctor') {
-          setIncomingCallAlert(payload);
-          showToast(`📞 INCOMING CALL: Patient ${payload.callerName} is requesting Video Consultation!`, 'warn');
-        }
+        setIncomingCallAlert(payload);
+        showToast(`📞 INCOMING CALL: Patient ${payload.callerName} is requesting Video Consultation!`, 'warn');
       } else if (type === 'CALL_ENDED') {
         setIncomingCallAlert(null);
         setActiveCallSignal(null);
@@ -92,9 +101,7 @@ export const AppProvider = ({ children }) => {
         const res = await apiService.getActiveTelehealthCall();
         if (res?.activeCall?.status === 'calling') {
           setActiveCallSignal(res.activeCall);
-          if (currentRole === 'doctor' || currentUser?.role === 'doctor') {
-            setIncomingCallAlert(res.activeCall);
-          }
+          setIncomingCallAlert(res.activeCall);
         } else if (!res?.activeCall) {
           setIncomingCallAlert(null);
         }
@@ -424,14 +431,42 @@ export const AppProvider = ({ children }) => {
   };
 
   const toggleMedication = (medId) => {
-    setMedsSchedule(prev => prev.map(m => m.id === medId ? { ...m, taken: !m.taken } : m));
+    setMedsSchedule(prev => prev.map(m => {
+      if (m.id === medId) {
+        const nextState = !m.taken;
+        return {
+          ...m,
+          taken: nextState,
+          takenAt: nextState ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null
+        };
+      }
+      return m;
+    }));
+  };
+
+  const addMedication = (newMed) => {
+    const medItem = {
+      id: `med-${Date.now()}`,
+      stockLeft: 30,
+      taken: false,
+      takenAt: null,
+      color: '#3B82F6',
+      ...newMed
+    };
+    setMedsSchedule(prev => [medItem, ...prev]);
+    showToast(`Added reminder for ${medItem.name}`);
+  };
+
+  const deleteMedication = (medId) => {
+    setMedsSchedule(prev => prev.filter(m => m.id !== medId));
+    showToast('Medication reminder removed.');
   };
 
   const addDoctor = async (docData) => {
     const newDoc = {
       id: `doc-${Date.now()}`,
       rating: 5.0,
-      avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&auto=format&fit=crop&q=80',
+      avatar: '/images/doctors/indian_doc_m1.jpg',
       ...docData
     };
     setDoctors(prev => [newDoc, ...prev]);
@@ -439,6 +474,69 @@ export const AppProvider = ({ children }) => {
     addAuditLog(`Registered doctor ${docData.name} (${docData.specialty})`, 'Admin Console');
     showToast(`Doctor ${docData.name} added to roster!`);
   };
+
+  const approveInsuranceClaim = (claimId, approvedAmount) => {
+    setInsuranceClaims(prev => prev.map(c => c.id === claimId ? {
+      ...c,
+      status: 'Pre-Approved',
+      preApprovedAmount: approvedAmount || c.claimAmount
+    } : c));
+    addAuditLog(`TPA Desk approved insurance claim ${claimId} for ₹${approvedAmount || 'full amount'}`, 'TPA Desk', 'SUCCESS');
+    showToast(`Claim ${claimId} pre-approved successfully!`);
+  };
+
+  const deleteDoctor = (docId) => {
+    setDoctors(prev => prev.filter(d => d.id !== docId));
+    addAuditLog(`Removed doctor ${docId} from active roster`, 'Admin Console', 'WARN');
+    showToast(`Doctor removed from roster.`);
+  };
+
+  // Pharmacy Cart state for online medicine orders
+  const [pharmacyCart, setPharmacyCart] = useState({
+    'med-dolo650': 2,
+    'med-pan40': 1,
+    'med-shelcal500': 1
+  });
+
+  const addToPharmacyCart = (medId, qty = 1) => {
+    setPharmacyCart(prev => ({
+      ...prev,
+      [medId]: (prev[medId] || 0) + qty
+    }));
+  };
+
+  const updatePharmacyCartQty = (medId, delta) => {
+    setPharmacyCart(prev => {
+      const current = prev[medId] || 0;
+      const next = current + delta;
+      if (next <= 0) {
+        const copy = { ...prev };
+        delete copy[medId];
+        return copy;
+      }
+      return { ...prev, [medId]: next };
+    });
+  };
+
+  const clearPharmacyCart = () => {
+    setPharmacyCart({});
+  };
+
+  const registerVaccine = (vaccineData) => {
+    const newEntry = {
+      id: `vac-${Date.now()}`,
+      status: 'Scheduled',
+      date: vaccineData.date || new Date().toISOString().substring(0, 10),
+      dose: vaccineData.dose || 'Booster',
+      provider: vaccineData.mode === 'home' ? 'ClinicOS Home Vaccinator, Mumbai' : 'ClinicOS Primary Care Hub, Mumbai',
+      batch: `VA-${Math.floor(1000 + Math.random() * 9000)}-IN`,
+      nextDue: null,
+      ...vaccineData
+    };
+    setVaccines(prev => [newEntry, ...(prev || [])]);
+    return newEntry;
+  };
+
 
   return (
     <AppContext.Provider
@@ -490,8 +588,17 @@ export const AppProvider = ({ children }) => {
         dispatchAmbulance,
         addVitalLog,
         toggleMedication,
+        addMedication,
+        deleteMedication,
         addDoctor,
-        updatePatientAge
+        deleteDoctor,
+        approveInsuranceClaim,
+        updatePatientAge,
+        pharmacyCart,
+        addToPharmacyCart,
+        updatePharmacyCartQty,
+        clearPharmacyCart,
+        registerVaccine
       }}
     >
       {children}

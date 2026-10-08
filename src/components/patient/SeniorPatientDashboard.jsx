@@ -378,7 +378,7 @@ export const SeniorPatientDashboard = () => {
 
           <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
             <img
-              src="https://randomuser.me/api/portraits/men/32.jpg"
+              src={nextAppointment.doctorAvatar || '/images/doctors/indian_doc_m1.jpg'}
               alt="Doctor"
               className="w-16 h-16 rounded-2xl object-cover border-2 border-orange-200"
             />
@@ -401,7 +401,18 @@ export const SeniorPatientDashboard = () => {
               <span>Join Video Call</span>
             </button>
             <button
-              onClick={() => navigate('/book-appointment')}
+              onClick={() => navigate('/book-appointment', {
+                state: {
+                  doctor: {
+                    id: nextAppointment.doctorId,
+                    name: nextAppointment.doctorName,
+                    specialty: nextAppointment.specialty,
+                    avatar: nextAppointment.doctorAvatar
+                  },
+                  doctorId: nextAppointment.doctorId,
+                  step: 2
+                }
+              })}
               className="px-4 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-2xl border border-slate-200 cursor-pointer"
             >
               Reschedule

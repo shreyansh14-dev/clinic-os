@@ -28,7 +28,7 @@ export const mockDoctors = [
     experience: '14+ Years',
     rating: 4.9,
     fee: 3000,
-    avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m1.jpg',
     availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
     timing: '09:00 AM - 04:00 PM'
   },
@@ -40,7 +40,7 @@ export const mockDoctors = [
     experience: '11+ Years',
     rating: 4.85,
     fee: 2800,
-    avatar: 'https://images.unsplash.com/photo-1594824813566-88855ce78906?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f1.jpg',
     availableDays: ['Tue', 'Thu', 'Sat'],
     timing: '10:00 AM - 03:00 PM'
   },
@@ -52,7 +52,7 @@ export const mockDoctors = [
     experience: '15+ Years',
     rating: 4.92,
     fee: 3200,
-    avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m2.jpg',
     availableDays: ['Mon', 'Wed', 'Fri'],
     timing: '02:00 PM - 06:00 PM'
   },
@@ -66,7 +66,7 @@ export const mockDoctors = [
     experience: '16+ Years',
     rating: 4.95,
     fee: 3500,
-    avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m3.jpg',
     availableDays: ['Mon', 'Wed', 'Fri'],
     timing: '10:00 AM - 02:00 PM'
   },
@@ -78,7 +78,7 @@ export const mockDoctors = [
     experience: '12+ Years',
     rating: 4.88,
     fee: 3200,
-    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f2.jpg',
     availableDays: ['Tue', 'Thu', 'Sat'],
     timing: '11:00 AM - 04:00 PM'
   },
@@ -92,7 +92,7 @@ export const mockDoctors = [
     experience: '8+ Years',
     rating: 4.7,
     fee: 2000,
-    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m4.jpg',
     availableDays: ['Tue', 'Thu', 'Sat'],
     timing: '11:00 AM - 05:00 PM'
   },
@@ -104,7 +104,7 @@ export const mockDoctors = [
     experience: '10+ Years',
     rating: 4.9,
     fee: 2200,
-    avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f3.jpg',
     availableDays: ['Mon', 'Wed', 'Fri'],
     timing: '01:00 PM - 07:00 PM'
   },
@@ -118,7 +118,7 @@ export const mockDoctors = [
     experience: '12+ Years',
     rating: 4.85,
     fee: 2500,
-    avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m5.jpg',
     availableDays: ['Mon', 'Thu', 'Sat'],
     timing: '09:30 AM - 03:30 PM'
   },
@@ -130,7 +130,7 @@ export const mockDoctors = [
     experience: '14+ Years',
     rating: 4.91,
     fee: 2600,
-    avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m1.jpg',
     availableDays: ['Tue', 'Wed', 'Fri'],
     timing: '10:00 AM - 04:00 PM'
   },
@@ -144,7 +144,7 @@ export const mockDoctors = [
     experience: '10+ Years',
     rating: 4.9,
     fee: 1800,
-    avatar: 'https://images.unsplash.com/photo-1594824813566-88855ce78906?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f4.jpg',
     availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     timing: '08:30 AM - 01:30 PM'
   },
@@ -156,7 +156,7 @@ export const mockDoctors = [
     experience: '13+ Years',
     rating: 4.87,
     fee: 2000,
-    avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m2.jpg',
     availableDays: ['Mon', 'Wed', 'Fri'],
     timing: '02:00 PM - 07:00 PM'
   },
@@ -170,7 +170,7 @@ export const mockDoctors = [
     experience: '17+ Years',
     rating: 4.93,
     fee: 2200,
-    avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m3.jpg',
     availableDays: ['Mon', 'Tue', 'Thu', 'Sat'],
     timing: '09:00 AM - 02:00 PM'
   },
@@ -182,7 +182,7 @@ export const mockDoctors = [
     experience: '11+ Years',
     rating: 4.84,
     fee: 2100,
-    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f5.jpg',
     availableDays: ['Wed', 'Fri', 'Sat'],
     timing: '11:00 AM - 04:00 PM'
   },
@@ -196,7 +196,7 @@ export const mockDoctors = [
     experience: '18+ Years',
     rating: 4.98,
     fee: 4000,
-    avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m4.jpg',
     availableDays: ['Mon', 'Wed', 'Fri'],
     timing: '10:00 AM - 03:00 PM'
   },
@@ -208,7 +208,7 @@ export const mockDoctors = [
     experience: '15+ Years',
     rating: 4.94,
     fee: 3800,
-    avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f1.jpg',
     availableDays: ['Tue', 'Thu', 'Sat'],
     timing: '09:30 AM - 02:30 PM'
   },
@@ -222,7 +222,7 @@ export const mockDoctors = [
     experience: '15+ Years',
     rating: 4.88,
     fee: 2200,
-    avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f2.jpg',
     availableDays: ['Tue', 'Thu', 'Sat'],
     timing: '09:00 AM - 02:00 PM'
   },
@@ -234,7 +234,7 @@ export const mockDoctors = [
     experience: '12+ Years',
     rating: 4.89,
     fee: 2300,
-    avatar: 'https://images.unsplash.com/photo-1594824813566-88855ce78906?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f3.jpg',
     availableDays: ['Mon', 'Wed', 'Fri'],
     timing: '11:00 AM - 05:00 PM'
   },
@@ -248,7 +248,7 @@ export const mockDoctors = [
     experience: '14+ Years',
     rating: 4.86,
     fee: 1800,
-    avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m5.jpg',
     availableDays: ['Mon', 'Tue', 'Thu', 'Sat'],
     timing: '10:00 AM - 03:00 PM'
   },
@@ -262,7 +262,7 @@ export const mockDoctors = [
     experience: '16+ Years',
     rating: 4.92,
     fee: 1900,
-    avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m1.jpg',
     availableDays: ['Mon', 'Wed', 'Fri'],
     timing: '09:00 AM - 02:00 PM'
   },
@@ -276,7 +276,7 @@ export const mockDoctors = [
     experience: '19+ Years',
     rating: 4.96,
     fee: 2800,
-    avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m2.jpg',
     availableDays: ['Mon', 'Tue', 'Thu', 'Fri'],
     timing: '10:30 AM - 03:30 PM'
   },
@@ -290,7 +290,7 @@ export const mockDoctors = [
     experience: '15+ Years',
     rating: 4.89,
     fee: 2600,
-    avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m3.jpg',
     availableDays: ['Tue', 'Thu', 'Sat'],
     timing: '11:00 AM - 04:00 PM'
   },
@@ -304,7 +304,7 @@ export const mockDoctors = [
     experience: '11+ Years',
     rating: 4.87,
     fee: 2400,
-    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f4.jpg',
     availableDays: ['Mon', 'Wed', 'Fri'],
     timing: '09:00 AM - 02:00 PM'
   },
@@ -318,7 +318,7 @@ export const mockDoctors = [
     experience: '13+ Years',
     rating: 4.9,
     fee: 2300,
-    avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m4.jpg',
     availableDays: ['Mon', 'Tue', 'Thu', 'Sat'],
     timing: '10:00 AM - 03:00 PM'
   },
@@ -332,7 +332,7 @@ export const mockDoctors = [
     experience: '10+ Years',
     rating: 4.93,
     fee: 2500,
-    avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_f5.jpg',
     availableDays: ['Mon', 'Wed', 'Fri', 'Sat'],
     timing: '11:00 AM - 05:00 PM'
   },
@@ -346,7 +346,7 @@ export const mockDoctors = [
     experience: '20+ Years',
     rating: 5.0,
     fee: 0,
-    avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m5.jpg',
     availableDays: ['24/7 ER Duty'],
     timing: '24/7 Immediate Triage'
   },
@@ -358,7 +358,7 @@ export const mockDoctors = [
     experience: '16+ Years',
     rating: 4.97,
     fee: 0,
-    avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=300&q=80',
+    avatar: '/images/doctors/indian_doc_m1.jpg',
     availableDays: ['24/7 ER Duty'],
     timing: '24/7 Immediate Triage'
   }

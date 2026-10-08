@@ -100,12 +100,12 @@ html, body, #root {
   overflow-y: auto;
   overflow-x: hidden;
   background: #F3DCE8; /* Reference Pale Pink/Lilac canvas background */
-  padding: 1.25rem 1.25rem 2.5rem 1.25rem;
+  padding: 0.75rem 1.25rem 2.5rem 1.25rem;
 }
 
 @media (min-width: 1440px) {
   .patient-portal-layout {
-    padding: 1.75rem 2.5rem 3.5rem 2.5rem;
+    padding: 1rem 2.5rem 3.5rem 2.5rem;
   }
 }
 
@@ -468,4 +468,744 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius:
 .auth-portal-card * {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   REFERENCE VIDEO ANIMATION SYSTEM
+   Exact motion choreography from Dribbble reference video
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════
+   REFERENCE VIDEO ANIMATION SYSTEM — FALLING ICON ENTRANCE
+   Exact physics-based choreography from Dribbble video
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── FALL FROM ABOVE: Elements drop in from top with spring bounce ── */
+@keyframes rv-fall-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-70px) scale(0.82);
+    filter: blur(3px);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(12px) scale(1.03);
+    filter: blur(0);
+  }
+  75% {
+    transform: translateY(-5px) scale(0.99);
+  }
+  90% {
+    transform: translateY(2px) scale(1.005);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ── HERO BANNER FALL: Larger, more dramatic drop ── */
+@keyframes rv-hero-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.94);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(8px) scale(1.01);
+  }
+  78% {
+    transform: translateY(-3px) scale(0.998);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── CARD FALL: Each card drops with slight rotation (gravity physics) ── */
+@keyframes rv-card-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-55px) rotate(-3deg) scale(0.85);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(10px) rotate(0.5deg) scale(1.02);
+  }
+  78% {
+    transform: translateY(-4px) rotate(0deg) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+/* ── NAV ITEMS FALL (left to right stagger) ── */
+@keyframes rv-nav-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── FADE UP: Scroll-reveal upward slide ── */
+@keyframes rv-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rv-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── PILL ACTIVE POP ── */
+@keyframes rv-pill-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  60%  { transform: scale(1.12); opacity: 1; }
+  80%  { transform: scale(0.97); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── RIPPLE ON PRESS ── */
+@keyframes rv-press-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(36, 36, 84, 0.4); }
+  70%  { box-shadow: 0 0 0 12px rgba(36, 36, 84, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(36, 36, 84, 0); }
+}
+
+/* ── SHIMMER ── */
+@keyframes rv-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ── STAT NUMBER BOUNCE IN ── */
+@keyframes rv-count-up {
+  from { opacity: 0; transform: scale(0.6) translateY(10px); }
+  60%  { opacity: 1; transform: scale(1.1) translateY(-2px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ENTRANCE ANIMATION CLASSES
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Hero banner — falls from above */
+.rv-hero-enter {
+  animation: rv-hero-fall 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Service cards — drop with bounce (applied + removed by JS) */
+.rv-card-falling {
+  animation: rv-card-fall 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Nav items fall */
+.rv-nav-fall {
+  animation: rv-nav-fall 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCROLL-REVEAL — Elements fade up when entering viewport
+   ══════════════════════════════════════════════════════════════════ */
+.rv-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.rv-reveal.rv-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.rv-title-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rv-title-reveal.rv-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delays for groups */
+.rv-stagger > .rv-reveal:nth-child(1) { transition-delay: 0ms; }
+.rv-stagger > .rv-reveal:nth-child(2) { transition-delay: 70ms; }
+.rv-stagger > .rv-reveal:nth-child(3) { transition-delay: 140ms; }
+.rv-stagger > .rv-reveal:nth-child(4) { transition-delay: 210ms; }
+.rv-stagger > .rv-reveal:nth-child(5) { transition-delay: 280ms; }
+.rv-stagger > .rv-reveal:nth-child(6) { transition-delay: 350ms; }
+.rv-stagger > .rv-reveal:nth-child(7) { transition-delay: 420ms; }
+
+
+
+/* ── Spring Interactive Card ── */
+/* Hover: lift + deepen shadow. Active: press down */
+.rv-card {
+  display: block;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.48, 0.64, 1),
+    box-shadow 0.28s ease;
+  cursor: pointer;
+  transform: translateY(0px) scale(1);
+}
+
+.rv-card:hover {
+  transform: translateY(-10px) scale(1.03) !important;
+  box-shadow:
+    0 24px 48px -8px rgba(22, 22, 59, 0.22),
+    0 10px 20px -4px rgba(22, 22, 59, 0.14) !important;
+}
+
+.rv-card:active {
+  transform: translateY(-2px) scale(0.97) !important;
+  box-shadow:
+    0 4px 12px -2px rgba(22, 22, 59, 0.14) !important;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+/* Destination Section Glow Highlight */
+@keyframes rv-highlight-glow {
+  0% {
+    outline: 4px solid rgba(232, 75, 131, 0.8);
+    box-shadow: 0 0 35px rgba(232, 75, 131, 0.45);
+  }
+  50% {
+    outline: 4px solid rgba(154, 188, 240, 0.9);
+    box-shadow: 0 0 45px rgba(154, 188, 240, 0.6);
+  }
+  100% {
+    outline: 0px solid transparent;
+    box-shadow: none;
+  }
+}
+
+.rv-highlight-pulse {
+  animation: rv-highlight-glow 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  border-radius: 28px;
+}
+
+/* ── Doctor Card ── */
+.rv-doctor-card {
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.46, 0.64, 1),
+    box-shadow 0.35s cubic-bezier(0.34, 1.46, 0.64, 1);
+  will-change: transform;
+}
+
+.rv-doctor-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow:
+    0 28px 48px -10px rgba(22, 22, 59, 0.22),
+    0 12px 24px -4px rgba(22, 22, 59, 0.12);
+}
+
+.rv-doctor-card:active {
+  transform: translateY(-2px) scale(0.975);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+/* Doctor image zoom */
+.rv-doctor-card .rv-doctor-img {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rv-doctor-card:hover .rv-doctor-img {
+  transform: scale(1.08);
+}
+
+/* ── Category Pill ── */
+.rv-pill {
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+.rv-pill:hover:not(.rv-pill-active) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(22, 22, 59, 0.12);
+}
+
+.rv-pill:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+.rv-pill-active {
+  animation: rv-pill-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  box-shadow: 0 4px 16px rgba(36, 36, 84, 0.35);
+}
+
+/* ── Action Button Spring ── */
+.rv-btn {
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+  will-change: transform;
+}
+
+.rv-btn:hover {
+  transform: scale(1.07);
+  box-shadow: 0 6px 20px rgba(22, 22, 59, 0.2);
+}
+
+.rv-btn:active {
+  transform: scale(0.93);
+  transition: transform 0.1s ease;
+}
+
+/* ── Add to Cart Button ── */
+.rv-add-btn {
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.rv-add-btn:hover {
+  transform: scale(1.08);
+  background: #16163B;
+  color: white;
+  box-shadow: 0 4px 14px rgba(22, 22, 59, 0.3);
+}
+
+.rv-add-btn:active {
+  transform: scale(0.9);
+  animation: rv-press-pulse 0.4s ease;
+}
+
+/* ── Lab/Product Cards ── */
+.rv-lab-card {
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.46, 0.64, 1),
+    box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+.rv-lab-card:hover {
+  transform: translateY(-5px) scale(1.018);
+  box-shadow:
+    0 18px 36px -6px rgba(22, 22, 59, 0.16),
+    0 6px 14px -2px rgba(22, 22, 59, 0.09);
+}
+
+.rv-lab-card:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* ── Product Image Hover ── */
+.rv-product-img {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rv-lab-card:hover .rv-product-img {
+  transform: scale(1.1) rotate(-2deg);
+}
+
+/* ── Podcast/Bento Card ── */
+.rv-bento-card {
+  transition:
+    transform 0.32s cubic-bezier(0.34, 1.42, 0.64, 1),
+    box-shadow 0.32s ease;
+}
+.rv-bento-card:hover {
+  transform: translateY(-4px) scale(1.012);
+  box-shadow: 0 16px 32px -6px rgba(22, 22, 59, 0.18);
+}
+.rv-bento-card:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* ── Play Button Pulse ── */
+.rv-play-btn {
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.2s ease;
+  position: relative;
+}
+.rv-play-btn:hover {
+  transform: scale(1.15);
+}
+.rv-play-btn:active {
+  transform: scale(0.9);
+}
+.rv-play-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.4;
+  animation: rv-press-pulse 2s ease infinite;
+  pointer-events: none;
+}
+
+/* ── Section Title Reveal ── */
+.rv-title-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rv-title-reveal.rv-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Hero Nav Link ── */
+.rv-nav-link {
+  transition: color 0.2s ease, opacity 0.2s ease;
+  position: relative;
+}
+.rv-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0; right: 0;
+  height: 2px;
+  background: #242454;
+  border-radius: 999px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rv-nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* ── Search Bar Focus ── */
+.rv-search {
+  transition:
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease;
+}
+.rv-search:focus-within {
+  box-shadow: 0 0 0 3px rgba(36, 36, 84, 0.15);
+  border-color: #242454;
+  transform: scale(1.01);
+}
+
+/* ── Testimonial Card ── */
+.rv-testimonial {
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.42, 0.64, 1),
+    box-shadow 0.3s ease;
+}
+.rv-testimonial:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(22, 22, 59, 0.12);
+}
+
+/* ── Stat Card Counter Entrance ── */
+@keyframes rv-count-up {
+  from { opacity: 0; transform: scale(0.7) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.rv-stat-num {
+  animation: rv-count-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── Shimmer Loading Effect ── */
+.rv-shimmer-bg {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: rv-shimmer 1.5s ease infinite;
+}
+
+/* ── View All Link Arrow ── */
+.rv-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+.rv-view-all:hover {
+  gap: 10px;
+  opacity: 0.8;
+}
+
+/* ── Page Load Hero Sequence ── */
+.rv-page-enter { animation: rv-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.rv-page-enter-d1 { animation-delay: 50ms; }
+.rv-page-enter-d2 { animation-delay: 100ms; }
+.rv-page-enter-d3 { animation-delay: 180ms; }
+.rv-page-enter-d4 { animation-delay: 260ms; }
+.rv-page-enter-d5 { animation-delay: 340ms; }
+
+/* ── Podcast Voice Audio Waveform Animation ── */
+@keyframes rv-sound-wave {
+  0%, 100% { height: 5px; }
+  50% { height: 18px; }
+}
+.rv-sound-bar {
+  animation: rv-sound-wave 0.8s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ── Doctor Console Micro-Animations ── */
+@keyframes doc-pulse-radar {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes doc-pulse-call {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes doc-fade-slide-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes doc-scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.doc-pulse-online {
+  animation: doc-pulse-radar 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.doc-pulse-incoming {
+  animation: doc-pulse-call 1.4s infinite ease-in-out;
+}
+
+.doc-anim-enter {
+  animation: doc-fade-slide-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.doc-anim-scale {
+  animation: doc-scale-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Book Consultation Kinetic Echo Pill Animation Suite ── */
+
+/* 1. Left Echo Pill - Floating and drifting leftward, breathing in opacity and scale */
+@keyframes echoPillLeft {
+  0%, 100% {
+    transform: translate(-18px, -6px) scale(0.96) rotate(-1deg);
+    opacity: 0.55;
+  }
+  25% {
+    transform: translate(-32px, -11px) scale(1.02) rotate(-2.5deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(-42px, -8px) scale(1.06) rotate(-1.5deg);
+    opacity: 0.75;
+  }
+  75% {
+    transform: translate(-28px, -4px) scale(0.99) rotate(0.5deg);
+    opacity: 0.6;
+  }
+}
+
+/* 2. Right Echo Pill - Counter-phase float & tilt */
+@keyframes echoPillRight {
+  0%, 100% {
+    transform: translate(18px, -6px) scale(0.96) rotate(1deg);
+    opacity: 0.5;
+  }
+  25% {
+    transform: translate(30px, -11px) scale(1.02) rotate(2deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(40px, -7px) scale(1.06) rotate(1.5deg);
+    opacity: 0.7;
+  }
+  75% {
+    transform: translate(24px, -3px) scale(0.99) rotate(-0.5deg);
+    opacity: 0.55;
+  }
+}
+
+/* 3. Center Back Echo Pill - Vertical breathing capsule */
+@keyframes echoPillCenter {
+  0%, 100% {
+    transform: translate(0px, -6px) scale(0.98);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate(0px, -14px) scale(1.04);
+    opacity: 0.75;
+  }
+}
+
+/* 4. Sonar Ripple Pulse Wave - Expanding ethereal shockwave rings */
+@keyframes pillPulseWave {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.15, 1.3);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1.3, 1.55);
+    opacity: 0;
+  }
+}
+
+/* 5. Main Foreground Capsule Levitating Hover */
+@keyframes mainPillFloat {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 10px 25px -4px rgba(231, 184, 209, 0.5), 0 0 15px rgba(231, 184, 209, 0.25);
+  }
+  50% {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 36px -4px rgba(231, 184, 209, 0.8), 0 0 30px rgba(231, 184, 209, 0.45);
+  }
+}
+
+/* 6. Ambient Radial Glow Aura */
+@keyframes pillGlow {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(0.94);
+    filter: blur(14px);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.12);
+    filter: blur(22px);
+  }
+}
+
+/* 7. Luminous Diagonal Light Beam / Shimmer Sweep */
+@keyframes pillShimmer {
+  0% {
+    transform: translateX(-160%) skewX(-25deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  55% {
+    transform: translateX(360%) skewX(-25deg);
+    opacity: 1;
+  }
+  56%, 100% {
+    transform: translateX(360%) skewX(-25deg);
+    opacity: 0;
+  }
+}
+
+/* 8. Arrow Badge Micro-Motion Pulse */
+@keyframes arrowNudge {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(2px);
+  }
+}
+
+/* 9. Floating Star Sparkles */
+@keyframes starTwinkle1 {
+  0%, 100% {
+    transform: scale(0.6) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.25) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+@keyframes starTwinkle2 {
+  0%, 100% {
+    transform: scale(1.1) rotate(20deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(0.5) rotate(70deg);
+    opacity: 0.25;
+  }
+}
+
+.animate-echo-pill-left {
+  animation: echoPillLeft 2.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.animate-echo-pill-right {
+  animation: echoPillRight 2.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite 0.4s;
+}
+
+.animate-echo-pill-center {
+  animation: echoPillCenter 2.6s ease-in-out infinite 0.2s;
+}
+
+.animate-pill-pulse-wave {
+  animation: pillPulseWave 2.4s cubic-bezier(0.1, 0.4, 0.3, 1) infinite;
+}
+
+.animate-main-pill-float {
+  animation: mainPillFloat 2.8s ease-in-out infinite;
+}
+
+.animate-pill-glow {
+  animation: pillGlow 2.8s ease-in-out infinite;
+}
+
+.animate-pill-shimmer {
+  animation: pillShimmer 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-arrow-nudge {
+  animation: arrowNudge 2s ease-in-out infinite;
+}
+
+.animate-star-twinkle-1 {
+  animation: starTwinkle1 2.2s ease-in-out infinite;
+}
+
+.animate-star-twinkle-2 {
+  animation: starTwinkle2 2.5s ease-in-out infinite 0.8s;
+}
+
+
 

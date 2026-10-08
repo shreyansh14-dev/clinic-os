@@ -10,9 +10,9 @@ import {
 /* ── Sidebar nav images per item ── */
 const NAV_IMAGES = {
   '/':                 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=60&h=60&fit=crop&auto=format',
-  '/book-appointment': 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=60&h=60&fit=crop&auto=format',
+  '/book-appointment': '/images/doctors/indian_doc_m1.jpg',
   '/my-appointments':  'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=60&h=60&fit=crop&auto=format',
-  '/lab-tests':        'https://images.unsplash.com/photo-1559757175-7cb036db33b9?w=60&h=60&fit=crop&auto=format',
+  '/lab-tests':        'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=60&h=60&fit=crop&auto=format',
   '/medical-records':  'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=60&h=60&fit=crop&auto=format',
   '/diagnostic-tests': 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=60&h=60&fit=crop&auto=format',
   '/bills':            'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=60&h=60&fit=crop&auto=format',

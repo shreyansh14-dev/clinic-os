@@ -77,7 +77,15 @@ export const MyAppointments = () => {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   {apt.doctorAvatar
-                    ? <img src={apt.doctorAvatar} alt={apt.doctorName} className="w-11 h-11 rounded-xl object-cover border border-slate-200" />
+                    ? <img
+                        src={apt.doctorAvatar}
+                        alt={apt.doctorName}
+                        className="w-11 h-11 rounded-xl object-cover border border-slate-200"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/images/doctors/indian_doc_m1.jpg';
+                        }}
+                      />
                     : <div className="w-11 h-11 rounded-xl bg-slate-900 flex items-center justify-center"><Stethoscope className="w-5 h-5 text-white" /></div>
                   }
                   <div>
@@ -116,7 +124,19 @@ export const MyAppointments = () => {
                 )}
                 {!isJoinable(apt.status) && apt.status !== 'Scheduled' && (
                   <button
-                    onClick={() => navigate('/book-appointment')}
+                    onClick={() => navigate('/book-appointment', {
+                      state: {
+                        doctor: {
+                          id: apt.doctorId,
+                          name: apt.doctorName,
+                          specialty: apt.specialty,
+                          avatar: apt.doctorAvatar,
+                          fee: apt.fee
+                        },
+                        doctorId: apt.doctorId,
+                        step: 2
+                      }
+                    })}
                     style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '0.55rem', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 10, fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer' }}
                   >
                     Book Again <ChevronRight size={12} />
@@ -141,7 +161,15 @@ export const MyAppointments = () => {
             {/* Header */}
             <div style={{ background: 'linear-gradient(135deg,#0f172a,#1e3a5f)', padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
               {selectedApt.doctorAvatar
-                ? <img src={selectedApt.doctorAvatar} alt={selectedApt.doctorName} style={{ width: 56, height: 56, borderRadius: 14, objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }} />
+                ? <img
+                    src={selectedApt.doctorAvatar}
+                    alt={selectedApt.doctorName}
+                    style={{ width: 56, height: 56, borderRadius: 14, objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = '/images/doctors/indian_doc_m1.jpg';
+                    }}
+                  />
                 : <div style={{ width: 56, height: 56, borderRadius: 14, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Stethoscope size={24} color="#fff" /></div>
               }
               <div>

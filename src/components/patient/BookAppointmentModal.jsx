@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Calendar,
   Clock,
@@ -38,16 +38,68 @@ import {
 export const BookAppointmentModal = ({ onBookingComplete }) => {
   const { doctors, departments, bookAppointment, showToast } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [step, setStep] = useState(1);
-  const [selectedDept, setSelectedDept] = useState(departments[0]?.id || 'dept-1');
+  // Retrieve incoming doctor navigation state if user tapped a doctor card
+  const incomingDoc = location.state?.doctor;
+  const incomingDocId = location.state?.doctorId || incomingDoc?.id;
+  const initialStep = location.state?.step || (incomingDoc || incomingDocId ? 2 : 1);
+
+  // Helper to match doctor category/specialty to department ID
+  const findMatchingDeptId = (doc) => {
+    if (!doc) return departments[0]?.id || 'dept-1';
+    if (doc.deptId) return doc.deptId;
+    const cat = `${doc.category || ''} ${doc.department || ''} ${doc.specialty || ''}`.toLowerCase();
+    const matched = departments.find(d => {
+      const dName = (d.name || '').toLowerCase();
+      if (cat.includes('ortho') && dName.includes('ortho')) return true;
+      if (cat.includes('cardio') && dName.includes('cardio')) return true;
+      if (cat.includes('neuro') && dName.includes('neuro')) return true;
+      if (cat.includes('gyn') && dName.includes('gyn')) return true;
+      if (cat.includes('derm') && dName.includes('derm')) return true;
+      if (cat.includes('ent') && dName.includes('ent')) return true;
+      if ((cat.includes('eye') || cat.includes('ophthal')) && dName.includes('ophthal')) return true;
+      if (cat.includes('pedia') && dName.includes('pedia')) return true;
+      if (cat.includes('diabet') && (dName.includes('endo') || dName.includes('nephro'))) return true;
+      if (cat.includes('psych') && (dName.includes('neuro') || dName.includes('onco') || dName.includes('general med'))) return true;
+      return dName.includes(cat) || cat.includes(dName);
+    });
+    return matched?.id || departments[0]?.id || 'dept-1';
+  };
+
+  const [step, setStep] = useState(initialStep);
+  const [selectedDept, setSelectedDept] = useState(() => {
+    if (incomingDoc) {
+      return findMatchingDeptId(incomingDoc);
+    }
+    return departments[0]?.id || 'dept-1';
+  });
 
   const currentDeptObj = departments.find(d => d.id === selectedDept) || departments[0];
 
   // Filter strictly by selected department ID (returns 10 doctors)
   const departmentDoctors = doctors.filter(doc => doc && doc.deptId === selectedDept);
 
-  const [selectedDoctor, setSelectedDoctor] = useState(() => departmentDoctors[0]?.id || 'doc-1-1');
+  const [selectedDoctor, setSelectedDoctor] = useState(() => {
+    if (incomingDocId) return incomingDocId;
+    return departmentDoctors[0]?.id || 'doc-1-1';
+  });
+
+  // Listen to navigation state updates (e.g. tapping doctor from dashboard)
+  useEffect(() => {
+    if (location.state?.doctor || location.state?.doctorId) {
+      const doc = location.state.doctor;
+      const docId = location.state.doctorId || doc?.id;
+      if (doc) {
+        setSelectedDept(findMatchingDeptId(doc));
+      }
+      if (docId) {
+        setSelectedDoctor(docId);
+      }
+      setStep(location.state.step || 2);
+    }
+  }, [location.state]);
+
   const [date, setDate] = useState('2026-08-24');
   const [time, setTime] = useState('10:00 AM');
   const [reason, setReason] = useState('');
@@ -59,7 +111,48 @@ export const BookAppointmentModal = ({ onBookingComplete }) => {
   const [bookingTxnId, setBookingTxnId] = useState(null);
   const [lastAppointment, setLastAppointment] = useState(null);
 
-  const activeDocObj = doctors.find(d => d.id === selectedDoctor) || departmentDoctors[0] || doctors[0];
+  // Normalize active doctor object from context or passed specialist doctor
+  const activeDocObj = useMemo(() => {
+    // 1. Try finding in context doctors by ID or by name
+    let found = doctors.find(d => d.id === selectedDoctor || (incomingDoc && d.name?.toLowerCase() === incomingDoc.name?.toLowerCase()));
+    if (found) return found;
+
+    // 2. If incoming doctor matches selectedDoctor or was passed via state
+    if (incomingDoc && (incomingDoc.id === selectedDoctor || !selectedDoctor)) {
+      const feeNumber = typeof incomingDoc.fee === 'number'
+        ? incomingDoc.fee
+        : parseInt((incomingDoc.fee || '').replace(/[^0-9]/g, '')) || 1500;
+
+      return {
+        id: incomingDoc.id || 'doc-custom',
+        deptId: findMatchingDeptId(incomingDoc),
+        name: incomingDoc.name,
+        specialty: incomingDoc.specialty,
+        department: incomingDoc.department || incomingDoc.category || currentDeptObj?.name || 'Specialist Consultation',
+        experience: incomingDoc.experience || incomingDoc.exp || '12+ Years',
+        rating: incomingDoc.rating || '4.9',
+        fee: feeNumber,
+        consultationFee: feeNumber,
+        avatar: incomingDoc.avatar || incomingDoc.image || '/images/doctors/indian_doc_m1.jpg',
+        phone: incomingDoc.phone || '+91 98765 43210',
+        email: incomingDoc.email || 'doctor@clinicos.com',
+        room: incomingDoc.room || 'OPD Block A-102',
+        availability: incomingDoc.availability || incomingDoc.available || 'Today (09:00 AM - 04:00 PM)'
+      };
+    }
+
+    // 3. Fallback to department doctors or first doctor
+    return departmentDoctors[0] || doctors[0] || {
+      id: 'doc-1-1',
+      name: 'Dr. Arjun Sharma',
+      specialty: 'Senior Consultant - Cardiology',
+      department: 'Cardiology',
+      experience: '15+ Years',
+      rating: '4.9',
+      fee: 2000,
+      avatar: '/images/doctors/cardio_1.jpg'
+    };
+  }, [doctors, selectedDoctor, incomingDoc, currentDeptObj, departmentDoctors]);
 
   const timeSlots = [
     '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
@@ -141,12 +234,54 @@ export const BookAppointmentModal = ({ onBookingComplete }) => {
           <p className="text-xs text-slate-500 m-0 mt-0.5">10 Dedicated Specialists per Department with Instant OPD Booking & Payment</p>
         </div>
 
-        <div className="flex items-center space-x-2 bg-slate-100 px-4 py-2 rounded-full border border-slate-200 text-xs font-bold text-slate-700">
-          <span className={`px-2.5 py-1 rounded-full ${step === 1 ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'}`}>1. Department (10 Specialists)</span>
-          <span className="text-slate-300">→</span>
-          <span className={`px-2.5 py-1 rounded-full ${step === 2 ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'}`}>2. Date & Slot</span>
-          <span className="text-slate-300">→</span>
-          <span className={`px-2.5 py-1 rounded-full ${step === 3 ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'}`}>3. Review & Pay</span>
+        <div className="flex items-center space-x-1.5 sm:space-x-2 bg-slate-100 p-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-700">
+          <button
+            type="button"
+            onClick={() => {
+              setStep(1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`px-3 py-1.5 rounded-full border-none transition-all cursor-pointer font-extrabold text-xs flex items-center space-x-1 ${
+              step === 1
+                ? 'bg-slate-900 text-white shadow-md ring-2 ring-slate-900/20'
+                : 'bg-slate-200/90 text-slate-700 hover:bg-slate-300 hover:text-slate-900 active:scale-95'
+            }`}
+            title="Go to Step 1: Department & Specialist Selection"
+          >
+            <span>1. Department (10 Specialists)</span>
+          </button>
+          <span className="text-slate-400 font-semibold select-none">→</span>
+          <button
+            type="button"
+            onClick={() => {
+              setStep(2);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`px-3 py-1.5 rounded-full border-none transition-all cursor-pointer font-extrabold text-xs flex items-center space-x-1 ${
+              step === 2
+                ? 'bg-slate-900 text-white shadow-md ring-2 ring-slate-900/20'
+                : 'bg-slate-200/90 text-slate-700 hover:bg-slate-300 hover:text-slate-900 active:scale-95'
+            }`}
+            title="Go to Step 2: Date & Slot Selection"
+          >
+            <span>2. Date & Slot</span>
+          </button>
+          <span className="text-slate-400 font-semibold select-none">→</span>
+          <button
+            type="button"
+            onClick={() => {
+              setStep(3);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`px-3 py-1.5 rounded-full border-none transition-all cursor-pointer font-extrabold text-xs flex items-center space-x-1 ${
+              step === 3
+                ? 'bg-slate-900 text-white shadow-md ring-2 ring-slate-900/20'
+                : 'bg-slate-200/90 text-slate-700 hover:bg-slate-300 hover:text-slate-900 active:scale-95'
+            }`}
+            title="Go to Step 3: Review & Payment"
+          >
+            <span>3. Review & Pay</span>
+          </button>
         </div>
       </div>
 
@@ -221,22 +356,36 @@ export const BookAppointmentModal = ({ onBookingComplete }) => {
                 return (
                   <div
                     key={doc.id}
-                    onClick={() => setSelectedDoctor(doc.id)}
-                    className={`p-4 rounded-3xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    onClick={() => {
+                      setSelectedDoctor(doc.id);
+                      setStep(2);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`p-4 rounded-3xl border transition-all cursor-pointer flex items-center justify-between gap-4 group ${
                       isSelected
                         ? 'bg-slate-50 border-slate-900 ring-2 ring-slate-900 shadow-sm'
-                        : 'bg-white border-slate-200 hover:border-slate-300'
+                        : 'bg-white border-slate-200 hover:border-slate-400 hover:shadow-md hover:-translate-y-0.5'
                     }`}
                   >
                     <div className="flex items-center space-x-3.5">
                       <img
                         src={doc.avatar}
                         alt={doc.name}
-                        className="w-14 h-14 rounded-2xl object-cover border border-slate-300 shadow-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDoctor(doc.id);
+                          setStep(2);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="w-14 h-14 rounded-2xl object-cover border border-slate-300 shadow-sm transition-transform group-hover:scale-105 cursor-pointer"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/images/doctors/indian_doc_m1.jpg';
+                        }}
                       />
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h4 className="text-sm font-black text-slate-900 m-0">{doc.name}</h4>
+                          <h4 className="text-sm font-black text-slate-900 m-0 group-hover:text-blue-600 transition-colors">{doc.name}</h4>
                           <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200">
                             ★ {doc.rating}
                           </span>
@@ -247,6 +396,10 @@ export const BookAppointmentModal = ({ onBookingComplete }) => {
                     </div>
 
                     <div className="flex items-center space-x-2">
+                      <span className="text-[11px] font-bold text-slate-500 group-hover:text-slate-900 flex items-center space-x-0.5">
+                        <span>Select</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </span>
                       <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`}>
                         {isSelected && <CheckCircle2 className="w-4 h-4" />}
                       </div>
@@ -352,6 +505,10 @@ export const BookAppointmentModal = ({ onBookingComplete }) => {
                 src={activeDocObj.avatar}
                 alt={activeDocObj.name}
                 className="w-16 h-16 rounded-2xl object-cover border border-slate-300"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/images/doctors/indian_doc_m1.jpg';
+                }}
               />
               <div>
                 <h4 className="text-base font-black text-slate-900 m-0">{activeDocObj.name}</h4>
