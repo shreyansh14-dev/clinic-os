@@ -36,7 +36,8 @@ import {
   Tag,
   ShoppingCart,
   Truck,
-  Activity
+  Activity,
+  Plus
 } from 'lucide-react';
 import { MEDICINE_CATALOG } from '../../data/medicineCatalog';
 import { AmbulanceLiveTrackerModal } from '../patient/AmbulanceLiveTrackerModal';
