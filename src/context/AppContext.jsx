@@ -84,7 +84,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     // Check initial pending call if already ringing in another tab
     const existingCall = telehealthBridge.getActiveCall();
-    if (existingCall) {
+    if (existingCall && (!existingCall.status || existingCall.status === 'calling')) {
       setActiveCallSignal(existingCall);
       setIncomingCallAlert(existingCall);
     }
@@ -94,6 +94,9 @@ export const AppProvider = ({ children }) => {
         setActiveCallSignal(payload);
         setIncomingCallAlert(payload);
         showToast(`📞 INCOMING CALL: Patient ${payload.callerName} is requesting Video Consultation!`, 'warn');
+      } else if (type === 'CALL_ANSWERED') {
+        setIncomingCallAlert(null);
+        setActiveCallSignal(payload);
       } else if (type === 'CALL_ENDED') {
         setIncomingCallAlert(null);
         setActiveCallSignal(null);
@@ -127,9 +130,19 @@ export const AppProvider = ({ children }) => {
   }, [currentRole, currentUser]);
 
   const acceptIncomingCall = (callData) => {
-    const callToAccept = callData || incomingCallAlert;
+    const callToAccept = callData || incomingCallAlert || activeCallSignal;
+    setIncomingCallAlert(null);
+    setActiveCallSignal(callToAccept);
     setCurrentRole('doctor');
     setActiveTab('tele-health-suite');
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('clinic_doctor_accept_call', {
+          detail: callToAccept
+        })
+      );
+    }
     showToast(`Joining video consultation with ${callToAccept?.callerName || 'Patient'}...`);
   };
 
@@ -621,7 +634,9 @@ export const AppProvider = ({ children }) => {
         activeTab,
         setActiveTab,
         activeCallSignal,
+        setActiveCallSignal,
         incomingCallAlert,
+        setIncomingCallAlert,
         acceptIncomingCall,
         declineIncomingCall,
         departments,

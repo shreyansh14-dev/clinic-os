@@ -195,9 +195,18 @@ export const Header = () => {
             <button
               onClick={() => {
                 const callToAccept = incomingCallAlert;
+                if (!callToAccept) return;
                 acceptIncomingCall(callToAccept);
                 setCurrentRole('doctor');
-                navigate('/doctor-console', { state: { autoAcceptCall: callToAccept } });
+                navigate('/doctor-console', { state: { autoAcceptCall: callToAccept, acceptTimestamp: Date.now() } });
+                setTimeout(() => {
+                  const el = document.getElementById('doctor-telehealth-section');
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    el.classList.add('rv-highlight-pulse');
+                    setTimeout(() => el.classList.remove('rv-highlight-pulse'), 2500);
+                  }
+                }, 150);
               }}
               className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer border-none flex items-center space-x-1.5 transition-all hover:scale-105"
             >
@@ -256,7 +265,12 @@ export const Header = () => {
 
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button
-                onClick={() => declineIncomingCall()}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  declineIncomingCall();
+                }}
                 className="py-3 px-4 rounded-2xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-700 font-extrabold text-xs border border-slate-200 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
               >
                 <X className="w-4 h-4" />
@@ -264,11 +278,23 @@ export const Header = () => {
               </button>
 
               <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   const callToAccept = incomingCallAlert;
+                  if (!callToAccept) return;
                   acceptIncomingCall(callToAccept);
                   setCurrentRole('doctor');
-                  navigate('/doctor-console', { state: { autoAcceptCall: callToAccept } });
+                  navigate('/doctor-console', { state: { autoAcceptCall: callToAccept, acceptTimestamp: Date.now() } });
+                  setTimeout(() => {
+                    const el = document.getElementById('doctor-telehealth-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      el.classList.add('rv-highlight-pulse');
+                      setTimeout(() => el.classList.remove('rv-highlight-pulse'), 2500);
+                    }
+                  }, 150);
                 }}
                 className="py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs border-none cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >

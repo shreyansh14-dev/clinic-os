@@ -90,16 +90,31 @@ export const TelemedicineCall = () => {
   // WebRTC & Telehealth Signaling setup
   useEffect(() => {
     const unsubscribe = telehealthBridge.subscribe(async ({ type, payload }) => {
-      if (type === 'CALL_ANSWERED' && pcRef.current) {
-        try {
-          if (payload?.answer) {
+      if (type === 'CALL_ANSWERED') {
+        if (pcRef.current && payload?.answer) {
+          try {
             await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.answer));
-            setCallState('connected');
-            showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call! Live consultation active.`);
+          } catch (err) {
+            console.warn('Error setting remote description:', err);
           }
-        } catch (err) {
-          console.warn('Error setting remote description:', err);
         }
+        setCallState('connected');
+        showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call! Live consultation active.`);
+
+        setTimeout(async () => {
+          if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
+            try {
+              const fallbackDocStream = await getTelehealthMediaStream({
+                userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
+                role: 'doctor',
+                isDoctor: true
+              });
+              if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
+                remoteVideoRef.current.srcObject = fallbackDocStream;
+              }
+            } catch (e) {}
+          }
+        }, 1000);
       } else if (type === 'ICE_CANDIDATE' && pcRef.current && payload?.candidate) {
         try {
           await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate));

@@ -128,6 +128,10 @@ class TelehealthSignalingBridge {
     try {
       localStorage.setItem(STORAGE_ANSWER_KEY, JSON.stringify(answerPayload));
       localStorage.removeItem(STORAGE_ENDED_KEY);
+      const activeCall = this.getActiveCall();
+      if (activeCall) {
+        localStorage.setItem(STORAGE_CALL_KEY, JSON.stringify({ ...activeCall, status: 'connected' }));
+      }
     } catch (e) {}
 
     window.dispatchEvent(

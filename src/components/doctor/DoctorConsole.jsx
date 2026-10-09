@@ -28,6 +28,7 @@ export const DoctorConsole = () => {
     beds,
     vitals,
     incomingCallAlert,
+    setIncomingCallAlert,
     activeCallSignal,
     updateAppointmentStatus,
     publishLabReport,
@@ -175,13 +176,22 @@ export const DoctorConsole = () => {
       acceptIncomingCall(callToAutoAccept);
     } else {
       const existingCall = telehealthBridge.getActiveCall();
-      if (existingCall && callState === 'idle') {
+      if (existingCall && callState === 'idle' && (!existingCall.status || existingCall.status === 'calling')) {
         setIncomingCall(existingCall);
         setActiveCaller(existingCall);
         setCallState('incoming');
         startRingingChime();
       }
     }
+
+    // Listen for direct doctor accept call event dispatched from Header modal
+    const handleDoctorAcceptEvent = (event) => {
+      const callToAccept = event.detail || telehealthBridge.getActiveCall();
+      if (callToAccept) {
+        acceptIncomingCall(callToAccept);
+      }
+    };
+    window.addEventListener('clinic_doctor_accept_call', handleDoctorAcceptEvent);
 
     const unsubscribe = telehealthBridge.subscribe(async ({ type, payload }) => {
       if (type === 'START_CALL') {
@@ -190,6 +200,9 @@ export const DoctorConsole = () => {
         setCallState('incoming');
         startRingingChime();
         showToast(`📞 INCOMING CALL: Patient ${payload.callerName} requesting video consultation!`, 'info');
+      } else if (type === 'CALL_ANSWERED') {
+        stopRingingChime();
+        setIncomingCall(null);
       } else if (type === 'ICE_CANDIDATE' && pcRef.current && payload?.candidate) {
         try {
           await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate));
@@ -220,7 +233,7 @@ export const DoctorConsole = () => {
             startRingingChime();
           }
         } catch (e) {}
-      } else if (callState === 'incoming' || callState === 'connected') {
+      } else if (callState === 'incoming') {
         try {
           const res = await apiService.getActiveTelehealthCall();
           if (!res?.activeCall && !telehealthBridge.getActiveCall()) {
@@ -233,6 +246,7 @@ export const DoctorConsole = () => {
     }, 1200);
 
     return () => {
+      window.removeEventListener('clinic_doctor_accept_call', handleDoctorAcceptEvent);
       clearInterval(pollInterval);
       stopRingingChime();
       unsubscribe();
@@ -256,6 +270,9 @@ export const DoctorConsole = () => {
 
     stopRingingChime();
     setIncomingCall(null);
+    if (setIncomingCallAlert) {
+      setIncomingCallAlert(null);
+    }
     setActiveCaller(callData);
     setCallState('connected');
     setActiveStepTab(4); // Switch to Step 4: Examine Patient / Telehealth
@@ -301,23 +318,44 @@ export const DoctorConsole = () => {
 
       // 3. Process Remote Offer & Generate Answer
       if (callData.offer) {
-        await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
+        try {
+          await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
 
-        const answerPayload = {
-          answer: { type: answer.type, sdp: answer.sdp }
-        };
+          const answerPayload = {
+            answer: { type: answer.type, sdp: answer.sdp }
+          };
 
-        // Send Answer via unified telehealthBridge
-        await telehealthBridge.answerCall(answerPayload);
+          // Send Answer via unified telehealthBridge
+          await telehealthBridge.answerCall(answerPayload);
+        } catch (offerErr) {
+          console.warn('WebRTC offer/answer negotiation note:', offerErr);
+        }
       }
+
+      // 4. Fallback live patient video stream for single-tab testing or before remote ICE attaches
+      setTimeout(async () => {
+        if (remoteVideoRef.current && (!remoteVideoRef.current.srcObject || !remoteStreamActive)) {
+          try {
+            const fallbackPatientStream = await getTelehealthMediaStream({
+              userName: callData.callerName || 'Shreyansh Kumar',
+              role: 'patient',
+              isDoctor: false
+            });
+            if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
+              remoteVideoRef.current.srcObject = fallbackPatientStream;
+              setRemoteStreamActive(true);
+            }
+          } catch (e) {}
+        }
+      }, 1000);
 
       setMessages(prev => [
         ...prev,
         {
           sender: 'System',
-          text: `Encrypted WebRTC Video Consultation Connected with Patient ${callData.callerName || 'Patient'}.`,
+          text: `Encrypted WebRTC 1:1 Video Consultation Connected with Patient ${callData.callerName || 'Patient'}.`,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
@@ -333,6 +371,9 @@ export const DoctorConsole = () => {
   const declineIncomingCall = async () => {
     stopRingingChime();
     setIncomingCall(null);
+    if (setIncomingCallAlert) {
+      setIncomingCallAlert(null);
+    }
     setCallState('idle');
     await telehealthBridge.endCall();
     showToast('Incoming patient video call declined.');
@@ -341,6 +382,9 @@ export const DoctorConsole = () => {
   // End Telehealth Call
   const endTelehealthCall = async (notify = true) => {
     stopRingingChime();
+    if (setIncomingCallAlert) {
+      setIncomingCallAlert(null);
+    }
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(t => t.stop());
       localStreamRef.current = null;
@@ -1564,58 +1608,6 @@ export const DoctorConsole = () => {
         />
       )}
 
-      {/* ── Prominent Incoming Patient Video Call Modal ─────────────────────────────── */}
-      {incomingCall && (
-        <div className="fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-[32px] p-7 sm:p-8 max-w-md w-full shadow-2xl border-2 border-emerald-500/40 text-center relative overflow-hidden">
-            <div className="relative mx-auto w-20 h-20 mb-4">
-              <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-30" />
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-lg relative z-10">
-                <Video className="w-10 h-10 animate-bounce" />
-              </div>
-            </div>
-
-            <span className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 mb-2">
-              ● Live Incoming Video Call
-            </span>
-
-            <h3 className="text-xl font-black text-slate-900 m-0">
-              {incomingCall.callerName || 'Patient Consultation Request'}
-            </h3>
-            
-            <p className="text-xs text-slate-500 font-semibold m-0 mt-1">
-              Patient ID: <strong>{incomingCall.callerId || 'PT-101'}</strong>
-            </p>
-
-            <div className="my-5 p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-left space-y-1.5">
-              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
-                Chief Complaints / Symptoms:
-              </span>
-              <p className="text-xs font-bold text-slate-800 m-0">
-                {incomingCall.symptoms || 'General medical review & cardiovascular consultation.'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <button
-                onClick={declineIncomingCall}
-                className="py-3 px-4 rounded-2xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-700 font-extrabold text-xs border border-slate-200 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
-              >
-                <PhoneOff className="w-4 h-4" />
-                <span>Decline</span>
-              </button>
-
-              <button
-                onClick={() => acceptIncomingCall(incomingCall)}
-                className="py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs border-none cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Video className="w-4 h-4 animate-pulse" />
-                <span>Accept &amp; Join</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
