@@ -86,6 +86,6 @@ export const apiService = {
   startTelehealthCall: async (callData) => await request('/telehealth/call', { method: 'POST', body: JSON.stringify(callData) }),
   getActiveTelehealthCall: async () => await request('/telehealth/active-call'),
   answerTelehealthCall: async (answerData) => await request('/telehealth/answer', { method: 'POST', body: JSON.stringify(answerData) }),
-  addIceCandidate: async (candidate) => await request('/telehealth/ice-candidate', { method: 'POST', body: JSON.stringify({ candidate }) }),
+  addIceCandidate: async (candidate, role = 'unknown') => await request('/telehealth/ice-candidate', { method: 'POST', body: JSON.stringify({ candidate, role }) }),
   hangupTelehealthCall: async () => await request('/telehealth/hangup', { method: 'POST' })
 };

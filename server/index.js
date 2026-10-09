@@ -420,7 +420,10 @@ app.post('/api/telehealth/answer', (req, res) => {
 
 app.post('/api/telehealth/ice-candidate', (req, res) => {
   if (req.body.candidate) {
-    callCandidates.push(req.body.candidate);
+    callCandidates.push({
+      candidate: req.body.candidate,
+      role: req.body.role || 'unknown'
+    });
   }
   res.json({ success: true });
 });

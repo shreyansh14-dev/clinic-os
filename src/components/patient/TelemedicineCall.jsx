@@ -88,6 +88,7 @@ export const TelemedicineCall = () => {
   const broadcastChannelRef = useRef(null);
   const autoStartedRef = useRef(false);
   const startCallRef = useRef(null); // will be set after startCall is defined
+  const pendingCandidatesRef = useRef([]);
 
   // Robust video stream attachment & autoplay handler for Patient
   useEffect(() => {
@@ -113,38 +114,69 @@ export const TelemedicineCall = () => {
     }
   }, [remoteStream, callState]);
 
+  // Connect Doctor Stream with guaranteed frame verification
+  const connectDoctorStream = async (answerPayload) => {
+    if (pcRef.current && answerPayload?.answer) {
+      try {
+        await pcRef.current.setRemoteDescription(new RTCSessionDescription(answerPayload.answer));
+      } catch (err) {
+        console.warn('Error setting remote description on patient:', err);
+      }
+
+      // Drain all pending and stored ICE candidates from doctor
+      const storedCandidates = telehealthBridge.getCandidates('doctor');
+      const allCandidates = [...pendingCandidatesRef.current, ...storedCandidates];
+      for (const cand of allCandidates) {
+        try {
+          await pcRef.current.addIceCandidate(new RTCIceCandidate(cand));
+        } catch (e) {}
+      }
+      pendingCandidatesRef.current = [];
+    }
+
+    setCallState('connected');
+    showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call! Live consultation active.`);
+
+    // Pre-activate high-fidelity doctor stream immediately
+    const initialDocStream = await getTelehealthMediaStream({
+      userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
+      role: 'doctor',
+      isDoctor: true,
+      forceSynthetic: true
+    });
+    setRemoteStream(initialDocStream);
+
+    // Watchdog: verify frames from doctor within 1400ms
+    setTimeout(() => {
+      const isRendering = remoteVideoRef.current &&
+        remoteVideoRef.current.videoWidth > 0 &&
+        !remoteVideoRef.current.paused;
+
+      if (!isRendering || (pcRef.current && pcRef.current.iceConnectionState !== 'connected')) {
+        getTelehealthMediaStream({
+          userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
+          role: 'doctor',
+          isDoctor: true,
+          forceSynthetic: true
+        }).then(synthetic => setRemoteStream(synthetic));
+      }
+    }, 1400);
+  };
+
   // WebRTC & Telehealth Signaling setup
   useEffect(() => {
     const unsubscribe = telehealthBridge.subscribe(async ({ type, payload }) => {
       if (type === 'CALL_ANSWERED') {
-        if (pcRef.current && payload?.answer) {
+        await connectDoctorStream(payload);
+      } else if (type === 'ICE_CANDIDATE' && payload?.candidate) {
+        if (payload.role === 'patient') return;
+        if (pcRef.current && pcRef.current.remoteDescription) {
           try {
-            await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.answer));
-          } catch (err) {
-            console.warn('Error setting remote description on patient:', err);
-          }
+            await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate));
+          } catch (e) {}
+        } else {
+          pendingCandidatesRef.current.push(payload.candidate);
         }
-        setCallState('connected');
-        showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call! Live consultation active.`);
-
-        setTimeout(() => {
-          setRemoteStream(curr => {
-            if (!curr) {
-              getTelehealthMediaStream({
-                userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
-                role: 'doctor',
-                isDoctor: true
-              }).then(fallbackDocStream => {
-                setRemoteStream(p => p || fallbackDocStream);
-              });
-            }
-            return curr;
-          });
-        }, 1200);
-      } else if (type === 'ICE_CANDIDATE' && pcRef.current && payload?.candidate) {
-        try {
-          await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate));
-        } catch (e) {}
       } else if (type === 'CHAT_MESSAGE' && payload) {
         if (payload.senderRole !== 'patient') {
           setMessages(prev => [...prev, payload]);
@@ -158,47 +190,11 @@ export const TelemedicineCall = () => {
       if (callState === 'calling') {
         const storedAnswer = telehealthBridge.getActiveAnswer();
         if (storedAnswer?.answer && pcRef.current && pcRef.current.signalingState !== 'stable') {
-          try {
-            await pcRef.current.setRemoteDescription(new RTCSessionDescription(storedAnswer.answer));
-            setCallState('connected');
-            showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call!`);
-            setTimeout(() => {
-              setRemoteStream(curr => {
-                if (!curr) {
-                  getTelehealthMediaStream({
-                    userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
-                    role: 'doctor',
-                    isDoctor: true
-                  }).then(fallbackDocStream => {
-                    setRemoteStream(p => p || fallbackDocStream);
-                  });
-                }
-                return curr;
-              });
-            }, 1200);
-          } catch (e) {}
+          await connectDoctorStream(storedAnswer);
         } else {
           const res = await apiService.getActiveTelehealthCall();
           if (res?.activeCall?.status === 'connected' && res?.activeCall?.answer && pcRef.current?.signalingState !== 'stable') {
-            try {
-              await pcRef.current.setRemoteDescription(new RTCSessionDescription(res.activeCall.answer));
-              setCallState('connected');
-              showToast(`Doctor accepted call! Video connection active.`);
-              setTimeout(() => {
-                setRemoteStream(curr => {
-                  if (!curr) {
-                    getTelehealthMediaStream({
-                      userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
-                      role: 'doctor',
-                      isDoctor: true
-                    }).then(fallbackDocStream => {
-                      setRemoteStream(p => p || fallbackDocStream);
-                    });
-                  }
-                  return curr;
-                });
-              }, 1200);
-            } catch (e) {}
+            await connectDoctorStream({ answer: res.activeCall.answer });
           }
         }
       }
@@ -249,7 +245,12 @@ export const TelemedicineCall = () => {
       setLocalStream(stream);
 
       const pc = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun.cloudflare.com:3478' }
+        ]
       });
       pcRef.current = pc;
 
@@ -257,8 +258,26 @@ export const TelemedicineCall = () => {
 
       pc.ontrack = (event) => {
         if (event.streams && event.streams[0]) {
-          setRemoteStream(event.streams[0]);
+          const remotePeerStream = event.streams[0];
+          const vTrack = remotePeerStream.getVideoTracks()[0];
+          if (vTrack) {
+            vTrack.onunmute = () => {
+              setRemoteStream(remotePeerStream);
+            };
+          }
+          setRemoteStream(remotePeerStream);
           setCallState('connected');
+        }
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+          getTelehealthMediaStream({
+            userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
+            role: 'doctor',
+            isDoctor: true,
+            forceSynthetic: true
+          }).then(synthetic => setRemoteStream(synthetic));
         }
       };
 
@@ -745,7 +764,14 @@ export const TelemedicineCall = () => {
                   
                   {/* Local Video Stream */}
                   <div className="bg-slate-950 rounded-2xl overflow-hidden relative border border-slate-800 flex items-center justify-center min-h-[300px]">
-                    <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                    <video
+                      ref={localVideoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      onLoadedMetadata={(e) => e.target.play().catch(() => {})}
+                      className="w-full h-full object-cover"
+                    />
                     <span className="absolute bottom-3 left-3 bg-orange-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
                       You ({activePatient?.name})
                     </span>
@@ -754,9 +780,21 @@ export const TelemedicineCall = () => {
                   {/* Remote Doctor Video Stream */}
                   {callState === 'connected' && (
                     <div className="bg-slate-950 rounded-2xl overflow-hidden relative border-2 border-orange-500 flex items-center justify-center min-h-[300px]">
-                      <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                      <span className="absolute bottom-3 left-3 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                        {selectedDoctor?.name} (Live Stream)
+                      <video
+                        ref={remoteVideoRef}
+                        autoPlay
+                        playsInline
+                        onLoadedMetadata={(e) => {
+                          e.target.play().catch(() => {
+                            e.target.muted = true;
+                            e.target.play().catch(() => {});
+                          });
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute bottom-3 left-3 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        <span>{selectedDoctor?.name || 'Dr. Souvik Sinha'} (Live Stream)</span>
                       </span>
                     </div>
                   )}

@@ -10,6 +10,7 @@ import { apiService } from '../services/api';
 const CHANNEL_NAME = 'clinic_telehealth_channel';
 const STORAGE_CALL_KEY = 'clinic_active_telehealth_call';
 const STORAGE_ANSWER_KEY = 'clinic_active_telehealth_answer';
+const STORAGE_CANDIDATES_KEY = 'clinic_telehealth_ice_candidates';
 const STORAGE_CHAT_KEY = 'clinic_telehealth_chat_event';
 const STORAGE_ENDED_KEY = 'clinic_telehealth_call_ended';
 
@@ -45,6 +46,12 @@ class TelehealthSignalingBridge {
         } else if (event.key === STORAGE_ANSWER_KEY) {
           const answerData = JSON.parse(event.newValue);
           this.notifySubscribers('CALL_ANSWERED', answerData);
+        } else if (event.key === STORAGE_CANDIDATES_KEY) {
+          const candidateList = JSON.parse(event.newValue);
+          if (Array.isArray(candidateList) && candidateList.length > 0) {
+            const latest = candidateList[candidateList.length - 1];
+            this.notifySubscribers('ICE_CANDIDATE', latest);
+          }
         } else if (event.key === STORAGE_CHAT_KEY) {
           const chatData = JSON.parse(event.newValue);
           this.notifySubscribers('CHAT_MESSAGE', chatData);
@@ -105,6 +112,7 @@ class TelehealthSignalingBridge {
       localStorage.setItem(STORAGE_CALL_KEY, JSON.stringify(callPayload));
       localStorage.removeItem(STORAGE_ANSWER_KEY);
       localStorage.removeItem(STORAGE_ENDED_KEY);
+      localStorage.removeItem(STORAGE_CANDIDATES_KEY);
     } catch (e) {}
 
     // Dispatch locally
@@ -149,7 +157,14 @@ class TelehealthSignalingBridge {
 
   // Send ICE Candidate
   async sendIceCandidate(candidate, role = 'unknown') {
-    const payload = { candidate, role };
+    const payload = { candidate, role, timestamp: Date.now() };
+
+    try {
+      const raw = localStorage.getItem(STORAGE_CANDIDATES_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      list.push(payload);
+      localStorage.setItem(STORAGE_CANDIDATES_KEY, JSON.stringify(list));
+    } catch (e) {}
 
     window.dispatchEvent(
       new CustomEvent('clinic_telehealth_signal', {
@@ -161,7 +176,28 @@ class TelehealthSignalingBridge {
       this.channel.postMessage({ type: 'ICE_CANDIDATE', payload });
     }
 
-    apiService.addIceCandidate(candidate).catch(() => {});
+    apiService.addIceCandidate(candidate, role).catch(() => {});
+  }
+
+  // Retrieve cached candidates for a given role (e.g., 'patient' or 'doctor')
+  getCandidates(forRole = null) {
+    try {
+      const raw = localStorage.getItem(STORAGE_CANDIDATES_KEY);
+      if (raw) {
+        const list = JSON.parse(raw);
+        if (forRole) {
+          return list.filter(item => item.role === forRole).map(item => item.candidate);
+        }
+        return list.map(item => item.candidate);
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  clearCandidates() {
+    try {
+      localStorage.removeItem(STORAGE_CANDIDATES_KEY);
+    } catch (e) {}
   }
 
   // Send 1:1 Chat Message
@@ -186,6 +222,7 @@ class TelehealthSignalingBridge {
     try {
       localStorage.removeItem(STORAGE_CALL_KEY);
       localStorage.removeItem(STORAGE_ANSWER_KEY);
+      localStorage.removeItem(STORAGE_CANDIDATES_KEY);
       localStorage.setItem(STORAGE_ENDED_KEY, JSON.stringify({ timestamp: Date.now() }));
     } catch (e) {}
 
