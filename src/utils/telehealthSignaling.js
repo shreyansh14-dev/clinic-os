@@ -148,8 +148,14 @@ class TelehealthSignalingBridge {
   }
 
   // Send ICE Candidate
-  async sendIceCandidate(candidate) {
-    const payload = { candidate };
+  async sendIceCandidate(candidate, role = 'unknown') {
+    const payload = { candidate, role };
+
+    window.dispatchEvent(
+      new CustomEvent('clinic_telehealth_signal', {
+        detail: { type: 'ICE_CANDIDATE', payload }
+      })
+    );
 
     if (this.channel) {
       this.channel.postMessage({ type: 'ICE_CANDIDATE', payload });

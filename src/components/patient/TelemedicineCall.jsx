@@ -74,6 +74,8 @@ export const TelemedicineCall = () => {
   const [callState, setCallState] = useState('idle'); // 'idle' | 'calling' | 'connected'
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
+  const [localStream, setLocalStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
   const [messages, setMessages] = useState([
     { sender: 'System', text: 'Encrypted Telemedicine Session Initialized.', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
   ]);
@@ -87,6 +89,30 @@ export const TelemedicineCall = () => {
   const autoStartedRef = useRef(false);
   const startCallRef = useRef(null); // will be set after startCall is defined
 
+  // Robust video stream attachment & autoplay handler for Patient
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream;
+      localVideoRef.current.muted = true;
+      localVideoRef.current.play().catch(() => {});
+    }
+  }, [localStream, callState]);
+
+  useEffect(() => {
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream;
+      const playPromise = remoteVideoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.muted = true;
+            remoteVideoRef.current.play().catch(() => {});
+          }
+        });
+      }
+    }
+  }, [remoteStream, callState]);
+
   // WebRTC & Telehealth Signaling setup
   useEffect(() => {
     const unsubscribe = telehealthBridge.subscribe(async ({ type, payload }) => {
@@ -95,26 +121,26 @@ export const TelemedicineCall = () => {
           try {
             await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.answer));
           } catch (err) {
-            console.warn('Error setting remote description:', err);
+            console.warn('Error setting remote description on patient:', err);
           }
         }
         setCallState('connected');
         showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call! Live consultation active.`);
 
-        setTimeout(async () => {
-          if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
-            try {
-              const fallbackDocStream = await getTelehealthMediaStream({
+        setTimeout(() => {
+          setRemoteStream(curr => {
+            if (!curr) {
+              getTelehealthMediaStream({
                 userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
                 role: 'doctor',
                 isDoctor: true
+              }).then(fallbackDocStream => {
+                setRemoteStream(p => p || fallbackDocStream);
               });
-              if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
-                remoteVideoRef.current.srcObject = fallbackDocStream;
-              }
-            } catch (e) {}
-          }
-        }, 1000);
+            }
+            return curr;
+          });
+        }, 1200);
       } else if (type === 'ICE_CANDIDATE' && pcRef.current && payload?.candidate) {
         try {
           await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate));
@@ -136,6 +162,20 @@ export const TelemedicineCall = () => {
             await pcRef.current.setRemoteDescription(new RTCSessionDescription(storedAnswer.answer));
             setCallState('connected');
             showToast(`Dr. ${selectedDoctor?.name || 'Doctor'} joined the video call!`);
+            setTimeout(() => {
+              setRemoteStream(curr => {
+                if (!curr) {
+                  getTelehealthMediaStream({
+                    userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
+                    role: 'doctor',
+                    isDoctor: true
+                  }).then(fallbackDocStream => {
+                    setRemoteStream(p => p || fallbackDocStream);
+                  });
+                }
+                return curr;
+              });
+            }, 1200);
           } catch (e) {}
         } else {
           const res = await apiService.getActiveTelehealthCall();
@@ -144,6 +184,20 @@ export const TelemedicineCall = () => {
               await pcRef.current.setRemoteDescription(new RTCSessionDescription(res.activeCall.answer));
               setCallState('connected');
               showToast(`Doctor accepted call! Video connection active.`);
+              setTimeout(() => {
+                setRemoteStream(curr => {
+                  if (!curr) {
+                    getTelehealthMediaStream({
+                      userName: selectedDoctor?.name || 'Dr. Souvik Sinha',
+                      role: 'doctor',
+                      isDoctor: true
+                    }).then(fallbackDocStream => {
+                      setRemoteStream(p => p || fallbackDocStream);
+                    });
+                  }
+                  return curr;
+                });
+              }, 1200);
             } catch (e) {}
           }
         }
@@ -192,9 +246,7 @@ export const TelemedicineCall = () => {
       });
 
       localStreamRef.current = stream;
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
+      setLocalStream(stream);
 
       const pc = new RTCPeerConnection({
         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
@@ -204,20 +256,36 @@ export const TelemedicineCall = () => {
       stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
       pc.ontrack = (event) => {
-        if (remoteVideoRef.current && event.streams[0]) {
-          remoteVideoRef.current.srcObject = event.streams[0];
+        if (event.streams && event.streams[0]) {
+          setRemoteStream(event.streams[0]);
           setCallState('connected');
         }
       };
 
       pc.onicecandidate = (event) => {
         if (event.candidate) {
-          telehealthBridge.sendIceCandidate(event.candidate);
+          telehealthBridge.sendIceCandidate(event.candidate, 'patient');
         }
       };
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
+
+      // Wait up to 800ms for ICE candidates to gather into localDescription
+      await new Promise((resolve) => {
+        if (pc.iceGatheringState === 'complete') {
+          resolve();
+        } else {
+          const handler = () => {
+            if (pc.iceGatheringState === 'complete') {
+              pc.removeEventListener('icegatheringstatechange', handler);
+              resolve();
+            }
+          };
+          pc.addEventListener('icegatheringstatechange', handler);
+          setTimeout(resolve, 800);
+        }
+      });
 
       const callPayload = {
         callerId: activePatient?.id || 'pat-101',
@@ -227,7 +295,7 @@ export const TelemedicineCall = () => {
         symptoms,
         selectedLabReport,
         invoiceId,
-        offer: { type: offer.type, sdp: offer.sdp }
+        offer: { type: pc.localDescription.type, sdp: pc.localDescription.sdp }
       };
 
       await telehealthBridge.startCall(callPayload);
@@ -248,8 +316,8 @@ export const TelemedicineCall = () => {
       pcRef.current.close();
       pcRef.current = null;
     }
-    if (localVideoRef.current) localVideoRef.current.srcObject = null;
-    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+    setLocalStream(null);
+    setRemoteStream(null);
 
     if (notify) {
       await telehealthBridge.endCall();

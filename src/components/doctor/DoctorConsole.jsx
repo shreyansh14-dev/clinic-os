@@ -52,6 +52,8 @@ export const DoctorConsole = () => {
   const [callDuration, setCallDuration] = useState(0);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
+  const [localStream, setLocalStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
   const [remoteStreamActive, setRemoteStreamActive] = useState(false);
   const [messages, setMessages] = useState([
     { sender: 'System', text: 'Encrypted Telehealth Consultation Suite Initialized.', time: '10:00 AM' }
@@ -89,6 +91,30 @@ export const DoctorConsole = () => {
       setCurrentRole('doctor');
     }
   }, [currentRole, setCurrentRole]);
+
+  // Robust video stream attachment & autoplay handler for Doctor
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream;
+      localVideoRef.current.muted = true;
+      localVideoRef.current.play().catch(() => {});
+    }
+  }, [localStream, callState]);
+
+  useEffect(() => {
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream;
+      const playPromise = remoteVideoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.muted = true;
+            remoteVideoRef.current.play().catch(() => {});
+          }
+        });
+      }
+    }
+  }, [remoteStream, callState]);
 
   // Audio Ringtone Chime synthesizer using Web Audio API
   const playRingtoneChime = () => {
@@ -288,9 +314,7 @@ export const DoctorConsole = () => {
       });
 
       localStreamRef.current = stream;
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
+      setLocalStream(stream);
 
       // 2. Setup RTCPeerConnection
       const pc = new RTCPeerConnection({
@@ -303,8 +327,8 @@ export const DoctorConsole = () => {
 
       // Handle remote patient incoming track
       pc.ontrack = (event) => {
-        if (remoteVideoRef.current && event.streams[0]) {
-          remoteVideoRef.current.srcObject = event.streams[0];
+        if (event.streams && event.streams[0]) {
+          setRemoteStream(event.streams[0]);
           setRemoteStreamActive(true);
         }
       };
@@ -312,7 +336,7 @@ export const DoctorConsole = () => {
       // Handle ICE candidates
       pc.onicecandidate = (event) => {
         if (event.candidate) {
-          telehealthBridge.sendIceCandidate(event.candidate);
+          telehealthBridge.sendIceCandidate(event.candidate, 'doctor');
         }
       };
 
@@ -323,8 +347,24 @@ export const DoctorConsole = () => {
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
 
+          // Wait up to 800ms for ICE candidates to gather into localDescription
+          await new Promise((resolve) => {
+            if (pc.iceGatheringState === 'complete') {
+              resolve();
+            } else {
+              const checkState = () => {
+                if (pc.iceGatheringState === 'complete') {
+                  pc.removeEventListener('icegatheringstatechange', checkState);
+                  resolve();
+                }
+              };
+              pc.addEventListener('icegatheringstatechange', checkState);
+              setTimeout(resolve, 800);
+            }
+          });
+
           const answerPayload = {
-            answer: { type: answer.type, sdp: answer.sdp }
+            answer: { type: pc.localDescription.type, sdp: pc.localDescription.sdp }
           };
 
           // Send Answer via unified telehealthBridge
@@ -334,22 +374,22 @@ export const DoctorConsole = () => {
         }
       }
 
-      // 4. Fallback live patient video stream for single-tab testing or before remote ICE attaches
+      // 4. Reliable Remote Stream Fallback: If WebRTC remote track not yet received within 1200ms
       setTimeout(async () => {
-        if (remoteVideoRef.current && (!remoteVideoRef.current.srcObject || !remoteStreamActive)) {
-          try {
-            const fallbackPatientStream = await getTelehealthMediaStream({
-              userName: callData.callerName || 'Shreyansh Kumar',
+        setRemoteStream(curr => {
+          if (!curr) {
+            getTelehealthMediaStream({
+              userName: callData.callerName || 'Patient Shreyansh Kumar',
               role: 'patient',
               isDoctor: false
-            });
-            if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
-              remoteVideoRef.current.srcObject = fallbackPatientStream;
+            }).then(fallbackPatientStream => {
+              setRemoteStream(prev => prev || fallbackPatientStream);
               setRemoteStreamActive(true);
-            }
-          } catch (e) {}
-        }
-      }, 1000);
+            });
+          }
+          return curr;
+        });
+      }, 1200);
 
       setMessages(prev => [
         ...prev,
@@ -375,6 +415,8 @@ export const DoctorConsole = () => {
       setIncomingCallAlert(null);
     }
     setCallState('idle');
+    setLocalStream(null);
+    setRemoteStream(null);
     await telehealthBridge.endCall();
     showToast('Incoming patient video call declined.');
   };
@@ -393,8 +435,8 @@ export const DoctorConsole = () => {
       pcRef.current.close();
       pcRef.current = null;
     }
-    if (localVideoRef.current) localVideoRef.current.srcObject = null;
-    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+    setLocalStream(null);
+    setRemoteStream(null);
     setRemoteStreamActive(false);
 
     if (notify) {
