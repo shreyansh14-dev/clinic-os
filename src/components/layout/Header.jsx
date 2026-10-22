@@ -97,15 +97,59 @@ export const Header = () => {
   const searchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
 
-  // Close search popover on click outside
+  // Profile Avatar & Sign Out Dropdown State (Persistent on hover with grace period and click toggle)
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileTimeoutRef = useRef(null);
+  const profileContainerRef = useRef(null);
+
+  const handleProfileEnter = () => {
+    if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+    setIsProfileMenuOpen(true);
+  };
+
+  const handleProfileLeave = () => {
+    if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+    profileTimeoutRef.current = setTimeout(() => {
+      setIsProfileMenuOpen(false);
+    }, 380); // 380ms grace window so cursor can freely navigate without disappearing
+  };
+
+  // Portal Switcher Dropdown State
+  const [isPortalMenuOpen, setIsPortalMenuOpen] = useState(false);
+  const portalTimeoutRef = useRef(null);
+  const portalContainerRef = useRef(null);
+
+  const handlePortalEnter = () => {
+    if (portalTimeoutRef.current) clearTimeout(portalTimeoutRef.current);
+    setIsPortalMenuOpen(true);
+  };
+
+  const handlePortalLeave = () => {
+    if (portalTimeoutRef.current) clearTimeout(portalTimeoutRef.current);
+    portalTimeoutRef.current = setTimeout(() => {
+      setIsPortalMenuOpen(false);
+    }, 380);
+  };
+
+  // Close search and dropdown popovers on click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
         setIsSearchOpen(false);
       }
+      if (profileContainerRef.current && !profileContainerRef.current.contains(e.target)) {
+        setIsProfileMenuOpen(false);
+      }
+      if (portalContainerRef.current && !portalContainerRef.current.contains(e.target)) {
+        setIsPortalMenuOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+      if (portalTimeoutRef.current) clearTimeout(portalTimeoutRef.current);
+    };
   }, []);
 
   const handleSearchClick = (e) => {
@@ -651,58 +695,116 @@ export const Header = () => {
               </button>
 
               {/* Login / Portal Switcher Dropdown */}
-              <div className="relative group rv-nav-fall" style={{ animationDelay: '270ms' }}>
+              <div
+                ref={portalContainerRef}
+                onMouseEnter={handlePortalEnter}
+                onMouseLeave={handlePortalLeave}
+                className="relative rv-nav-fall"
+                style={{ animationDelay: '270ms' }}
+              >
                 <button
                   type="button"
-                  className="rv-btn inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none"
+                  onClick={() => setIsPortalMenuOpen(prev => !prev)}
+                  className="rv-btn inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none py-1"
                 >
                   <User className="w-3.5 h-3.5 text-slate-600" />
                   <span>Login</span>
+                  <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isPortalMenuOpen ? 'rotate-180 text-purple-600' : ''}`} />
                 </button>
-                {/* Switch to Doctor or Admin Portal */}
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase px-2 py-1 tracking-wider">Switch Portal</div>
-                  <button
-                    onClick={() => handleRoleSwitchClick('doctor')}
-                    className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-purple-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <Stethoscope className="w-3.5 h-3.5 text-purple-600" />
-                    <span>Doctor Console</span>
-                  </button>
-                  <button
-                    onClick={() => handleRoleSwitchClick('admin')}
-                    className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                  >
-                    <Building2 className="w-3.5 h-3.5 text-slate-700" />
-                    <span>Hospital Admin</span>
-                  </button>
+
+                {/* Switch to Doctor or Admin Portal with seamless hover bridge */}
+                <div
+                  className={`absolute right-0 top-full pt-1.5 w-52 z-50 transition-all duration-200 transform origin-top-right ${
+                    isPortalMenuOpen
+                      ? 'opacity-100 pointer-events-auto translate-y-0 scale-100'
+                      : 'opacity-0 pointer-events-none -translate-y-1 scale-95'
+                  }`}
+                  onMouseEnter={handlePortalEnter}
+                  onMouseLeave={handlePortalLeave}
+                >
+                  <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-2.5 backdrop-blur-md">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase px-2 py-1 tracking-wider">Switch Portal</div>
+                    <button
+                      onClick={() => {
+                        setIsPortalMenuOpen(false);
+                        handleRoleSwitchClick('doctor');
+                      }}
+                      className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-purple-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    >
+                      <Stethoscope className="w-3.5 h-3.5 text-purple-600" />
+                      <span>Doctor Console</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsPortalMenuOpen(false);
+                        handleRoleSwitchClick('admin');
+                      }}
+                      className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                    >
+                      <Building2 className="w-3.5 h-3.5 text-slate-700" />
+                      <span>Hospital Admin</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Profile Avatar */}
+              {/* Profile Avatar & Persistent Sign Out Dropdown */}
               <div className="flex items-center gap-2 pl-2 border-l border-slate-200 rv-nav-fall" style={{ animationDelay: '310ms' }}>
-                <div className="relative cursor-pointer group rv-btn">
-                  <img
-                    src={userInfo.avatar}
-                    alt={userInfo.name}
-                    className="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-sm"
-                    style={{ transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease' }}
-                  />
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white absolute bottom-0 right-0" />
+                <div
+                  ref={profileContainerRef}
+                  onMouseEnter={handleProfileEnter}
+                  onMouseLeave={handleProfileLeave}
+                  className="relative"
+                >
+                  {/* Avatar Trigger Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsProfileMenuOpen(prev => !prev)}
+                    className="relative cursor-pointer p-0 bg-transparent border-none rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-400/40"
+                    title={userInfo.name}
+                  >
+                    <img
+                      src={userInfo.avatar}
+                      alt={userInfo.name}
+                      className="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-sm hover:scale-105 transition-transform"
+                    />
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white absolute bottom-0 right-0 shadow-xs" />
+                  </button>
                   
-                  {/* Dropdown Menu */}
-                  <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50">
-                    <div className="px-3 py-1.5 border-b border-slate-100 mb-1">
-                      <div className="text-xs font-bold text-slate-900">{userInfo.name}</div>
-                      <div className="text-[10px] text-slate-400 font-medium">Patient Account</div>
+                  {/* Dropdown Menu with Seamless Hover Bridge & Persistent Grace Period */}
+                  <div
+                    className={`absolute right-0 top-full pt-1.5 w-52 z-50 transition-all duration-200 transform origin-top-right ${
+                      isProfileMenuOpen
+                        ? 'opacity-100 pointer-events-auto translate-y-0 scale-100'
+                        : 'opacity-0 pointer-events-none -translate-y-1 scale-95'
+                    }`}
+                    onMouseEnter={handleProfileEnter}
+                    onMouseLeave={handleProfileLeave}
+                  >
+                    <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-2.5 backdrop-blur-md">
+                      {/* User Info Header */}
+                      <div className="px-3 py-2 border-b border-slate-100 mb-1.5 bg-slate-50/60 rounded-xl">
+                        <div className="text-xs font-black text-slate-900 truncate">{userInfo.name}</div>
+                        <div className="text-[10px] text-purple-700 font-bold flex items-center gap-1 mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                          <span>Patient Active</span>
+                        </div>
+                      </div>
+
+                      {/* Sign Out Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsProfileMenuOpen(false);
+                          logout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-bold text-rose-600 hover:text-white hover:bg-rose-600 rounded-xl transition-all cursor-pointer border-none text-left shadow-xs hover:shadow-md group/btn"
+                      >
+                        <LogOut className="w-3.5 h-3.5 transition-transform group-hover/btn:-translate-x-0.5" />
+                        <span>Sign Out</span>
+                      </button>
                     </div>
-                    <button
-                      onClick={logout}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer border-none text-left"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>Sign Out</span>
-                    </button>
                   </div>
                 </div>
               </div>
