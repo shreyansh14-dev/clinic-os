@@ -1348,10 +1348,16 @@ export const PatientDashboard = () => {
                 </button>
               </div>
 
-              <div className="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold border border-white/25 transition-all shadow-md group-hover:bg-[#E9DF70] group-hover:text-[#16163B] group-hover:border-[#E9DF70]">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowHeroVideoModal(true);
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold border border-white/25 transition-all shadow-md hover:bg-[#E9DF70] hover:text-[#16163B] hover:border-[#E9DF70] cursor-pointer"
+              >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Tap to watch video</span>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -2372,6 +2378,120 @@ export const PatientDashboard = () => {
                 </button>
               </div>
 
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ── Hero Video Modal ── */}
+      {showHeroVideoModal && (
+        <div
+          onClick={() => setShowHeroVideoModal(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 99999,
+            background: 'rgba(6, 14, 29, 0.92)',
+            backdropFilter: 'blur(16px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem',
+            animation: 'modalIn 0.3s cubic-bezier(0.16,1,0.3,1)',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '900px',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
+              background: '#000',
+              position: 'relative',
+              animation: 'modalIn 0.35s cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowHeroVideoModal(false)}
+              style={{
+                position: 'absolute', top: '1rem', right: '1rem',
+                zIndex: 10,
+                width: '36px', height: '36px',
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.7)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '1.1rem',
+                fontWeight: 700,
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.7)'}
+              title="Close"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header bar */}
+            <div style={{
+              background: 'linear-gradient(135deg, #0B1528, #16163B)',
+              padding: '1rem 1.5rem',
+              display: 'flex', alignItems: 'center', gap: '0.75rem',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+            }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #E9DF70, #E7B8D1)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Play size={14} style={{ color: '#16163B', fill: '#16163B' }} />
+              </div>
+              <div>
+                <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>ClinicOS — Healthcare Overview</div>
+                <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem' }}>Smart Healthcare Management Platform</div>
+              </div>
+            </div>
+
+            {/* 16:9 Video embed */}
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, background: '#000' }}>
+              <iframe
+                src="https://www.youtube.com/embed/oFoHvpIUBKg?autoplay=1&rel=0&modestbranding=1&color=white"
+                title="ClinicOS Healthcare Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{
+                  position: 'absolute', top: 0, left: 0,
+                  width: '100%', height: '100%',
+                  border: 'none',
+                }}
+              />
+            </div>
+
+            {/* Footer */}
+            <div style={{
+              background: '#0B1528',
+              padding: '0.85rem 1.5rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+            }}>
+              <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.72rem' }}>
+                Your health is our top priority — ClinicOS 24/7
+              </span>
+              <button
+                onClick={() => setShowHeroVideoModal(false)}
+                style={{
+                  padding: '0.4rem 1rem',
+                  borderRadius: '999px',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Close ✕
+              </button>
             </div>
           </div>
         </div>
