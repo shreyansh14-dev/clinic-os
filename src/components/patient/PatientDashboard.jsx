@@ -45,7 +45,9 @@ import {
   Minus,
   Building2,
   Truck,
-  ExternalLink
+  ExternalLink,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import { SeniorPatientDashboard } from './SeniorPatientDashboard';
 import { specialistDoctors } from '../../data/specialistDoctors';
@@ -2388,72 +2390,130 @@ export const PatientDashboard = () => {
           onClick={() => setShowHeroVideoModal(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 99999,
-            background: 'rgba(6, 14, 29, 0.92)',
-            backdropFilter: 'blur(16px)',
+            background: 'rgba(6, 14, 29, 0.96)',
+            backdropFilter: 'blur(20px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '1rem',
-            animation: 'modalIn 0.3s cubic-bezier(0.16,1,0.3,1)',
+            padding: 'min(1.5vw, 1rem)',
+            animation: 'fadeIn 0.25s ease-out',
           }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
               width: '100%',
-              maxWidth: '900px',
+              maxWidth: 'min(98vw, 1920px)',
+              maxHeight: '96vh',
+              display: 'flex',
+              flexDirection: 'column',
               borderRadius: '24px',
               overflow: 'hidden',
-              boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
+              boxShadow: '0 40px 120px rgba(0,0,0,0.85)',
               background: '#000',
+              border: '1px solid rgba(255,255,255,0.12)',
               position: 'relative',
-              animation: 'modalIn 0.35s cubic-bezier(0.16,1,0.3,1)',
             }}
           >
-            {/* Close button */}
-            <button
-              onClick={() => setShowHeroVideoModal(false)}
-              style={{
-                position: 'absolute', top: '1rem', right: '1rem',
-                zIndex: 10,
-                width: '36px', height: '36px',
-                borderRadius: '50%',
-                background: 'rgba(0,0,0,0.7)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: '#fff',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer',
-                fontSize: '1.1rem',
-                fontWeight: 700,
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.7)'}
-              title="Close"
-            >
-              <X size={18} />
-            </button>
-
             {/* Header bar */}
             <div style={{
               background: 'linear-gradient(135deg, #0B1528, #16163B)',
-              padding: '1rem 1.5rem',
-              display: 'flex', alignItems: 'center', gap: '0.75rem',
+              padding: '0.85rem 1.5rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               borderBottom: '1px solid rgba(255,255,255,0.08)',
+              flexShrink: 0,
             }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #E9DF70, #E7B8D1)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Play size={14} style={{ color: '#16163B', fill: '#16163B' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: 34, height: 34, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #E9DF70, #E7B8D1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(233,223,112,0.3)',
+                }}>
+                  <Play size={15} style={{ color: '#16163B', fill: '#16163B' }} />
+                </div>
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em' }}>
+                    ClinicOS — Healthcare Solutions & Clinic Overview
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem' }}>
+                    Fluid Ultra-HD Healthcare Experience • Smartboard, PC & Laptop Optimized
+                  </div>
+                </div>
               </div>
-              <div>
-                <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>ClinicOS — Healthcare Overview</div>
-                <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem' }}>Smart Healthcare Management Platform</div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (heroVideoRef.current) {
+                      if (document.fullscreenElement) {
+                        document.exitFullscreen?.();
+                      } else {
+                        heroVideoRef.current.requestFullscreen?.();
+                      }
+                    }
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.4rem',
+                    padding: '0.45rem 0.9rem',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#fff',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                  title="Fullscreen on Smartboard / PC"
+                >
+                  <Maximize2 size={14} />
+                  <span className="hidden sm:inline">Fullscreen</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowHeroVideoModal(false)}
+                  style={{
+                    width: '34px', height: '34px',
+                    borderRadius: '12px',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#ff8a8a',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.4)';
+                    e.currentTarget.style.color = '#fff';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.color = '#ff8a8a';
+                  }}
+                  title="Close Modal"
+                >
+                  <X size={16} />
+                </button>
               </div>
             </div>
 
-            {/* 16:9 Video Player */}
-            <div style={{ position: 'relative', width: '100%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: '16/9' }}>
+            {/* Fluid Video Container: maintains 16:9 while fluidly scaling across laptops, desktop monitors & 4K smartboards */}
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              flex: 1,
+              background: '#000',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              aspectRatio: '16/9',
+              maxHeight: 'calc(96vh - 110px)',
+            }}>
               <video
                 ref={heroVideoRef}
                 src="/videos/healthcare-hero.mp4"
@@ -2463,6 +2523,7 @@ export const PatientDashboard = () => {
                 style={{
                   width: '100%',
                   height: '100%',
+                  maxHeight: 'calc(96vh - 110px)',
                   objectFit: 'contain',
                   backgroundColor: '#000',
                   outline: 'none',
@@ -2476,28 +2537,35 @@ export const PatientDashboard = () => {
             {/* Footer */}
             <div style={{
               background: '#0B1528',
-              padding: '0.85rem 1.5rem',
+              padding: '0.75rem 1.5rem',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               borderTop: '1px solid rgba(255,255,255,0.06)',
+              flexShrink: 0,
             }}>
-              <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.72rem' }}>
-                Your health is our top priority — ClinicOS 24/7
+              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 500 }}>
+                Your health is our top priority — ClinicOS 24/7 Smart Health Platform
               </span>
-              <button
-                onClick={() => setShowHeroVideoModal(false)}
-                style={{
-                  padding: '0.4rem 1rem',
-                  borderRadius: '999px',
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  color: '#fff',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                Close ✕
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span className="hidden md:inline" style={{ color: 'rgba(233,223,112,0.8)', fontSize: '0.72rem', fontWeight: 600 }}>
+                  Tip: Double-click or tap Fullscreen icon for cinema mode
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowHeroVideoModal(false)}
+                  style={{
+                    padding: '0.35rem 0.9rem',
+                    borderRadius: '999px',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#fff',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Close ✕
+                </button>
+              </div>
             </div>
           </div>
         </div>
