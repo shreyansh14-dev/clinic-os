@@ -111,7 +111,7 @@ export const Header = () => {
     if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
     profileTimeoutRef.current = setTimeout(() => {
       setIsProfileMenuOpen(false);
-    }, 380); // 380ms grace window so cursor can freely navigate without disappearing
+    }, 650); // Generous 650ms grace window so cursor can freely navigate anywhere in that area without closing
   };
 
   // Portal Switcher Dropdown State
@@ -128,7 +128,7 @@ export const Header = () => {
     if (portalTimeoutRef.current) clearTimeout(portalTimeoutRef.current);
     portalTimeoutRef.current = setTimeout(() => {
       setIsPortalMenuOpen(false);
-    }, 380);
+    }, 650); // Generous 650ms grace window for smooth diagonal travel
   };
 
   // Close search and dropdown popovers on click outside
@@ -704,17 +704,17 @@ export const Header = () => {
               >
                 <button
                   type="button"
-                  onClick={() => setIsPortalMenuOpen(prev => !prev)}
-                  className="rv-btn inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none py-1"
+                  onClick={() => setIsPortalMenuOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] cursor-pointer transition-colors bg-transparent border-none py-1.5 px-2 rounded-xl hover:bg-slate-100/70"
                 >
                   <User className="w-3.5 h-3.5 text-slate-600" />
                   <span>Login</span>
                   <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isPortalMenuOpen ? 'rotate-180 text-purple-600' : ''}`} />
                 </button>
 
-                {/* Switch to Doctor or Admin Portal with seamless hover bridge */}
+                {/* Switch to Doctor or Admin Portal with seamless hover bridge & safety halo */}
                 <div
-                  className={`absolute right-0 top-full pt-1.5 w-52 z-50 transition-all duration-200 transform origin-top-right ${
+                  className={`absolute right-0 top-full pt-1 w-56 z-50 transition-all duration-200 transform origin-top-right ${
                     isPortalMenuOpen
                       ? 'opacity-100 pointer-events-auto translate-y-0 scale-100'
                       : 'opacity-0 pointer-events-none -translate-y-1 scale-95'
@@ -722,6 +722,10 @@ export const Header = () => {
                   onMouseEnter={handlePortalEnter}
                   onMouseLeave={handlePortalLeave}
                 >
+                  {/* Invisible continuous hover safety bridge covering top, sides, and diagonal paths */}
+                  <div className="absolute -top-3.5 -left-4 -right-4 h-5 bg-transparent pointer-events-auto" />
+                  <div className="absolute -inset-2 bg-transparent pointer-events-auto -z-10" />
+
                   <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-2.5 backdrop-blur-md">
                     <div className="text-[10px] font-bold text-slate-400 uppercase px-2 py-1 tracking-wider">Switch Portal</div>
                     <button
@@ -729,9 +733,9 @@ export const Header = () => {
                         setIsPortalMenuOpen(false);
                         handleRoleSwitchClick('doctor');
                       }}
-                      className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-purple-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-slate-700 hover:text-purple-700 hover:bg-purple-50 rounded-xl transition-all cursor-pointer border-none text-left"
                     >
-                      <Stethoscope className="w-3.5 h-3.5 text-purple-600" />
+                      <Stethoscope className="w-4 h-4 text-purple-600 shrink-0" />
                       <span>Doctor Console</span>
                     </button>
                     <button
@@ -739,9 +743,9 @@ export const Header = () => {
                         setIsPortalMenuOpen(false);
                         handleRoleSwitchClick('admin');
                       }}
-                      className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border-none text-left"
                     >
-                      <Building2 className="w-3.5 h-3.5 text-slate-700" />
+                      <Building2 className="w-4 h-4 text-slate-700 shrink-0" />
                       <span>Hospital Admin</span>
                     </button>
                   </div>
@@ -759,7 +763,7 @@ export const Header = () => {
                   {/* Avatar Trigger Button */}
                   <button
                     type="button"
-                    onClick={() => setIsProfileMenuOpen(prev => !prev)}
+                    onClick={() => setIsProfileMenuOpen(true)}
                     className="relative cursor-pointer p-0 bg-transparent border-none rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-400/40"
                     title={userInfo.name}
                   >
@@ -773,7 +777,7 @@ export const Header = () => {
                   
                   {/* Dropdown Menu with Seamless Hover Bridge & Persistent Grace Period */}
                   <div
-                    className={`absolute right-0 top-full pt-1.5 w-52 z-50 transition-all duration-200 transform origin-top-right ${
+                    className={`absolute right-0 top-full pt-1 w-56 z-50 transition-all duration-200 transform origin-top-right ${
                       isProfileMenuOpen
                         ? 'opacity-100 pointer-events-auto translate-y-0 scale-100'
                         : 'opacity-0 pointer-events-none -translate-y-1 scale-95'
@@ -781,6 +785,10 @@ export const Header = () => {
                     onMouseEnter={handleProfileEnter}
                     onMouseLeave={handleProfileLeave}
                   >
+                    {/* Invisible continuous hover safety bridge covering top, sides, and diagonal paths */}
+                    <div className="absolute -top-3.5 -left-4 -right-4 h-5 bg-transparent pointer-events-auto" />
+                    <div className="absolute -inset-2 bg-transparent pointer-events-auto -z-10" />
+
                     <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-2.5 backdrop-blur-md">
                       {/* User Info Header */}
                       <div className="px-3 py-2 border-b border-slate-100 mb-1.5 bg-slate-50/60 rounded-xl">
