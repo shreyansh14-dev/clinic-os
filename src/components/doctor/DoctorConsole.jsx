@@ -12,7 +12,8 @@ import {
   PhoneOff, PhoneCall, Send, Syringe, MapPin, Star,
   ChevronRight, IndianRupee, Sparkles, AlertCircle, Bed,
   Pill, Check, X, Eye, RefreshCw, MessageSquare, HeartPulse, User,
-  Lock, FolderOpen, ClipboardCheck, AlertTriangle, Printer, Trash2
+  Lock, FolderOpen, ClipboardCheck, AlertTriangle, Printer, Trash2,
+  Maximize2, Minimize2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -80,11 +81,17 @@ export const DoctorConsole = () => {
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const modalLocalVideoRef = useRef(null);
+  const modalRemoteVideoRef = useRef(null);
   const localStreamRef = useRef(null);
   const pcRef = useRef(null);
   const broadcastChannelRef = useRef(null);
   const ringtoneIntervalRef = useRef(null);
   const pendingCandidatesRef = useRef([]);
+
+  // Telehealth Consultation Chamber Modal & PiP State
+  const [isTelehealthModalOpen, setIsTelehealthModalOpen] = useState(false);
+  const [isTelehealthMinimized, setIsTelehealthMinimized] = useState(false);
 
   // Synchronize Doctor Role on mount
   useEffect(() => {
@@ -93,27 +100,77 @@ export const DoctorConsole = () => {
     }
   }, [currentRole, setCurrentRole]);
 
+  // Robust stream attachment helper for all video elements
+  const attachLocalStream = (el) => {
+    localVideoRef.current = el;
+    if (el && localStream) {
+      if (el.srcObject !== localStream) el.srcObject = localStream;
+      el.muted = true;
+      el.play().catch(() => {});
+    }
+  };
+
+  const attachRemoteStream = (el) => {
+    remoteVideoRef.current = el;
+    if (el && remoteStream) {
+      if (el.srcObject !== remoteStream) el.srcObject = remoteStream;
+      el.play().catch(() => {
+        if (el) {
+          el.muted = true;
+          el.play().catch(() => {});
+        }
+      });
+    }
+  };
+
+  const attachModalLocalStream = (el) => {
+    modalLocalVideoRef.current = el;
+    if (el && localStream) {
+      if (el.srcObject !== localStream) el.srcObject = localStream;
+      el.muted = true;
+      el.play().catch(() => {});
+    }
+  };
+
+  const attachModalRemoteStream = (el) => {
+    modalRemoteVideoRef.current = el;
+    if (el && remoteStream) {
+      if (el.srcObject !== remoteStream) el.srcObject = remoteStream;
+      el.play().catch(() => {
+        if (el) {
+          el.muted = true;
+          el.play().catch(() => {});
+        }
+      });
+    }
+  };
+
   // Robust video stream attachment & autoplay handler for Doctor
   useEffect(() => {
-    if (localVideoRef.current && localStream) {
-      localVideoRef.current.srcObject = localStream;
-      localVideoRef.current.muted = true;
-      localVideoRef.current.play().catch(() => {});
+    if (localStream) {
+      [localVideoRef.current, modalLocalVideoRef.current].forEach(el => {
+        if (el) {
+          if (el.srcObject !== localStream) el.srcObject = localStream;
+          el.muted = true;
+          el.play().catch(() => {});
+        }
+      });
     }
   }, [localStream, callState]);
 
   useEffect(() => {
-    if (remoteVideoRef.current && remoteStream) {
-      remoteVideoRef.current.srcObject = remoteStream;
-      const playPromise = remoteVideoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.muted = true;
-            remoteVideoRef.current.play().catch(() => {});
-          }
-        });
-      }
+    if (remoteStream) {
+      [remoteVideoRef.current, modalRemoteVideoRef.current].forEach(el => {
+        if (el) {
+          if (el.srcObject !== remoteStream) el.srcObject = remoteStream;
+          el.play().catch(() => {
+            if (el) {
+              el.muted = true;
+              el.play().catch(() => {});
+            }
+          });
+        }
+      });
     }
   }, [remoteStream, callState]);
 
@@ -307,11 +364,13 @@ export const DoctorConsole = () => {
     }
     setActiveCaller(callData);
     setCallState('connected');
+    setIsTelehealthModalOpen(true);
+    setIsTelehealthMinimized(false);
     setActiveStepTab(4); // Switch to Step 4: Examine Patient / Telehealth
     scrollToSection('doctor-telehealth-section');
     showToast(`Connecting video consultation with ${callData.callerName || 'Patient'}...`);
 
-    // 0. Instantly mount patient examination stream so main screen is NEVER black for even 1 frame
+    // 0. Instantly mount patient examination stream so doctor screen is NEVER blank
     const patientName = callData.callerName || 'Patient Shreyansh Kumar';
     getTelehealthMediaStream({
       userName: patientName,
@@ -501,7 +560,8 @@ export const DoctorConsole = () => {
     if (notify) {
       await telehealthBridge.endCall();
     }
-
+    setIsTelehealthModalOpen(false);
+    setIsTelehealthMinimized(false);
     setCallState('idle');
     setActiveCaller(null);
     setIncomingCall(null);
@@ -517,23 +577,39 @@ export const DoctorConsole = () => {
       symptoms: patientSymptoms || 'Chest tightness & routine follow-up'
     };
     setActiveCaller(callerData);
-    setCallState('calling');
+    setCallState('connected');
+    setIsTelehealthModalOpen(true);
+    setIsTelehealthMinimized(false);
     showToast(`Initializing consultation room for ${callerData.callerName}...`);
 
     try {
-      const stream = await getTelehealthMediaStream({
+      // 1. Doctor's local stream
+      const docStream = await getTelehealthMediaStream({
         userName: activeDoctor?.name || 'Dr. Souvik Sinha',
         role: 'doctor',
-        isDoctor: true
+        isDoctor: true,
+        forceSynthetic: false
       });
+      localStreamRef.current = docStream;
+      setLocalStream(docStream);
 
-      localStreamRef.current = stream;
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-      setCallState('connected');
+      // 2. Patient's examination remote stream
+      const patientStream = await getTelehealthMediaStream({
+        userName: callerData.callerName,
+        role: 'patient',
+        isDoctor: false,
+        forceSynthetic: true
+      });
+      setRemoteStream(patientStream);
+      setRemoteStreamActive(true);
+
+      telehealthBridge.startCall({
+        callerName: callerData.callerName,
+        doctorName: activeDoctor?.name || 'Dr. Souvik Sinha',
+        status: 'connected'
+      });
     } catch (err) {
-      setCallState('connected');
+      console.warn('Telehealth init error:', err);
     }
   };
 
@@ -1289,16 +1365,10 @@ export const DoctorConsole = () => {
               <div className="relative aspect-video rounded-3xl overflow-hidden bg-slate-900 border-2 border-slate-800 shadow-xl flex items-center justify-center">
                 {/* Remote Patient Stream */}
                 <video
-                  ref={remoteVideoRef}
+                  ref={attachRemoteStream}
                   autoPlay
                   playsInline
-                  onLoadedMetadata={(e) => {
-                    e.target.play().catch(() => {
-                      e.target.muted = true;
-                      e.target.play().catch(() => {});
-                    });
-                  }}
-                  className={`w-full h-full object-cover ${callState !== 'connected' && !remoteStreamActive ? 'hidden' : ''}`}
+                  className="w-full h-full object-cover"
                 />
 
                 {callState === 'connected' && (
@@ -1327,7 +1397,7 @@ export const DoctorConsole = () => {
                 {/* Floating Doctor PiP Camera */}
                 <div className="absolute top-4 right-4 w-36 h-28 md:w-44 md:h-32 rounded-2xl overflow-hidden bg-slate-800 border-2 border-white/40 shadow-2xl flex items-center justify-center z-20">
                   <video
-                    ref={localVideoRef}
+                    ref={attachLocalStream}
                     autoPlay
                     playsInline
                     muted
@@ -1713,6 +1783,337 @@ export const DoctorConsole = () => {
           patient={selectedPatientForRx}
           onClose={() => setSelectedPatientForRx(null)}
         />
+      )}
+
+      {/* ── Active Live Telehealth Video Consultation Chamber Modal (Guaranteed 2-Way Visibility) ── */}
+      {callState === 'connected' && isTelehealthModalOpen && !isTelehealthMinimized && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 99999,
+            background: 'rgba(6, 14, 29, 0.94)',
+            backdropFilter: 'blur(16px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 'min(2vw, 1.25rem)',
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 'min(98vw, 1280px)',
+              maxHeight: '94vh',
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              boxShadow: '0 30px 100px rgba(0,0,0,0.8)',
+              background: '#0B1528',
+              border: '1px solid rgba(255,255,255,0.15)',
+              position: 'relative',
+            }}
+          >
+            {/* Header bar */}
+            <div style={{
+              background: 'linear-gradient(135deg, #0B1528, #16163B)',
+              padding: '0.85rem 1.5rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              flexShrink: 0,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.95rem' }}>
+                    Live Consultation: {activeCaller?.callerName || 'Patient Shreyansh Kumar'}
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem' }}>
+                    Encrypted WebRTC 1:1 Medical Chamber • Duration: {formatDuration(callDuration)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Header Action Buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsTelehealthMinimized(true)}
+                  style={{
+                    padding: '0.45rem 0.9rem',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#fff',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  }}
+                  title="Minimize to floating window to write prescription"
+                >
+                  <Minimize2 size={14} />
+                  <span>Dock PiP</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => endTelehealthCall(true)}
+                  style={{
+                    padding: '0.45rem 0.9rem',
+                    borderRadius: '12px',
+                    background: 'rgba(239, 68, 68, 0.25)',
+                    border: '1px solid rgba(239, 68, 68, 0.45)',
+                    color: '#ff8a8a',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  }}
+                  title="End Consultation"
+                >
+                  <PhoneOff size={14} />
+                  <span>End Call</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Video Canvas Container (Both Patient and Doctor Feeds) */}
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              flex: 1,
+              background: '#000',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              aspectRatio: '16/9',
+              maxHeight: 'calc(94vh - 140px)',
+            }}>
+              {/* Main Remote Patient Video */}
+              <video
+                ref={attachModalRemoteStream}
+                autoPlay
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  backgroundColor: '#000',
+                }}
+              />
+
+              {/* Floating Doctor PiP Camera in Top-Right */}
+              <div style={{
+                position: 'absolute', top: '1rem', right: '1rem',
+                width: '180px', height: '110px',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                background: '#16163B',
+                border: '2px solid rgba(255,255,255,0.3)',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.6)',
+                zIndex: 20,
+              }}>
+                <video
+                  ref={attachModalLocalStream}
+                  autoPlay
+                  playsInline
+                  muted
+                  style={{
+                    width: '100%', height: '100%',
+                    objectFit: 'cover',
+                  }}
+                />
+                <div style={{
+                  position: 'absolute', bottom: '4px', left: '6px',
+                  background: 'rgba(0,0,0,0.7)',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontSize: '9px', fontWeight: 800, color: '#fff',
+                }}>
+                  You (Doctor)
+                </div>
+              </div>
+
+              {/* Patient Info Overlay */}
+              <div style={{
+                position: 'absolute', bottom: '1.25rem', left: '1.25rem',
+                background: 'rgba(11,21,40,0.85)',
+                backdropFilter: 'blur(8px)',
+                padding: '0.6rem 1rem',
+                borderRadius: '16px',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#fff',
+                zIndex: 10,
+              }}>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>{activeCaller?.callerName || 'Patient Shreyansh Kumar'}</div>
+                <div style={{ fontSize: '0.72rem', color: '#38bdf8' }}>Chief Complaints: {activeCaller?.symptoms || 'General Consultation'}</div>
+              </div>
+            </div>
+
+            {/* Bottom Controls Bar */}
+            <div style={{
+              background: '#0B1528',
+              padding: '0.75rem 1.5rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              flexShrink: 0,
+            }}>
+              <button
+                type="button"
+                onClick={toggleVideo}
+                style={{
+                  padding: '0.6rem 1.1rem',
+                  borderRadius: '12px',
+                  background: isVideoOn ? 'rgba(255,255,255,0.1)' : '#dc2626',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  fontSize: '0.78rem', fontWeight: 700,
+                }}
+              >
+                {isVideoOn ? <Video size={16} /> : <VideoOff size={16} />}
+                <span>{isVideoOn ? 'Cam On' : 'Cam Off'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleAudio}
+                style={{
+                  padding: '0.6rem 1.1rem',
+                  borderRadius: '12px',
+                  background: isAudioOn ? 'rgba(255,255,255,0.1)' : '#dc2626',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  fontSize: '0.78rem', fontWeight: 700,
+                }}
+              >
+                {isAudioOn ? <Mic size={16} /> : <MicOff size={16} />}
+                <span>{isAudioOn ? 'Mic On' : 'Muted'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsTelehealthMinimized(true);
+                  scrollToSection('doctor-rx-section');
+                }}
+                style={{
+                  padding: '0.6rem 1.25rem',
+                  borderRadius: '12px',
+                  background: '#10b981',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  fontSize: '0.78rem', fontWeight: 800,
+                }}
+              >
+                <Pill size={16} />
+                <span>Write Prescription</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => endTelehealthCall(true)}
+                style={{
+                  padding: '0.6rem 1.4rem',
+                  borderRadius: '12px',
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  fontSize: '0.78rem', fontWeight: 800,
+                }}
+              >
+                <PhoneOff size={16} />
+                <span>Disconnect</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Minimized Floating PiP Widget (Visible while doctor writes notes/Rx) ── */}
+      {callState === 'connected' && isTelehealthMinimized && (
+        <div
+          style={{
+            position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 99999,
+            width: '320px',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+            background: '#0B1528',
+            border: '2px solid #3B82F6',
+          }}
+        >
+          <div style={{
+            position: 'relative', width: '100%', height: '180px', background: '#000',
+          }}>
+            <video
+              ref={attachModalRemoteStream}
+              autoPlay
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            {/* Doctor PiP mini */}
+            <div style={{
+              position: 'absolute', top: '8px', right: '8px',
+              width: '80px', height: '55px', borderRadius: '8px',
+              overflow: 'hidden', border: '1px solid rgba(255,255,255,0.4)',
+              background: '#16163B',
+            }}>
+              <video
+                ref={attachModalLocalStream}
+                autoPlay
+                playsInline
+                muted
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+
+            <div style={{
+              position: 'absolute', bottom: '6px', left: '8px',
+              background: 'rgba(0,0,0,0.7)', padding: '2px 8px', borderRadius: '6px',
+              fontSize: '10px', fontWeight: 800, color: '#fff',
+            }}>
+              {activeCaller?.callerName || 'Patient'} · {formatDuration(callDuration)}
+            </div>
+          </div>
+
+          <div style={{
+            padding: '0.5rem 0.85rem',
+            background: '#0B1528',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <button
+              type="button"
+              onClick={() => setIsTelehealthMinimized(false)}
+              style={{
+                background: 'rgba(255,255,255,0.1)', border: 'none',
+                color: '#fff', fontSize: '11px', fontWeight: 800,
+                padding: '4px 10px', borderRadius: '8px', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '4px',
+              }}
+            >
+              <Maximize2 size={12} />
+              <span>Expand Room</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => endTelehealthCall(true)}
+              style={{
+                background: '#ef4444', border: 'none',
+                color: '#fff', fontSize: '11px', fontWeight: 800,
+                padding: '4px 10px', borderRadius: '8px', cursor: 'pointer',
+              }}
+            >
+              End Call
+            </button>
+          </div>
+        </div>
       )}
 
     </div>
