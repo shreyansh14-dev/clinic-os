@@ -37,7 +37,9 @@ import {
   ShoppingCart,
   Truck,
   Activity,
-  Plus
+  Plus,
+  Copy,
+  Check
 } from 'lucide-react';
 import { MEDICINE_CATALOG } from '../../data/medicineCatalog';
 import { AmbulanceLiveTrackerModal } from '../patient/AmbulanceLiveTrackerModal';
@@ -87,6 +89,10 @@ export const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchCategory, setSearchCategory] = useState('All');
   const [previewMedicine, setPreviewMedicine] = useState(null);
+
+  // Exclusive Offers & Discounts Modal State
+  const [showOffersModal, setShowOffersModal] = useState(false);
+  const [copiedCoupon, setCopiedCoupon] = useState('');
 
   const searchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
@@ -603,7 +609,7 @@ export const Header = () => {
                     <span>Instant Telehealth</span>
                   </button>
                   <button
-                    onClick={() => navigate('/pathology-worklist')}
+                    onClick={() => navigate('/lab-tests')}
                     className="rv-btn w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer border-none text-left"
                   >
                     <FlaskConical className="w-4 h-4 text-purple-500 shrink-0" />
@@ -614,15 +620,17 @@ export const Header = () => {
 
               {/* Offer Link */}
               <button
-                onClick={() => {
-                  showToast('Offer applied: 60% OFF on all Lab Tests & Scans!');
-                  navigate('/pathology-worklist');
-                }}
-                className="rv-btn hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] transition-colors bg-transparent border-none cursor-pointer rv-nav-fall"
+                type="button"
+                onClick={() => setShowOffersModal(true)}
+                className="rv-btn hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#1D204E] hover:bg-amber-50/80 px-2.5 py-1.5 rounded-full transition-all bg-transparent border border-transparent hover:border-amber-200 cursor-pointer rv-nav-fall"
                 style={{ animationDelay: '190ms' }}
+                title="View Exclusive Offers & Coupons"
               >
                 <Tag className="w-3.5 h-3.5 text-amber-500" />
                 <span>Offer</span>
+                <span className="px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-rose-500 text-white text-[9px] font-black rounded-full leading-none shadow-xs">
+                  60% OFF
+                </span>
               </button>
 
               {/* Cart Button with Live Badge */}
@@ -1305,6 +1313,261 @@ export const Header = () => {
         onClose={() => setIsAmbulanceTrackerOpen(false)}
         defaultCity={selectedCity}
       />
+
+      {/* ── Exclusive Offers & Coupon Discounts Modal ── */}
+      {showOffersModal && (
+        <div
+          onClick={() => setShowOffersModal(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 99999,
+            background: 'rgba(6, 14, 29, 0.78)',
+            backdropFilter: 'blur(12px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '680px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              borderRadius: '24px',
+              boxShadow: '0 30px 90px rgba(0,0,0,0.4)',
+              background: '#ffffff',
+              position: 'relative',
+              border: '1px solid rgba(226, 232, 240, 0.8)',
+            }}
+          >
+            {/* Header */}
+            <div className="relative p-6 pb-5 bg-gradient-to-br from-[#16163B] via-[#1D204E] to-[#252869] text-white rounded-t-[23px] overflow-hidden">
+              <div className="absolute top-0 right-0 -mr-16 -mt-16 w-56 h-56 bg-gradient-to-br from-amber-400/20 to-rose-500/20 rounded-full blur-2xl pointer-events-none" />
+
+              <button
+                type="button"
+                onClick={() => setShowOffersModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer border-none"
+                title="Close"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-[#16163B] text-[11px] font-black uppercase tracking-wider shadow-sm">
+                  <Sparkles size={12} className="fill-current" />
+                  Limited Time Mega Deals
+                </span>
+                <span className="text-amber-200 text-xs font-semibold">
+                  ⚡ Ends today
+                </span>
+              </div>
+
+              <h2 className="text-2xl font-black text-white tracking-tight m-0">
+                Exclusive Health & Care Offers
+              </h2>
+              <p className="text-white/70 text-xs mt-1 mb-0 font-medium">
+                Apply exclusive vouchers on Consultations, Diagnostics, Medicine delivery, and Vaccines.
+              </p>
+            </div>
+
+            {/* Coupons List */}
+            <div className="p-5 sm:p-6 space-y-4 bg-slate-50/50">
+              {/* Offer 1 */}
+              <div className="bg-white border-2 border-dashed border-amber-200 hover:border-amber-400 rounded-2xl p-4 sm:p-5 shadow-sm transition-all hover:shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
+                    <FlaskConical size={24} />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-xs font-black text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-md mb-1">
+                      <span>FLAT 60% OFF</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 m-0">Comprehensive Lab Tests & Full Body Scans</h3>
+                    <p className="text-xs text-slate-500 mt-0.5 mb-2 font-medium">Free home sample collection • 60+ parameters tested</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
+                        CLINIC60
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard?.writeText('CLINIC60');
+                          setCopiedCoupon('CLINIC60');
+                          showToast('Coupon CLINIC60 copied to clipboard! 🎉');
+                          setTimeout(() => setCopiedCoupon(''), 3000);
+                        }}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer bg-transparent border-none p-0"
+                      >
+                        {copiedCoupon === 'CLINIC60' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                        <span>{copiedCoupon === 'CLINIC60' ? 'Copied!' : 'Copy Code'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOffersModal(false);
+                    showToast('Offer CLINIC60 applied: 60% OFF on all Lab Tests!');
+                    navigate('/lab-tests');
+                  }}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-extrabold text-xs rounded-xl border-none cursor-pointer shadow-sm transition-all shrink-0 text-center"
+                >
+                  Book Lab Test →
+                </button>
+              </div>
+
+              {/* Offer 2 */}
+              <div className="bg-white border-2 border-dashed border-rose-200 hover:border-rose-400 rounded-2xl p-4 sm:p-5 shadow-sm transition-all hover:shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
+                    <Pill size={24} />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-xs font-black text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md mb-1">
+                      <span>FLAT 25% OFF + FREE DELIVERY</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 m-0">Genuine Prescription & OTC Medicines</h3>
+                    <p className="text-xs text-slate-500 mt-0.5 mb-2 font-medium">Delivered directly from certified pharmacy in 30 mins</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
+                        MEDCARE25
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard?.writeText('MEDCARE25');
+                          setCopiedCoupon('MEDCARE25');
+                          showToast('Coupon MEDCARE25 copied to clipboard! 🎉');
+                          setTimeout(() => setCopiedCoupon(''), 3000);
+                        }}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer bg-transparent border-none p-0"
+                      >
+                        {copiedCoupon === 'MEDCARE25' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                        <span>{copiedCoupon === 'MEDCARE25' ? 'Copied!' : 'Copy Code'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOffersModal(false);
+                    showToast('Offer MEDCARE25 applied: 25% OFF on Medicines!');
+                    navigate('/pharmacy-store');
+                  }}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-extrabold text-xs rounded-xl border-none cursor-pointer shadow-sm transition-all shrink-0 text-center"
+                >
+                  Order Meds →
+                </button>
+              </div>
+
+              {/* Offer 3 */}
+              <div className="bg-white border-2 border-dashed border-blue-200 hover:border-blue-400 rounded-2xl p-4 sm:p-5 shadow-sm transition-all hover:shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                    <Stethoscope size={24} />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-xs font-black text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-md mb-1">
+                      <span>50% OFF CONSULTATION</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 m-0">Video or In-Clinic Doctor Consultation</h3>
+                    <p className="text-xs text-slate-500 mt-0.5 mb-2 font-medium">Consult top verified specialists with digital prescription</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
+                        DOC50
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard?.writeText('DOC50');
+                          setCopiedCoupon('DOC50');
+                          showToast('Coupon DOC50 copied to clipboard! 🎉');
+                          setTimeout(() => setCopiedCoupon(''), 3000);
+                        }}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer bg-transparent border-none p-0"
+                      >
+                        {copiedCoupon === 'DOC50' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                        <span>{copiedCoupon === 'DOC50' ? 'Copied!' : 'Copy Code'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOffersModal(false);
+                    showToast('Offer DOC50 applied: 50% OFF Consultation!');
+                    navigate('/book-appointment');
+                  }}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-blue-600 to-[#16163B] hover:from-blue-700 hover:to-slate-900 text-white font-extrabold text-xs rounded-xl border-none cursor-pointer shadow-sm transition-all shrink-0 text-center"
+                >
+                  Book Doctor →
+                </button>
+              </div>
+
+              {/* Offer 4 */}
+              <div className="bg-white border-2 border-dashed border-emerald-200 hover:border-emerald-400 rounded-2xl p-4 sm:p-5 shadow-sm transition-all hover:shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                    <Syringe size={24} />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md mb-1">
+                      <span>20% OFF IMMUNIZATION</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 m-0">Pediatric & Adult Vaccination Drives</h3>
+                    <p className="text-xs text-slate-500 mt-0.5 mb-2 font-medium">Cold-chain certified vaccine vials with instant digital certificate</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
+                        VAX20
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard?.writeText('VAX20');
+                          setCopiedCoupon('VAX20');
+                          showToast('Coupon VAX20 copied to clipboard! 🎉');
+                          setTimeout(() => setCopiedCoupon(''), 3000);
+                        }}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer bg-transparent border-none p-0"
+                      >
+                        {copiedCoupon === 'VAX20' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                        <span>{copiedCoupon === 'VAX20' ? 'Copied!' : 'Copy Code'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOffersModal(false);
+                    showToast('Offer VAX20 applied: 20% OFF Vaccines!');
+                    navigate('/vaccines');
+                  }}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-xs rounded-xl border-none cursor-pointer shadow-sm transition-all shrink-0 text-center"
+                >
+                  View Vaccines →
+                </button>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 bg-slate-100 border-t border-slate-200/80 rounded-b-[23px] flex items-center justify-between text-xs text-slate-500 font-medium">
+              <span>* Coupons are valid on all eligible ClinicOS services across India.</span>
+              <button
+                type="button"
+                onClick={() => setShowOffersModal(false)}
+                className="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 cursor-pointer transition-all"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </header>
   );
