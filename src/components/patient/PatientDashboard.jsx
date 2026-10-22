@@ -54,6 +54,7 @@ import { specialistDoctors } from '../../data/specialistDoctors';
 import { PatientHealthVitalsDashboard } from './PatientHealthVitalsDashboard';
 import { MEDICINE_CATALOG } from '../../data/medicineCatalog';
 import { HealthInsurancePlansSection } from './HealthInsurancePlansSection';
+import { FOOTER_TOPICS } from '../../data/footerTopics';
 import confetti from 'canvas-confetti';
 
 export const PatientDashboard = () => {
@@ -160,6 +161,49 @@ export const PatientDashboard = () => {
 
   // Health Article Reader Modal State
   const [selectedArticle, setSelectedArticle] = useState(null);
+
+  // Footer Topic Interactive Modal State
+  const [selectedFooterTopic, setSelectedFooterTopic] = useState(null);
+  const [footerActiveFaq, setFooterActiveFaq] = useState(0);
+  const [footerContactForm, setFooterContactForm] = useState({ name: '', email: '', message: '' });
+  const [footerCareerForm, setFooterCareerForm] = useState({ name: '', role: 'Senior Consultant Cardiologist', phone: '' });
+  const [footerDonationAmt, setFooterDonationAmt] = useState(1000);
+  const [footerGrievanceForm, setFooterGrievanceForm] = useState({ type: 'Clinical Care', message: '' });
+  const [footerCookiePrefs, setFooterCookiePrefs] = useState({
+    essential: true,
+    telemetry: true,
+    alerts: true,
+  });
+
+  const handleFooterTopicClick = (topicKey) => {
+    const topic = FOOTER_TOPICS[topicKey];
+    if (!topic) return;
+
+    if (topic.actionType === 'scroll_doctors') {
+      const el = document.getElementById('specialists-section') || document.querySelector('.rv-specialists-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 900, behavior: 'smooth' });
+      }
+      showToast('👨‍⚕️ Navigated to Specialist Doctor Directory');
+      return;
+    }
+
+    if (topic.actionType === 'scroll_vitals') {
+      const el = document.getElementById('vitals-section') || document.querySelector('.rv-vitals-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 400, behavior: 'smooth' });
+      }
+      showToast('📊 Navigated to Health Vitals Dashboard');
+      return;
+    }
+
+    setSelectedFooterTopic(topic);
+    setFooterActiveFaq(0);
+  };
 
   // Entrance animation state — cards use rv-card-falling class, removed after anim completes
   // so hover transforms work freely (animation-fill-mode conflict resolved)
@@ -1836,45 +1880,171 @@ export const PatientDashboard = () => {
             <div>
               <h5 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-4 font-['Poppins']">Company</h5>
               <ul className="space-y-2 text-xs font-medium text-slate-300 list-none p-0 m-0">
-                <li className="hover:text-white cursor-pointer" onClick={() => showToast('What&apos;s New')}>What&apos;s New</li>
-                <li className="hover:text-white cursor-pointer" onClick={() => showToast('About Us')}>About</li>
-                <li className="hover:text-white cursor-pointer" onClick={() => showToast('Press Releases')}>Press</li>
-                <li className="hover:text-white cursor-pointer" onClick={() => showToast('Careers')}>Careers</li>
-                <li className="hover:text-white cursor-pointer" onClick={() => showToast('Contact Us')}>Contact</li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('whats-new')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">What&apos;s New</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('about')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">About</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('press')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Press</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('careers')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Careers</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('contact')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Contact</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
               </ul>
             </div>
 
             <div>
               <h5 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-4 font-['Poppins']">Community</h5>
               <ul className="space-y-2 text-xs font-medium text-slate-300 list-none p-0 m-0">
-                <li className="hover:text-white cursor-pointer">Medicare for Business</li>
-                <li className="hover:text-white cursor-pointer">Creator Report</li>
-                <li className="hover:text-white cursor-pointer">Charities</li>
-                <li className="hover:text-white cursor-pointer">Creator Profile Directory</li>
-                <li className="hover:text-white cursor-pointer">Explore Templates</li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('medicare-business')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Medicare for Business</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('creator-report')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Creator Report</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('charities')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Charities</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('creator-directory')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Creator Profile Directory</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('explore-templates')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Explore Templates</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
               </ul>
             </div>
 
             <div>
               <h5 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-4 font-['Poppins']">Support</h5>
               <ul className="space-y-2 text-xs font-medium text-slate-300 list-none p-0 m-0">
-                <li className="hover:text-white cursor-pointer">Help Topics</li>
-                <li className="hover:text-white cursor-pointer">Getting Started</li>
-                <li className="hover:text-white cursor-pointer">Linktree Pro</li>
-                <li className="hover:text-white cursor-pointer">Features &amp; How-Tos</li>
-                <li className="hover:text-white cursor-pointer">FAQs</li>
-                <li className="hover:text-white cursor-pointer">Report a Violation</li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('help-topics')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Help Topics</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('getting-started')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Getting Started</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('linktree-pro')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Linktree Pro</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('features-howtos')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Features &amp; How-Tos</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('faqs')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">FAQs</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('report-violation')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Report a Violation</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
               </ul>
             </div>
 
             <div>
               <h5 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-4 font-['Poppins']">Trust &amp; Legal</h5>
               <ul className="space-y-2 text-xs font-medium text-slate-300 list-none p-0 m-0">
-                <li className="hover:text-white cursor-pointer">Terms &amp; Conditions</li>
-                <li className="hover:text-white cursor-pointer">Privacy Notice</li>
-                <li className="hover:text-white cursor-pointer">Cookie Notice</li>
-                <li className="hover:text-white cursor-pointer">Trust Center</li>
-                <li className="hover:text-white cursor-pointer">Cookie Preferences</li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('terms-conditions')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Terms &amp; Conditions</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('privacy-notice')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Privacy Notice</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('cookie-notice')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Cookie Notice</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('trust-center')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Trust Center</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
+                <li
+                  className="hover:text-white hover:translate-x-1 transition-all cursor-pointer flex items-center justify-between group py-1"
+                  onClick={() => handleFooterTopicClick('cookie-preferences')}
+                >
+                  <span className="group-hover:text-[#E9DF70] transition-colors">Cookie Preferences</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#E9DF70] opacity-0 group-hover:opacity-100 transition-all shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                </li>
               </ul>
             </div>
           </div>
@@ -2556,6 +2726,391 @@ export const PatientDashboard = () => {
             <span style={{ color: '#E9DF70', fontSize: '0.75rem', fontWeight: 600 }}>
               Press Esc or tap Exit to return to dashboard
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          MODAL: INTERACTIVE FOOTER RESOURCE & DIRECTORY MODAL
+          ───────────────────────────────────────────────────────────── */}
+      {selectedFooterTopic && (
+        <div
+          className="fixed inset-0 z-[9999] bg-[#16163B]/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in"
+          onClick={() => setSelectedFooterTopic(null)}
+        >
+          <div
+            className="w-full max-w-2xl bg-white rounded-[32px] shadow-2xl border border-slate-100 overflow-hidden my-8 max-h-[92vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-[#16163B] text-white p-6 sm:p-7 relative shrink-0">
+              <button
+                type="button"
+                onClick={() => setSelectedFooterTopic(null)}
+                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer border-none transition-all hover:scale-105"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/15 text-slate-200">
+                  {selectedFooterTopic.category}
+                </span>
+                {selectedFooterTopic.badge && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#E9DF70] text-[#16163B]">
+                    {selectedFooterTopic.badge}
+                  </span>
+                )}
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white m-0">
+                {selectedFooterTopic.title}
+              </h3>
+              <p className="text-xs text-slate-300 font-medium mt-1 mb-0 leading-relaxed max-w-lg">
+                {selectedFooterTopic.tagline}
+              </p>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1 font-['Poppins']">
+              {/* Standard Informational Sections */}
+              {selectedFooterTopic.sections && selectedFooterTopic.sections.map((sec, idx) => (
+                <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+                  <h4 className="text-sm font-black text-[#16163B] m-0 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-indigo-600 shrink-0" />
+                    <span>{sec.heading}</span>
+                  </h4>
+                  <p className="text-xs text-slate-600 leading-relaxed m-0 pl-4">
+                    {sec.content}
+                  </p>
+                </div>
+              ))}
+
+              {/* Interactive FAQ Accordion */}
+              {selectedFooterTopic.isFaqAccordion && selectedFooterTopic.faqs && (
+                <div className="space-y-3">
+                  {selectedFooterTopic.faqs.map((faq, fIdx) => {
+                    const isOpen = footerActiveFaq === fIdx;
+                    return (
+                      <div
+                        key={fIdx}
+                        className={`rounded-2xl border transition-all overflow-hidden ${
+                          isOpen ? 'bg-indigo-50/50 border-indigo-200 shadow-xs' : 'bg-white border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setFooterActiveFaq(isOpen ? null : fIdx)}
+                          className="w-full p-4 text-left flex items-center justify-between gap-3 bg-transparent border-none cursor-pointer"
+                        >
+                          <span className="text-xs sm:text-sm font-black text-slate-900 leading-snug">
+                            {faq.q}
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-indigo-600 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {isOpen && (
+                          <div className="px-4 pb-4 pt-1 text-xs text-slate-600 leading-relaxed border-t border-indigo-100/60">
+                            {faq.a}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Interactive Contact Form */}
+              {selectedFooterTopic.actionType === 'contact_form' && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!footerContactForm.name || !footerContactForm.email) {
+                      showToast('Please fill in your name and email');
+                      return;
+                    }
+                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                    showToast(`✅ Thank you ${footerContactForm.name}! Inquiry received. Desk will reply shortly.`);
+                    setFooterContactForm({ name: '', email: '', message: '' });
+                    setSelectedFooterTopic(null);
+                  }}
+                  className="p-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-3.5"
+                >
+                  <h4 className="text-xs font-black uppercase tracking-wider text-indigo-900 m-0">Send a Quick Message</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Your Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Rahul Sharma"
+                        value={footerContactForm.name}
+                        onChange={(e) => setFooterContactForm({ ...footerContactForm, name: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Email or Phone Number</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. rahul@example.com"
+                        value={footerContactForm.email}
+                        onChange={(e) => setFooterContactForm({ ...footerContactForm, email: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Inquiry or Feedback</label>
+                    <textarea
+                      rows={3}
+                      required
+                      placeholder="How can our clinical desk assist you today?"
+                      value={footerContactForm.message}
+                      onChange={(e) => setFooterContactForm({ ...footerContactForm, message: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl bg-[#16163B] hover:bg-[#242454] text-white font-bold text-xs border-none cursor-pointer transition-colors shadow-sm"
+                  >
+                    Submit Care Inquiry
+                  </button>
+                </form>
+              )}
+
+              {/* Interactive Career Application Form */}
+              {selectedFooterTopic.actionType === 'career_apply' && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
+                    showToast(`🎉 Application received for ${footerCareerForm.role}! HR will reach out within 48h.`);
+                    setSelectedFooterTopic(null);
+                  }}
+                  className="p-5 rounded-2xl bg-purple-50/60 border border-purple-100 space-y-3.5"
+                >
+                  <h4 className="text-xs font-black uppercase tracking-wider text-purple-900 m-0">Quick Job Application</h4>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Select Role</label>
+                    <select
+                      value={footerCareerForm.role}
+                      onChange={(e) => setFooterCareerForm({ ...footerCareerForm, role: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option>Senior Consultant Cardiologist</option>
+                      <option>Emergency Triage & Telemedicine Nurse</option>
+                      <option>Lead Healthcare Systems Engineer</option>
+                      <option>Clinical Pharmacist & Dispatch Lead</option>
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Candidate Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Dr. / Nurse / Eng."
+                        value={footerCareerForm.name}
+                        onChange={(e) => setFooterCareerForm({ ...footerCareerForm, name: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Phone Number</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+91 98765 43210"
+                        value={footerCareerForm.phone}
+                        onChange={(e) => setFooterCareerForm({ ...footerCareerForm, phone: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs border-none cursor-pointer transition-colors shadow-sm"
+                  >
+                    Submit Job Application
+                  </button>
+                </form>
+              )}
+
+              {/* Interactive Donation Form */}
+              {selectedFooterTopic.actionType === 'donation_modal' && (
+                <div className="p-5 rounded-2xl bg-rose-50/60 border border-rose-100 space-y-3.5 text-center">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-rose-900 m-0">Make a Charitable Contribution</h4>
+                  <p className="text-xs text-slate-600 m-0">
+                    Eligible for 50% Tax Exemption under Section 80G of the Income Tax Act. Instant 80G digital receipt provided.
+                  </p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[500, 1000, 2500, 5000].map((amt) => (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => setFooterDonationAmt(amt)}
+                        className={`py-2 px-3 rounded-xl font-black text-xs border cursor-pointer transition-all ${
+                          footerDonationAmt === amt
+                            ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-rose-50'
+                        }`}
+                      >
+                        ₹{amt}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      confetti({ particleCount: 70, spread: 80, origin: { y: 0.65 } });
+                      showToast(`❤️ Contribution of ₹${footerDonationAmt} confirmed! Thank you for saving lives.`);
+                      setSelectedFooterTopic(null);
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs border-none cursor-pointer transition-colors shadow-sm"
+                  >
+                    Contribute ₹{footerDonationAmt} (UPI / Card)
+                  </button>
+                </div>
+              )}
+
+              {/* Interactive Grievance Form */}
+              {selectedFooterTopic.actionType === 'grievance_form' && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const ticketId = `GRV-2026-${Math.floor(100000 + Math.random() * 900000)}`;
+                    showToast(`🛡️ Grievance registered under ${ticketId}. 24-hr ombudsman SLA active.`);
+                    setSelectedFooterTopic(null);
+                  }}
+                  className="p-5 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3.5"
+                >
+                  <h4 className="text-xs font-black uppercase tracking-wider text-amber-900 m-0">Submit Confidential Grievance</h4>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Grievance Category</label>
+                    <select
+                      value={footerGrievanceForm.type}
+                      onChange={(e) => setFooterGrievanceForm({ ...footerGrievanceForm, type: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    >
+                      <option>Clinical Care & Consultation</option>
+                      <option>Billing, Tariffs & Insurance</option>
+                      <option>Data Privacy & Records</option>
+                      <option>Pharmacy Dispensation / Logistics</option>
+                      <option>Staff & Nursing Conduct</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Describe Incident / Concern</label>
+                    <textarea
+                      rows={3}
+                      required
+                      placeholder="Please provide specifics (dates, doctor names, invoice numbers) for prompt investigation."
+                      value={footerGrievanceForm.message}
+                      onChange={(e) => setFooterGrievanceForm({ ...footerGrievanceForm, message: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs border-none cursor-pointer transition-colors shadow-sm"
+                  >
+                    Submit Confidential Grievance
+                  </button>
+                </form>
+              )}
+
+              {/* Interactive Cookie Preferences Manager */}
+              {selectedFooterTopic.isCookiePreferences && (
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 m-0">Your Active Privacy Controls</h4>
+                  
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200">
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">Essential Clinical Authentication</div>
+                      <div className="text-[11px] text-slate-500">Required for session security & medical role access.</div>
+                    </div>
+                    <span className="text-[11px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Always Active</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200">
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">Telehealth Video Telemetry</div>
+                      <div className="text-[11px] text-slate-500">Monitors latency & WebRTC packet loss for smooth calls.</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={footerCookiePrefs.telemetry}
+                      onChange={(e) => setFooterCookiePrefs({ ...footerCookiePrefs, telemetry: e.target.checked })}
+                      className="w-4 h-4 text-purple-600 rounded cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200">
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">Medication Reminders & Alerts</div>
+                      <div className="text-[11px] text-slate-500">Sends scheduled dosage alerts and appointment reminders.</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={footerCookiePrefs.alerts}
+                      onChange={(e) => setFooterCookiePrefs({ ...footerCookiePrefs, alerts: e.target.checked })}
+                      className="w-4 h-4 text-purple-600 rounded cursor-pointer"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      showToast('🔒 Privacy & Cookie preferences updated.');
+                      setSelectedFooterTopic(null);
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-[#16163B] hover:bg-[#242454] text-white font-bold text-xs border-none cursor-pointer transition-colors shadow-sm"
+                  >
+                    Save Preferences
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
+              <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
+                ClinicOS Official Clinical Resource Desk
+              </span>
+              <div className="flex items-center gap-2 ml-auto">
+                {selectedFooterTopic.actionType === 'toast' && selectedFooterTopic.actionLabel && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
+                      showToast(selectedFooterTopic.actionMessage || 'Action confirmed');
+                      setSelectedFooterTopic(null);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#16163B] hover:bg-[#242454] text-white font-bold text-xs border-none cursor-pointer transition-colors shadow-sm"
+                  >
+                    {selectedFooterTopic.actionLabel}
+                  </button>
+                )}
+                {selectedFooterTopic.actionType === 'open_cookie_prefs' && (
+                  <button
+                    type="button"
+                    onClick={() => handleFooterTopicClick('cookie-preferences')}
+                    className="px-4 py-2 rounded-xl bg-[#16163B] hover:bg-[#242454] text-white font-bold text-xs border-none cursor-pointer transition-colors shadow-sm"
+                  >
+                    Manage Cookie Preferences
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSelectedFooterTopic(null)}
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition-colors shadow-xs"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
