@@ -34,7 +34,9 @@ export const TelemedicineCall = () => {
     labTests,
     payBill,
     showToast,
-    addAuditLog
+    addAuditLog,
+    recordVideoCall,
+    updateVideoCall
   } = useApp();
 
   const location = useLocation();
@@ -89,6 +91,8 @@ export const TelemedicineCall = () => {
   const autoStartedRef = useRef(false);
   const startCallRef = useRef(null); // will be set after startCall is defined
   const pendingCandidatesRef = useRef([]);
+  const currentCallIdRef = useRef(null);
+  const callStartTimeRef = useRef(null);
 
   // Robust video stream attachment & autoplay handler for Patient
   useEffect(() => {
@@ -317,7 +321,39 @@ export const TelemedicineCall = () => {
         offer: { type: pc.localDescription.type, sdp: pc.localDescription.sdp }
       };
 
-      await telehealthBridge.startCall(callPayload);
+      const generatedCallId = `VID-${Date.now()}`;
+      currentCallIdRef.current = generatedCallId;
+      callStartTimeRef.current = Date.now();
+
+      recordVideoCall?.({
+        id: generatedCallId,
+        patientId: activePatient?.id || 'pat-101',
+        patientName: activePatient?.name || 'Shreyansh Kumar',
+        patientAge: activePatient?.age || 29,
+        patientGender: activePatient?.gender || 'Male',
+        patientPhone: activePatient?.phone || '+91 98201 55432',
+        patientAvatar: activePatient?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        doctorId: selectedDoctor?.id || 'doc-1',
+        doctorName: selectedDoctor?.name || 'Dr. Souvik Sinha',
+        doctorSpecialty: selectedDoctor?.specialty || 'Cardiology',
+        doctorAvatar: selectedDoctor?.avatar || '/images/doctors/indian_doc_m1.jpg',
+        date: new Date().toISOString().substring(0, 10),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        duration: 'Live Now',
+        symptoms: symptoms || 'Routine Telemedicine Health Consultation',
+        selectedLabReport: selectedLabReport || 'None Attached',
+        status: 'Live',
+        fee: totalPayable || 1500,
+        invoiceId: invoiceId || `TXN-TELE-${Date.now()}`,
+        quality: '1080p FHD • 60fps • WebRTC P2P TLS 1.3',
+        bitrate: '2.6 Mbps',
+        latency: '15 ms',
+        packetLoss: '0.01%',
+        prescriptionIssued: 'Active Video Consultation In-Progress',
+        doctorNotes: 'Live audio-visual consultation established.'
+      });
+
+      await telehealthBridge.startCall({ ...callPayload, callId: generatedCallId });
       showToast(`Ringing ${selectedDoctor?.name || 'Doctor'}...`);
     } catch (err) {
       console.error('Telehealth call error:', err);
@@ -340,6 +376,19 @@ export const TelemedicineCall = () => {
 
     if (notify) {
       await telehealthBridge.endCall();
+    }
+
+    if (currentCallIdRef.current) {
+      const elapsedSec = callStartTimeRef.current ? Math.round((Date.now() - callStartTimeRef.current) / 1000) : 180;
+      const mins = Math.floor(elapsedSec / 60);
+      const secs = elapsedSec % 60;
+      const durStr = `${mins > 0 ? `${mins}m ` : ''}${secs}s`;
+
+      updateVideoCall?.(currentCallIdRef.current, {
+        status: 'Completed',
+        duration: durStr || '05m 12s',
+        doctorNotes: 'Video consultation concluded. Clinical notes and prescription synced.'
+      });
     }
 
     setCallState('idle');

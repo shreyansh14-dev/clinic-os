@@ -10,7 +10,8 @@ import {
   Calendar, FileText, BarChart3, Settings, Lock, Key,
   RefreshCw, Download, FileSpreadsheet, Eye, AlertTriangle,
   UserCheck, Shield, ChevronDown, CheckSquare, ArrowRight,
-  Sliders, Database, Server, Smartphone, ExternalLink, HelpCircle
+  Sliders, Database, Server, Smartphone, ExternalLink, HelpCircle,
+  Video, VideoOff, PhoneCall, ShoppingBag, Pill, Truck, Radio, Wifi, Copy, Play
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -38,11 +39,32 @@ export const AdminDashboard = () => {
     updateAppointmentStatus,
     rescheduleAppointment,
     addAuditLog,
-    showToast
+    showToast,
+    videoCallLogs = [],
+    updateVideoCall,
+    medicineOrders = [],
+    updateMedicineOrderStatus,
+    activeCallSignal,
+    incomingCallAlert
   } = useApp();
 
   // Active step in the 8-step workflow
   const [activeStepTab, setActiveStepTab] = useState(2);
+  const [activeOpsView, setActiveOpsView] = useState('all'); // 'all' | 'videocalls' | 'medicine' | 'everything'
+
+  // Video Call Telehealth State & Dossier Modal
+  const [selectedVideoCallForDossier, setSelectedVideoCallForDossier] = useState(null);
+  const [videoCallSearch, setVideoCallSearch] = useState('');
+  const [videoCallStatusFilter, setVideoCallStatusFilter] = useState('All');
+
+  // Medicine Orders State & Dispatch Slip Modal
+  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState(null);
+  const [medicineOrderSearch, setMedicineOrderSearch] = useState('');
+  const [medicineOrderStatusFilter, setMedicineOrderStatusFilter] = useState('All');
+
+  // Omni-Channel Patient Activity Feed State
+  const [activitySearch, setActivitySearch] = useState('');
+  const [activityTypeFilter, setActivityTypeFilter] = useState('All');
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
   // Modals & State for Step 2: Manage Doctors & Departments
@@ -294,6 +316,123 @@ export const AdminDashboard = () => {
     return matchesSearch && matchesLevel;
   });
 
+  // Filtered Video Call Telehealth Logs
+  const filteredVideoCalls = (videoCallLogs || []).filter(call => {
+    const matchesSearch = !videoCallSearch ||
+      call.patientName?.toLowerCase().includes(videoCallSearch.toLowerCase()) ||
+      call.doctorName?.toLowerCase().includes(videoCallSearch.toLowerCase()) ||
+      call.symptoms?.toLowerCase().includes(videoCallSearch.toLowerCase()) ||
+      call.id?.toLowerCase().includes(videoCallSearch.toLowerCase()) ||
+      call.doctorSpecialty?.toLowerCase().includes(videoCallSearch.toLowerCase());
+    const matchesStatus = videoCallStatusFilter === 'All' || call.status === videoCallStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Filtered Medicine Orders
+  const filteredMedicineOrders = (medicineOrders || []).filter(ord => {
+    const matchesSearch = !medicineOrderSearch ||
+      ord.patientName?.toLowerCase().includes(medicineOrderSearch.toLowerCase()) ||
+      ord.id?.toLowerCase().includes(medicineOrderSearch.toLowerCase()) ||
+      ord.items?.some(it => it.name?.toLowerCase().includes(medicineOrderSearch.toLowerCase())) ||
+      ord.deliveryAddress?.toLowerCase().includes(medicineOrderSearch.toLowerCase());
+    const matchesStatus = medicineOrderStatusFilter === 'All' || ord.status === medicineOrderStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Consolidated Omni-Channel Patient Activity Feed ("Everything Stream")
+  const patientActivitiesFeed = [
+    // Video Calls
+    ...(videoCallLogs || []).map(vc => ({
+      id: `act-vc-${vc.id}`,
+      type: 'video_call',
+      category: 'Telehealth Video Consultation',
+      title: `Video Call: ${vc.patientName} with ${vc.doctorName} (${vc.doctorSpecialty || 'Specialist'})`,
+      desc: `Chief Complaint: "${vc.symptoms}" · Duration: ${vc.duration || '12 mins'} · Protocol: ${vc.quality || 'WebRTC 1080p FHD'}`,
+      patientName: vc.patientName,
+      doctorName: vc.doctorName,
+      timestamp: `${vc.date || 'Today'} · ${vc.time || '11:15 AM'}`,
+      badge: vc.status === 'Live' ? 'LIVE NOW 🟢' : 'COMPLETED ✓',
+      badgeColor: vc.status === 'Live' ? 'bg-emerald-100 text-emerald-800 border-emerald-300 animate-pulse' : 'bg-slate-100 text-slate-800 border-slate-200',
+      icon: Video,
+      iconBg: 'bg-emerald-500',
+      actionPayload: vc,
+      actionType: 'view_call'
+    })),
+    // Medicine Orders
+    ...(medicineOrders || []).map(mo => ({
+      id: `act-mo-${mo.id}`,
+      type: 'medicine_order',
+      category: 'Online Pharmacy Order',
+      title: `Medicine Order Placed: #${mo.id} by ${mo.patientName}`,
+      desc: `Ordered ${mo.items?.length || 1} item(s) (${mo.items?.map(i => `${i.qty}x ${i.name}`).slice(0, 2).join(', ')}${mo.items?.length > 2 ? '...' : ''}) · Total: ₹${mo.totalAmount} · Address: ${mo.deliveryAddress?.substring(0, 42)}...`,
+      patientName: mo.patientName,
+      timestamp: `${mo.date || 'Today'} · ${mo.time || '11:45 AM'}`,
+      badge: mo.status,
+      badgeColor: mo.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-900 border-amber-300',
+      icon: Pill,
+      iconBg: 'bg-amber-500',
+      actionPayload: mo,
+      actionType: 'view_order'
+    })),
+    // Appointments
+    ...(appointments || []).map(apt => ({
+      id: `act-apt-${apt.id}`,
+      type: 'appointment',
+      category: 'OPD Doctor Consultation',
+      title: `Appointment ${apt.status || 'Scheduled'}: ${apt.patientName} with ${apt.doctorName}`,
+      desc: `Department: ${apt.specialty || 'General Care'} · Schedule: ${apt.date} at ${apt.time} · Mode: ${apt.type || 'In-Person OPD'}`,
+      patientName: apt.patientName,
+      doctorName: apt.doctorName,
+      timestamp: `${apt.date} · ${apt.time}`,
+      badge: apt.status || 'Scheduled',
+      badgeColor: apt.status === 'Scheduled' ? 'bg-blue-100 text-blue-900 border-blue-300' : 'bg-purple-100 text-purple-900 border-purple-300',
+      icon: Calendar,
+      iconBg: 'bg-blue-600',
+      actionPayload: apt,
+      actionType: 'view_appointment'
+    })),
+    // Lab Diagnostic Tests
+    ...(labTests || []).map(lt => ({
+      id: `act-lt-${lt.id}`,
+      type: 'lab_test',
+      category: 'Diagnostics & Pathology',
+      title: `Diagnostic Test Booked: ${lt.name || 'Comprehensive Health Scan'}`,
+      desc: `Patient: ${lt.patientName} · Code: ${lt.code || 'LBT-2026'} · Fee: ₹${lt.price || 1200} · Status: ${lt.status || 'Pending'}`,
+      patientName: lt.patientName,
+      timestamp: `${lt.orderDate || '2026-10-23'}`,
+      badge: lt.status || 'Pending',
+      badgeColor: lt.status === 'Completed' ? 'bg-teal-100 text-teal-900 border-teal-300' : 'bg-orange-100 text-orange-900 border-orange-300',
+      icon: Activity,
+      iconBg: 'bg-teal-600',
+      actionPayload: lt,
+      actionType: 'view_lab'
+    })),
+    // Emergency Ambulances
+    ...(ambulanceFleet || []).filter(a => a.status === 'Dispatched').map(amb => ({
+      id: `act-amb-${amb.id}`,
+      type: 'emergency_sos',
+      category: 'Emergency SOS 108 Dispatch',
+      title: `🚨 Emergency Ambulance Dispatched: ${amb.vehicleNo}`,
+      desc: `Pilot: ${amb.driverName} (${amb.phone}) · En-Route to Emergency Patient Location · ETA 8 Mins`,
+      patientName: 'Emergency SOS Alert',
+      timestamp: 'Active Now',
+      badge: 'DISPATCHED 🚨',
+      badgeColor: 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse',
+      icon: Ambulance,
+      iconBg: 'bg-rose-600',
+      actionPayload: amb,
+      actionType: 'view_ambulance'
+    }))
+  ].filter(act => {
+    const matchesSearch = !activitySearch ||
+      act.title.toLowerCase().includes(activitySearch.toLowerCase()) ||
+      act.desc.toLowerCase().includes(activitySearch.toLowerCase()) ||
+      act.patientName?.toLowerCase().includes(activitySearch.toLowerCase()) ||
+      act.category.toLowerCase().includes(activitySearch.toLowerCase());
+    const matchesType = activityTypeFilter === 'All' || act.type === activityTypeFilter;
+    return matchesSearch && matchesType;
+  });
+
   // Flowchart steps matching the user's diagram
   const adminSteps = [
     { num: 1, label: 'Login', icon: Lock, targetId: 'admin-step-1', desc: 'Authority Credentials & 2FA' },
@@ -414,122 +553,813 @@ export const AdminDashboard = () => {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. THE 4 PASTEL CLINICAL ACTION CARDS (Matching Patient & Doctor Panels)
+          1.5. LIVE TELEHEALTH RADAR & OMNI-CHANNEL OPERATIONS STRIP
+          ───────────────────────────────────────────────────────────── */}
+      <section className="w-full px-5 sm:px-8">
+        {/* Dynamic Live Call Alert Banner (if any call is ringing or active) */}
+        {(activeCallSignal || incomingCallAlert || videoCallLogs.some(c => c.status === 'Live')) && (
+          <div className="mb-4 rounded-3xl p-4 sm:p-5 bg-gradient-to-r from-emerald-950 via-[#0d281e] to-slate-900 border-2 border-emerald-500/60 shadow-xl text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-pulse">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black shadow-lg shrink-0">
+                <Video className="w-6 h-6 animate-bounce" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                    ● Live Telehealth Session Active
+                  </span>
+                  <span className="text-xs text-emerald-400 font-mono font-bold">
+                    WebRTC P2P FHD Stream
+                  </span>
+                </div>
+                <h4 className="text-base font-black text-white m-0 mt-0.5">
+                  Patient {activeCallSignal?.callerName || incomingCallAlert?.callerName || videoCallLogs.find(c => c.status === 'Live')?.patientName || 'Shreyansh Kumar'} is in live video consultation with {activeCallSignal?.doctorName || incomingCallAlert?.doctorName || videoCallLogs.find(c => c.status === 'Live')?.doctorName || 'Dr. Souvik Sinha'}
+                </h4>
+                <p className="text-xs text-slate-300 font-medium m-0 mt-0.5">
+                  Reason: "{activeCallSignal?.symptoms || incomingCallAlert?.symptoms || videoCallLogs.find(c => c.status === 'Live')?.symptoms || 'Acute Consultation'}"
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0 self-end md:self-auto">
+              <button
+                onClick={() => {
+                  const liveCall = videoCallLogs.find(c => c.status === 'Live') || {
+                    id: activeCallSignal?.id || 'VID-LIVE-SESSION',
+                    patientName: activeCallSignal?.callerName || incomingCallAlert?.callerName || 'Shreyansh Kumar',
+                    doctorName: activeCallSignal?.doctorName || 'Dr. Souvik Sinha',
+                    doctorSpecialty: 'Cardiology',
+                    symptoms: activeCallSignal?.symptoms || 'Chest tightness & palpitations',
+                    status: 'Live',
+                    duration: 'Live Now',
+                    date: 'Today',
+                    time: 'Now',
+                    fee: 1500,
+                    quality: '1080p FHD • 60fps • WebRTC P2P',
+                    bitrate: '2.6 Mbps',
+                    latency: '14 ms',
+                    packetLoss: '0.01%',
+                    invoiceId: 'TXN-LIVE-CALL',
+                    prescriptionIssued: 'Consultation active',
+                    doctorNotes: 'Remote audio-visual consultation currently in progress.'
+                  };
+                  setSelectedVideoCallForDossier(liveCall);
+                }}
+                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs border-none cursor-pointer flex items-center gap-1.5 shadow-md transition-all hover:scale-105"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Inspect Live Video Dossier</span>
+              </button>
+              <button
+                onClick={() => scrollToSection('admin-video-calls-section')}
+                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 cursor-pointer"
+              >
+                Telehealth Queue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Operations Tab Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-2 bg-slate-100/80 rounded-2xl border border-slate-200">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              onClick={() => scrollToSection('admin-video-calls-section')}
+              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#16163B] font-extrabold text-xs shadow-xs border border-slate-200 cursor-pointer flex items-center gap-2 transition-all hover:scale-102"
+            >
+              <Video className="w-4 h-4 text-emerald-600" />
+              <span>Video Consultations</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-[10px] font-black">
+                {videoCallLogs.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => scrollToSection('admin-medicine-orders-section')}
+              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#16163B] font-extrabold text-xs shadow-xs border border-slate-200 cursor-pointer flex items-center gap-2 transition-all hover:scale-102"
+            >
+              <Pill className="w-4 h-4 text-amber-600" />
+              <span>Medicine Orders & Delivery</span>
+              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black">
+                {medicineOrders.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => scrollToSection('admin-everything-feed-section')}
+              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#16163B] font-extrabold text-xs shadow-xs border border-slate-200 cursor-pointer flex items-center gap-2 transition-all hover:scale-102"
+            >
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span>Everything Activity Feed</span>
+              <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 text-[10px] font-black">
+                {patientActivitiesFeed.length}
+              </span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-500 pr-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            <span>Real-time Live Sync Active</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. THE 4 PASTEL CLINICAL ACTION CARDS (Upgraded with Video Calls & Med Orders)
           Soft Yellow, Mint, Soft Blush/Pink, and Pastel Blue
           ───────────────────────────────────────────────────────────── */}
       <section className="w-full px-5 sm:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           
-          {/* Card 1: Soft Yellow - Manage Doctors & Departments (Step 2) */}
+          {/* Card 1: Soft Yellow - Video Calls Telehealth Command */}
           <div
-            onClick={() => {
-              setActiveStepTab(2);
-              scrollToSection('admin-step-2');
-            }}
+            onClick={() => scrollToSection('admin-video-calls-section')}
             className="rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 bg-[#FEF9C3] hover:bg-[#FEF08A] border border-[#FDE047] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-3 group hover:-translate-y-1"
           >
             <div className="flex justify-between items-start">
               <div className="w-12 h-12 rounded-2xl bg-[#EAB308] text-white flex items-center justify-center shadow-xs">
-                <Users className="w-6 h-6" />
+                <Video className="w-6 h-6" />
               </div>
               <span className="text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900 px-2.5 py-1 rounded-full">
-                2 · Doctors
+                📹 Telehealth
               </span>
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-black text-slate-900 m-0">Doctors & Departments</h3>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 m-0">Video Consultations</h3>
               <p className="text-xs text-amber-950 font-semibold m-0 mt-1">
-                {totalDoctors} physicians across {departments.length} clinical specialties & OPD rooms
+                {videoCallLogs.length} remote consultations · {videoCallLogs.filter(c => c.status === 'Live').length} Live WebRTC sessions now
               </p>
             </div>
             <div className="text-xs font-black text-amber-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-              <span>Manage Roster</span>
+              <span>View Video Details</span>
               <span>→</span>
             </div>
           </div>
 
-          {/* Card 2: Mint - Approve / Reschedule Appointments (Step 4) */}
+          {/* Card 2: Mint - Pharmacy & Medicine Store Orders */}
+          <div
+            onClick={() => scrollToSection('admin-medicine-orders-section')}
+            className="rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 bg-[#DCFCE7] hover:bg-[#BBF7D0] border border-[#86EFAC] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-3 group hover:-translate-y-1"
+          >
+            <div className="flex justify-between items-start">
+              <div className="w-12 h-12 rounded-2xl bg-[#16A34A] text-white flex items-center justify-center shadow-xs">
+                <Pill className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-200/80 text-emerald-900 px-2.5 py-1 rounded-full">
+                💊 Pharmacy
+              </span>
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 m-0">Medicine Orders</h3>
+              <p className="text-xs text-emerald-950 font-semibold m-0 mt-1">
+                {medicineOrders.length} patient orders placed · {medicineOrders.filter(o => o.status !== 'Delivered').length} active for doorstep delivery
+              </p>
+            </div>
+            <div className="text-xs font-black text-emerald-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Track &amp; Dispatch</span>
+              <span>→</span>
+            </div>
+          </div>
+
+          {/* Card 3: Pink - Omni-Channel Patient Activity Feed ("Everything Stream") */}
+          <div
+            onClick={() => scrollToSection('admin-everything-feed-section')}
+            className="rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 bg-[#FCE7F3] hover:bg-[#FBCFE8] border border-[#F472B6] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-3 group hover:-translate-y-1"
+          >
+            <div className="flex justify-between items-start">
+              <div className="w-12 h-12 rounded-2xl bg-[#DB2777] text-white flex items-center justify-center shadow-xs">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider bg-pink-200/80 text-pink-900 px-2.5 py-1 rounded-full">
+                ⚡ Live Stream
+              </span>
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 m-0">Everything Activity</h3>
+              <p className="text-xs text-pink-950 font-semibold m-0 mt-1">
+                {patientActivitiesFeed.length} real-time patient events (Calls, Meds, Labs, SOS &amp; Visits)
+              </p>
+            </div>
+            <div className="text-xs font-black text-pink-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Open Everything Feed</span>
+              <span>→</span>
+            </div>
+          </div>
+
+          {/* Card 4: Pastel Blue - Approve / Reschedule Appointments */}
           <div
             onClick={() => {
               setActiveStepTab(4);
               scrollToSection('admin-step-4');
             }}
-            className="rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 bg-[#DCFCE7] hover:bg-[#BBF7D0] border border-[#86EFAC] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-3 group hover:-translate-y-1"
+            className="rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 bg-[#E0F2FE] hover:bg-[#BAE6FD] border border-[#7DD3FC] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-3 group hover:-translate-y-1"
           >
             <div className="flex justify-between items-start">
-              <div className="w-12 h-12 rounded-2xl bg-[#16A34A] text-white flex items-center justify-center shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#0284C7] text-white flex items-center justify-center shadow-xs">
                 <CalendarCheck2 className="w-6 h-6" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-200/80 text-emerald-900 px-2.5 py-1 rounded-full">
-                4 · Triage
+              <span className="text-[10px] font-black uppercase tracking-wider bg-sky-200/80 text-sky-900 px-2.5 py-1 rounded-full">
+                4 · Triage Desk
               </span>
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-black text-slate-900 m-0">Approve & Reschedule</h3>
-              <p className="text-xs text-emerald-950 font-semibold m-0 mt-1">
-                {pendingAppointments.length} visits pending clearance, slot reallocation or reschedule
+              <h3 className="text-base sm:text-lg font-black text-slate-900 m-0">Approve &amp; Reschedule</h3>
+              <p className="text-xs text-sky-950 font-semibold m-0 mt-1">
+                {pendingAppointments.length} visits pending clearance · {scheduledAppointments.length} confirmed
               </p>
             </div>
-            <div className="text-xs font-black text-emerald-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+            <div className="text-xs font-black text-sky-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
               <span>Open Triage Desk</span>
               <span>→</span>
             </div>
           </div>
 
-          {/* Card 3: Pink - Manage Bills & Payments (Step 5) */}
-          <div
-            onClick={() => {
-              setActiveStepTab(5);
-              scrollToSection('admin-step-5');
-            }}
-            className="rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 bg-[#FCE7F3] hover:bg-[#FBCFE8] border border-[#F472B6] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-3 group hover:-translate-y-1"
-          >
-            <div className="flex justify-between items-start">
-              <div className="w-12 h-12 rounded-2xl bg-[#DB2777] text-white flex items-center justify-center shadow-xs">
-                <Receipt className="w-6 h-6" />
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION A: 📹 TELEHEALTH VIDEO CONSULTATIONS COMMAND CENTER
+          Full Video Call Details, Live Status, Symptoms & Dossier
+          ───────────────────────────────────────────────────────────── */}
+      <section id="admin-video-calls-section" className="w-full px-5 sm:px-8 scroll-mt-20">
+        <div className="bg-white rounded-[32px] border border-slate-200/90 p-6 sm:p-8 shadow-sm space-y-6">
+          
+          {/* Header & KPI Summary */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-black shadow-md shadow-emerald-500/20">
+                <Video className="w-6 h-6" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-pink-200/80 text-pink-900 px-2.5 py-1 rounded-full">
-                5 · Billing
-              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 m-0 font-['Poppins']">
+                    Telehealth Video Consultations Command Center
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-300">
+                    LIVE WEBRTC SURVEILLANCE
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
+                  Complete video details of calls between patients and doctors, connection metrics, symptoms, and clinical advice
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-black text-slate-900 m-0">Bills & Financial Ledger</h3>
-              <p className="text-xs text-pink-950 font-semibold m-0 mt-1">
-                ₹{totalRevenue.toLocaleString('en-IN')} collected · {unpaidBillsCount} unpaid invoices
-              </p>
-            </div>
-            <div className="text-xs font-black text-pink-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-              <span>Financial Ledger</span>
-              <span>→</span>
+
+            {/* Quick KPIs */}
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              <div className="bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-2xl text-emerald-950 font-bold">
+                <span className="text-[10px] block text-emerald-700 font-extrabold uppercase">Total Consults</span>
+                <span className="text-base font-black">{videoCallLogs.length} Sessions</span>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 px-3.5 py-2 rounded-2xl text-amber-950 font-bold">
+                <span className="text-[10px] block text-amber-700 font-extrabold uppercase">Live In-Progress</span>
+                <span className="text-base font-black text-emerald-600">{videoCallLogs.filter(c => c.status === 'Live').length} Active</span>
+              </div>
+              <div className="bg-purple-50 border border-purple-200 px-3.5 py-2 rounded-2xl text-purple-950 font-bold">
+                <span className="text-[10px] block text-purple-700 font-extrabold uppercase">Telehealth Fees</span>
+                <span className="text-base font-black">₹{videoCallLogs.reduce((acc, c) => acc + (c.fee || 1500), 0).toLocaleString('en-IN')}</span>
+              </div>
             </div>
           </div>
 
-          {/* Card 4: Pastel Blue - Generate Reports (Step 6) */}
-          <div
-            onClick={() => {
-              setActiveStepTab(6);
-              scrollToSection('admin-step-6');
-            }}
-            className="rounded-[22px] sm:rounded-[28px] p-5 sm:p-6 bg-[#E0F2FE] hover:bg-[#BAE6FD] border border-[#7DD3FC] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-3 group hover:-translate-y-1"
-          >
-            <div className="flex justify-between items-start">
-              <div className="w-12 h-12 rounded-2xl bg-[#0284C7] text-white flex items-center justify-center shadow-xs">
-                <BarChart3 className="w-6 h-6" />
+          {/* Search & Filter Bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search patient, doctor, symptoms, or Call ID..."
+                value={videoCallSearch}
+                onChange={(e) => setVideoCallSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              {['All', 'Live', 'Completed'].map(status => (
+                <button
+                  key={status}
+                  onClick={() => setVideoCallStatusFilter(status)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border-none cursor-pointer ${
+                    videoCallStatusFilter === status
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {status === 'Live' ? '🟢 Live Now' : status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Video Call Cards Grid */}
+          {filteredVideoCalls.length === 0 ? (
+            <div className="p-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-slate-500">
+              <VideoOff className="w-10 h-10 mx-auto text-slate-400 mb-2" />
+              <p className="font-bold text-sm m-0">No video consultations matching your filter</p>
+              <span className="text-xs text-slate-400">Video call records will populate here in real-time as patients initiate calls</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              {filteredVideoCalls.map(call => {
+                const isLive = call.status === 'Live';
+                return (
+                  <div
+                    key={call.id}
+                    className={`rounded-3xl border transition-all p-5 sm:p-6 space-y-4 hover:shadow-lg ${
+                      isLive
+                        ? 'bg-gradient-to-br from-emerald-50/60 to-white border-emerald-400/80 shadow-md ring-2 ring-emerald-400/20'
+                        : 'bg-white border-slate-200/90 hover:border-slate-300'
+                    }`}
+                  >
+                    {/* Top Row: Call ID & Status */}
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-black text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg">
+                          {call.id}
+                        </span>
+                        <span className="text-xs font-bold text-slate-400">
+                          📅 {call.date} · 🕒 {call.time}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
+                          ⏱️ {call.duration}
+                        </span>
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                          isLive
+                            ? 'bg-emerald-500 text-white animate-pulse shadow-sm'
+                            : 'bg-slate-100 text-slate-700'
+                        }`}>
+                          {isLive ? '● Live Now' : '✓ Completed'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Participants Row: Patient on Left, Doctor on Right */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-100">
+                      {/* Patient Info */}
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={call.patientAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
+                          alt={call.patientName}
+                          className="w-11 h-11 rounded-2xl object-cover border border-slate-200 shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Patient</span>
+                          <h4 className="text-sm font-black text-slate-900 m-0 truncate">{call.patientName}</h4>
+                          <span className="text-[11px] text-slate-500 font-semibold block">
+                            {call.patientAge ? `${call.patientAge} Yrs · ` : ''}{call.patientPhone || 'UHID: ' + call.patientId}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Doctor Info */}
+                      <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-slate-200/60 pt-2 sm:pt-0 sm:pl-3">
+                        <img
+                          src={call.doctorAvatar || '/images/doctors/indian_doc_m1.jpg'}
+                          alt={call.doctorName}
+                          className="w-11 h-11 rounded-2xl object-cover border border-slate-200 shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-black text-emerald-600 uppercase tracking-wider block">Consulting Doctor</span>
+                          <h4 className="text-sm font-black text-slate-900 m-0 truncate">{call.doctorName}</h4>
+                          <span className="text-[11px] text-slate-500 font-semibold block truncate">
+                            {call.doctorSpecialty || 'Senior Specialist'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Symptoms & Attached Diagnostics Box */}
+                    <div className="space-y-2 text-xs">
+                      <div className="p-3 rounded-xl bg-purple-50/60 border border-purple-100 text-purple-950 font-medium">
+                        <span className="font-extrabold text-purple-900 block mb-0.5 text-[11px]">
+                          🩺 Chief Complaint &amp; Symptoms Reported:
+                        </span>
+                        <p className="m-0 leading-relaxed text-slate-800">
+                          "{call.symptoms}"
+                        </p>
+                      </div>
+
+                      {call.prescriptionIssued && (
+                        <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 text-emerald-950 text-xs">
+                          <span className="font-extrabold text-emerald-900 block mb-0.5 text-[11px]">
+                            💊 Digital Prescription Issued:
+                          </span>
+                          <p className="m-0 font-semibold text-slate-800">
+                            {call.prescriptionIssued}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* WebRTC Video Stream Technical Telemetry Strip */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900 text-white text-[11px] font-mono">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1 text-emerald-400">
+                          <Wifi className="w-3.5 h-3.5" />
+                          <span>{call.quality || '1080p FHD 60fps'}</span>
+                        </span>
+                        <span className="text-slate-400">Bitrate: <strong>{call.bitrate || '2.6 Mbps'}</strong></span>
+                        <span className="text-slate-400">Latency: <strong>{call.latency || '14ms'}</strong></span>
+                      </div>
+                      <span className="text-[#E9DF70] font-bold">
+                        ₹{call.fee || 1500} Paid (Ref: {call.invoiceId?.substring(0, 14)})
+                      </span>
+                    </div>
+
+                    {/* Action Bar */}
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-xs text-slate-400 font-semibold">
+                        Encrypted P2P TLS 1.3 Audit Logged
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSelectedVideoCallForDossier(call)}
+                          className="px-4 py-2 rounded-xl bg-[#16163B] hover:bg-slate-800 text-white font-bold text-xs border-none cursor-pointer flex items-center gap-1.5 shadow-sm transition-all hover:scale-102"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-purple-300" />
+                          <span>Inspect Full Dossier</span>
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION B: 💊 PHARMACY & MEDICINE ORDERS OPERATIONS DESK
+          Patient Medicine Orders, Items, Address, Status & Dispatch Slip
+          ───────────────────────────────────────────────────────────── */}
+      <section id="admin-medicine-orders-section" className="w-full px-5 sm:px-8 scroll-mt-20">
+        <div className="bg-white rounded-[32px] border border-slate-200/90 p-6 sm:p-8 shadow-sm space-y-6">
+          
+          {/* Header & KPI Summary */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center font-black shadow-md shadow-amber-500/20">
+                <Pill className="w-6 h-6" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-sky-200/80 text-sky-900 px-2.5 py-1 rounded-full">
-                6 · Reports
-              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 m-0 font-['Poppins']">
+                    Pharmacy &amp; Medicine Orders Operations Desk
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black border border-amber-300">
+                    EXPRESS DOORSTEP DISPATCH
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
+                  Real-time monitoring of patient online medicine orders, item dosages, dispatch tracking, and delivery receipts
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-black text-slate-900 m-0">Generate Reports</h3>
-              <p className="text-xs text-sky-950 font-semibold m-0 mt-1">
-                Executive analytics dossier, revenue breakdowns & PDF export
-              </p>
+
+            {/* Quick KPIs */}
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              <div className="bg-amber-50 border border-amber-200 px-3.5 py-2 rounded-2xl text-amber-950 font-bold">
+                <span className="text-[10px] block text-amber-700 font-extrabold uppercase">Total Orders</span>
+                <span className="text-base font-black">{medicineOrders.length} Orders</span>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 px-3.5 py-2 rounded-2xl text-blue-950 font-bold">
+                <span className="text-[10px] block text-blue-700 font-extrabold uppercase">Out for Delivery</span>
+                <span className="text-base font-black text-blue-700">{medicineOrders.filter(o => o.status === 'Out for Delivery').length} En-Route</span>
+              </div>
+              <div className="bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-2xl text-emerald-950 font-bold">
+                <span className="text-[10px] block text-emerald-700 font-extrabold uppercase">Pharmacy Revenue</span>
+                <span className="text-base font-black">₹{medicineOrders.reduce((acc, o) => acc + (o.totalAmount || 0), 0).toLocaleString('en-IN')}</span>
+              </div>
             </div>
-            <div className="text-xs font-black text-sky-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-              <span>Generate Dossier</span>
-              <span>→</span>
+          </div>
+
+          {/* Search & Filter Bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search by order ID, patient, medicine name, or delivery address..."
+                value={medicineOrderSearch}
+                onChange={(e) => setMedicineOrderSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+              />
             </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              {['All', 'Preparing in Pharmacy', 'Out for Delivery', 'Delivered'].map(status => (
+                <button
+                  key={status}
+                  onClick={() => setMedicineOrderStatusFilter(status)}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border-none cursor-pointer whitespace-nowrap ${
+                    medicineOrderStatusFilter === status
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Orders Cards Grid */}
+          {filteredMedicineOrders.length === 0 ? (
+            <div className="p-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-slate-500">
+              <ShoppingBag className="w-10 h-10 mx-auto text-slate-400 mb-2" />
+              <p className="font-bold text-sm m-0">No medicine orders matching your filter</p>
+              <span className="text-xs text-slate-400">Patient orders from the Medicine Store and Daily Deals will appear here automatically</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              {filteredMedicineOrders.map(order => {
+                return (
+                  <div
+                    key={order.id}
+                    className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 space-y-4 hover:shadow-lg transition-all"
+                  >
+                    {/* Top Row: Order ID, Timestamp & Status */}
+                    <div className="flex justify-between items-start gap-2 pb-3 border-b border-slate-100">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-black text-amber-900 bg-amber-100 px-2.5 py-1 rounded-lg">
+                            {order.id}
+                          </span>
+                          <span className="text-xs font-bold text-slate-400">
+                            🕒 {order.date} · {order.time}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-black text-slate-900 m-0 mt-1">
+                          Patient: {order.patientName} ({order.patientPhone})
+                        </h4>
+                      </div>
+
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        order.status === 'Delivered'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : order.status === 'Out for Delivery'
+                          ? 'bg-blue-100 text-blue-900 border border-blue-300 animate-pulse'
+                          : 'bg-amber-100 text-amber-900 border border-amber-300'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </div>
+
+                    {/* Delivery Address Box */}
+                    <div className="flex items-start gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                      <MapPin className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <span className="font-bold text-slate-500 block text-[10px] uppercase">Doorstep Destination:</span>
+                        <p className="m-0 font-medium text-slate-800 leading-snug">
+                          {order.deliveryAddress || 'Sector 40, Seawoods Grand Central, Navi Mumbai'}
+                        </p>
+                        <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">
+                          🚀 Courier Assigned: {order.courierName || 'ClinicOS Express Rider #14'} · ETA {order.estimatedDelivery || '15 Mins'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Itemized Basket Table */}
+                    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/50">
+                      <table className="w-full text-xs text-left">
+                        <thead className="bg-slate-100/80 text-[10px] font-black text-slate-600 uppercase">
+                          <tr>
+                            <th className="p-2.5">Medicine Item</th>
+                            <th className="p-2.5 text-center">Pack</th>
+                            <th className="p-2.5 text-center">Qty</th>
+                            <th className="p-2.5 text-right">Price</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {order.items?.map((item, idx) => (
+                            <tr key={idx} className="hover:bg-slate-100/50">
+                              <td className="p-2.5 font-bold text-slate-900">
+                                {item.name}
+                              </td>
+                              <td className="p-2.5 text-center text-slate-500 text-[11px]">
+                                {item.packSize || '15 Tabs'}
+                              </td>
+                              <td className="p-2.5 text-center font-black text-slate-900">
+                                {item.qty}x
+                              </td>
+                              <td className="p-2.5 text-right font-bold text-slate-900">
+                                ₹{(item.price * item.qty).toLocaleString('en-IN')}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Total & Payment Method */}
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-[#16163B] text-white text-xs">
+                      <div>
+                        <span className="text-[10px] text-slate-400 block">Payment Method</span>
+                        <strong className="text-emerald-400">{order.paymentMethod}</strong>
+                        <span className="text-[10px] text-slate-400 block font-mono">Txn: {order.transactionId}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-slate-400 block">Total Amount</span>
+                        <strong className="text-lg font-black text-white">₹{order.totalAmount?.toLocaleString('en-IN')}</strong>
+                      </div>
+                    </div>
+
+                    {/* Admin Status Changer Controls */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-bold text-slate-500">Update Status:</span>
+                        <button
+                          onClick={() => updateMedicineOrderStatus?.(order.id, 'Preparing in Pharmacy')}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold border-none cursor-pointer"
+                        >
+                          Preparing
+                        </button>
+                        <button
+                          onClick={() => updateMedicineOrderStatus?.(order.id, 'Out for Delivery', 'Ramesh Pawar (ClinicOS Rider #14)')}
+                          className="px-2.5 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 text-[11px] font-bold border-none cursor-pointer"
+                        >
+                          Dispatch
+                        </button>
+                        <button
+                          onClick={() => updateMedicineOrderStatus?.(order.id, 'Delivered')}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-[11px] font-bold border-none cursor-pointer"
+                        >
+                          Delivered
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => setSelectedOrderForDetails(order)}
+                        className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs border-none cursor-pointer flex items-center gap-1.5 shadow-xs transition-transform hover:scale-102"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>Print Packaging Slip</span>
+                      </button>
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION C: ⚡ OMNI-CHANNEL PATIENT ACTIVITY FEED ("EVERYTHING STREAM")
+          Chronological Unified Event Stream of All Patient Activities
+          ───────────────────────────────────────────────────────────── */}
+      <section id="admin-everything-feed-section" className="w-full px-5 sm:px-8 scroll-mt-20">
+        <div className="bg-white rounded-[32px] border border-slate-200/90 p-6 sm:p-8 shadow-sm space-y-6">
+          
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-700 text-white flex items-center justify-center font-black shadow-md shadow-purple-500/20">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 m-0 font-['Poppins']">
+                    Omni-Channel Patient Activity Feed ("Everything Stream")
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 text-[10px] font-black border border-purple-300">
+                    REAL-TIME UNIFIED TIMELINE
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5">
+                  Live stream showing every interaction across video calls, online pharmacy orders, doctor appointments, lab tests, and 108 ambulance requests
+                </p>
+              </div>
+            </div>
+
+            <span className="px-3 py-1.5 rounded-2xl bg-purple-50 text-purple-900 font-mono text-xs font-bold border border-purple-200">
+              ⚡ {patientActivitiesFeed.length} Events Logged
+            </span>
+          </div>
+
+          {/* Search & Category Filter Pills */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Filter by patient name, action or description..."
+                value={activitySearch}
+                onChange={(e) => setActivitySearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              {[
+                { label: 'All Activities', val: 'All' },
+                { label: '📹 Video Calls', val: 'video_call' },
+                { label: '💊 Medicine Orders', val: 'medicine_order' },
+                { label: '📅 Appointments', val: 'appointment' },
+                { label: '🔬 Lab Tests', val: 'lab_test' },
+                { label: '🚨 Emergency SOS', val: 'emergency_sos' }
+              ].map(tab => (
+                <button
+                  key={tab.val}
+                  onClick={() => setActivityTypeFilter(tab.val)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border-none cursor-pointer whitespace-nowrap ${
+                    activityTypeFilter === tab.val
+                      ? 'bg-purple-700 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Timeline Feed Stream */}
+          <div className="space-y-3">
+            {patientActivitiesFeed.length === 0 ? (
+              <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 font-semibold text-xs">
+                No patient activities found matching your criteria.
+              </div>
+            ) : (
+              patientActivitiesFeed.map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.id}
+                    className="p-4 sm:p-4.5 rounded-2xl border border-slate-100 hover:border-purple-200 bg-white hover:bg-purple-50/20 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group"
+                  >
+                    <div className="flex items-start gap-3.5">
+                      <div className={`w-10 h-10 rounded-2xl ${item.iconBg} text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                            {item.category}
+                          </span>
+                          <span className="text-[10px] text-slate-400">·</span>
+                          <span className="text-[11px] font-bold text-slate-500">
+                            🕒 {item.timestamp}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-black text-slate-900 m-0 leading-snug">
+                          {item.title}
+                        </h4>
+                        <p className="text-xs text-slate-600 font-medium m-0 mt-0.5 leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${item.badgeColor}`}>
+                        {item.badge}
+                      </span>
+
+                      {item.type === 'video_call' && (
+                        <button
+                          onClick={() => setSelectedVideoCallForDossier(item.actionPayload)}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#16163B] text-slate-700 hover:text-white font-bold text-xs border-none cursor-pointer transition-colors"
+                        >
+                          Inspect Call
+                        </button>
+                      )}
+
+                      {item.type === 'medicine_order' && (
+                        <button
+                          onClick={() => setSelectedOrderForDetails(item.actionPayload)}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-amber-600 text-slate-700 hover:text-white font-bold text-xs border-none cursor-pointer transition-colors"
+                        >
+                          View Order
+                        </button>
+                      )}
+
+                      {item.type === 'appointment' && (
+                        <button
+                          onClick={() => {
+                            setActiveStepTab(4);
+                            scrollToSection('admin-step-4');
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white font-bold text-xs border-none cursor-pointer transition-colors"
+                        >
+                          Triage Desk
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
 
         </div>
@@ -2282,6 +3112,331 @@ export const AdminDashboard = () => {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
+          MODAL: VIDEO CONSULTATION DOSSIER & WEBRTC TELEMETRY
+          ───────────────────────────────────────────────────────────── */}
+      {selectedVideoCallForDossier && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-[28px] max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-md p-6 border-b border-slate-100 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md ${
+                  selectedVideoCallForDossier.status === 'Live' ? 'bg-gradient-to-tr from-emerald-600 to-teal-500 animate-pulse' : 'bg-gradient-to-tr from-indigo-600 to-blue-500'
+                }`}>
+                  <Video className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-black text-slate-900 m-0">Video Consultation Dossier</h3>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider ${
+                      selectedVideoCallForDossier.status === 'Live' ? 'bg-emerald-100 text-emerald-700 animate-pulse' :
+                      selectedVideoCallForDossier.status === 'Completed' ? 'bg-blue-100 text-blue-700' :
+                      'bg-amber-100 text-amber-700'
+                    }`}>
+                      {selectedVideoCallForDossier.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5 mb-0">Call ID: {selectedVideoCallForDossier.id} · Room: {selectedVideoCallForDossier.roomName || 'CLINIC-OS-WEBRTC'}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedVideoCallForDossier(null)}
+                className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border-none cursor-pointer transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Telehealth Summary Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Patient Profile */}
+                <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100/70">
+                  <div className="flex items-center gap-2 text-indigo-900 font-bold text-xs uppercase tracking-wider mb-2">
+                    <Users className="w-4 h-4 text-indigo-600" />
+                    <span>Patient Profile</span>
+                  </div>
+                  <div className="text-base font-black text-slate-900">{selectedVideoCallForDossier.patientName}</div>
+                  <div className="text-xs text-slate-600 mt-1 space-y-0.5">
+                    <div>UHID: <span className="font-mono font-semibold">{selectedVideoCallForDossier.patientUhid || 'UHID-2026-9041'}</span></div>
+                    <div>Contact: <span className="font-semibold">{selectedVideoCallForDossier.patientPhone || '+91 98765 43210'}</span></div>
+                    <div>Reported Symptoms: <span className="font-bold text-indigo-700 bg-indigo-100/60 px-2 py-0.5 rounded-md inline-block mt-1">{selectedVideoCallForDossier.symptoms || 'General Consultation'}</span></div>
+                  </div>
+                </div>
+
+                {/* Attending Doctor */}
+                <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100/70">
+                  <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs uppercase tracking-wider mb-2">
+                    <Stethoscope className="w-4 h-4 text-emerald-600" />
+                    <span>Attending Physician</span>
+                  </div>
+                  <div className="text-base font-black text-slate-900">{selectedVideoCallForDossier.doctorName}</div>
+                  <div className="text-xs text-slate-600 mt-1 space-y-0.5">
+                    <div>Specialty: <span className="font-semibold text-emerald-800">{selectedVideoCallForDossier.doctorSpecialty || 'Senior Consultant'}</span></div>
+                    <div>Duration: <span className="font-semibold">{selectedVideoCallForDossier.duration || '12 mins'}</span></div>
+                    <div>Call Started: <span className="font-semibold">{selectedVideoCallForDossier.timestamp || 'Today'}</span></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* WebRTC Telemetry & Call Quality Metrics */}
+              <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-300">Live WebRTC Session Telemetry</span>
+                  </div>
+                  <span className="text-[10px] bg-slate-800 text-emerald-400 px-2 py-0.5 rounded-full font-mono font-bold">
+                    {selectedVideoCallForDossier.telemetry?.quality || 'HD 1080p · Excellent'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/50">
+                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">Bitrate</div>
+                    <div className="text-sm font-black text-emerald-400 font-mono mt-0.5">{selectedVideoCallForDossier.telemetry?.bitrate || '2,450 kbps'}</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/50">
+                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">Packet Loss</div>
+                    <div className="text-sm font-black text-emerald-400 font-mono mt-0.5">{selectedVideoCallForDossier.telemetry?.packetLoss || '0.02%'}</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/50">
+                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">Latency / Ping</div>
+                    <div className="text-sm font-black text-indigo-400 font-mono mt-0.5">{selectedVideoCallForDossier.telemetry?.latency || '24 ms'}</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/50">
+                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">Audio Codec</div>
+                    <div className="text-sm font-black text-amber-400 font-mono mt-0.5">Opus 48kHz</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Clinical Notes & Prescriptions */}
+              <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-2">
+                <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
+                  <FileText className="w-4 h-4 text-amber-700" />
+                  <span>Physician Consultation Notes & Rx</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed m-0 italic bg-white/70 p-3 rounded-xl border border-amber-100">
+                  "{selectedVideoCallForDossier.notes || 'Patient presented with acute clinical symptoms. Evaluated vitals via tele-monitoring. Recommended hydration, antipyretics and warm steam inhalation.'}"
+                </p>
+                {selectedVideoCallForDossier.prescription && (
+                  <div className="mt-2 text-xs text-slate-700">
+                    <strong className="text-slate-900">Rx Prescribed:</strong> <span className="font-semibold text-purple-700">{selectedVideoCallForDossier.prescription}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Consultation Tariffs & Invoice Status */}
+              <div className="flex flex-wrap items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
+                <div className="flex items-center gap-3">
+                  <Receipt className="w-4 h-4 text-slate-500" />
+                  <div>
+                    <div>Consultation Fee: <strong className="text-slate-900">₹{selectedVideoCallForDossier.fee || 1500}</strong></div>
+                    <div className="text-slate-500 text-[11px]">Invoice Ref: <span className="font-mono">{selectedVideoCallForDossier.invoiceId || 'INV-TELE-9821'}</span></div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-1 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800">
+                    Settled · Razorpay / UPI
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+              <div className="text-xs text-slate-500 font-mono">
+                Security: End-to-End Encrypted WebRTC (DTLS-SRTP)
+              </div>
+              <div className="flex items-center gap-2">
+                {selectedVideoCallForDossier.status === 'Live' && (
+                  <button
+                    onClick={() => {
+                      updateVideoCall(selectedVideoCallForDossier.id, { status: 'Completed', duration: '14 mins' });
+                      setSelectedVideoCallForDossier({ ...selectedVideoCallForDossier, status: 'Completed', duration: '14 mins' });
+                    }}
+                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 border-none cursor-pointer transition-colors"
+                  >
+                    <VideoOff className="w-3.5 h-3.5" />
+                    <span>Conclude Call</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedVideoCallForDossier(null)}
+                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs border-none cursor-pointer transition-colors"
+                >
+                  Close Dossier
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          MODAL: MEDICINE ORDER PACKAGING SLIP & COURIER DISPATCH
+          ───────────────────────────────────────────────────────────── */}
+      {selectedOrderForDetails && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-[28px] max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-md p-6 border-b border-slate-100 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md">
+                  <Pill className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-black text-slate-900 m-0">Pharmacy Dispatch Manifest</h3>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider ${
+                      selectedOrderForDetails.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' :
+                      selectedOrderForDetails.status === 'Dispatched' ? 'bg-blue-100 text-blue-800' :
+                      'bg-amber-100 text-amber-800'
+                    }`}>
+                      {selectedOrderForDetails.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5 mb-0">Order: {selectedOrderForDetails.id} · {selectedOrderForDetails.timestamp || 'Today'}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedOrderForDetails(null)}
+                className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center border-none cursor-pointer transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Patient & Shipping Coordinates */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Customer / Patient</div>
+                  <div className="text-base font-black text-slate-900">{selectedOrderForDetails.patientName}</div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    <div>Contact: <span className="font-semibold">{selectedOrderForDetails.phone || '+91 98765 43210'}</span></div>
+                    <div>Payment: <span className="font-bold text-emerald-700">{selectedOrderForDetails.paymentMethod || 'Online UPI'}</span></div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/60">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">
+                    <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Delivery Address</span>
+                  </div>
+                  <div className="text-xs text-slate-800 font-semibold leading-relaxed">
+                    {selectedOrderForDetails.deliveryAddress || 'Flat 402, Royal Residency, Park Street, Kolkata, WB - 700016'}
+                  </div>
+                  <div className="mt-2 text-[11px] text-amber-800 font-medium">
+                    Courier: <strong className="font-bold">{selectedOrderForDetails.courier || 'Dunzo Express (30 Mins)'}</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Status Stepper & Controls */}
+              <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200">
+                <div className="text-xs font-bold text-blue-900 uppercase tracking-wider mb-3 flex items-center justify-between">
+                  <span>Fulfillment Pipeline Status</span>
+                  <span className="text-[11px] font-normal text-blue-700">Click to advance status</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { key: 'Preparing', label: '1. Packing & Labeling', icon: Pill },
+                    { key: 'Dispatched', label: '2. Courier Dispatched', icon: Truck },
+                    { key: 'Delivered', label: '3. Handed to Patient', icon: CheckCircle2 }
+                  ].map(step => {
+                    const isCurrent = selectedOrderForDetails.status === step.key;
+                    const StepIcon = step.icon;
+                    return (
+                      <button
+                        key={step.key}
+                        onClick={() => {
+                          updateMedicineOrderStatus(selectedOrderForDetails.id, step.key);
+                          setSelectedOrderForDetails({ ...selectedOrderForDetails, status: step.key });
+                        }}
+                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col gap-1.5 ${
+                          isCurrent
+                            ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                            : 'bg-white hover:bg-blue-50 border-blue-100 text-slate-700'
+                        }`}
+                      >
+                        <StepIcon className={`w-4 h-4 ${isCurrent ? 'text-white' : 'text-blue-600'}`} />
+                        <span className="text-xs font-bold">{step.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Itemized Medications Table */}
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="bg-slate-100 px-4 py-3 border-b border-slate-200 text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Itemized Prescription & Medication Basket
+                </div>
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
+                    <tr>
+                      <th className="py-2.5 px-4 font-bold">Item Description</th>
+                      <th className="py-2.5 px-3 font-bold text-center">Qty</th>
+                      <th className="py-2.5 px-3 font-bold text-right">Unit Price</th>
+                      <th className="py-2.5 px-4 font-bold text-right">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {(selectedOrderForDetails.items || [
+                      { name: 'Augmentin 625 Duo', qty: 2, price: 210 },
+                      { name: 'Pan 40 Tablet', qty: 1, price: 155 },
+                      { name: 'Dolo 650mg', qty: 3, price: 35 }
+                    ]).map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/60">
+                        <td className="py-2.5 px-4 font-bold text-slate-900">{item.name}</td>
+                        <td className="py-2.5 px-3 text-center font-semibold">{item.qty || 1}</td>
+                        <td className="py-2.5 px-3 text-right">₹{item.price}</td>
+                        <td className="py-2.5 px-4 text-right font-black text-slate-900">₹{(item.price || 0) * (item.qty || 1)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-slate-50/80 border-t border-slate-200 font-bold text-slate-900">
+                    <tr>
+                      <td colSpan="3" className="py-2 px-4 text-right text-slate-500">Subtotal</td>
+                      <td className="py-2 px-4 text-right">₹{selectedOrderForDetails.totalAmount - (selectedOrderForDetails.deliveryFee || 40)}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan="3" className="py-2 px-4 text-right text-slate-500">Express Delivery & Cold-Chain</td>
+                      <td className="py-2 px-4 text-right text-emerald-600">₹{selectedOrderForDetails.deliveryFee || 40}</td>
+                    </tr>
+                    <tr className="text-sm bg-purple-50/60 text-purple-950 font-black">
+                      <td colSpan="3" className="py-3 px-4 text-right">Grand Total Paid</td>
+                      <td className="py-3 px-4 text-right text-base text-purple-700">₹{selectedOrderForDetails.totalAmount}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-colors"
+              >
+                <Printer className="w-4 h-4 text-slate-600" />
+                <span>Print Packaging Slip</span>
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedOrderForDetails(null)}
+                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs border-none cursor-pointer transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
           MODAL: PRINT INVOICE RECEIPT (Step 5)
           ───────────────────────────────────────────────────────────── */}
       {selectedInvoiceForPrint && (
@@ -2294,3 +3449,4 @@ export const AdminDashboard = () => {
     </div>
   );
 };
+

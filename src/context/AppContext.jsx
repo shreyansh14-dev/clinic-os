@@ -15,7 +15,9 @@ import {
   INITIAL_VACCINES,
   INITIAL_BLOOD_BANK,
   INITIAL_AMBULANCE_FLEET,
-  INITIAL_AUDIT_LOGS
+  INITIAL_AUDIT_LOGS,
+  INITIAL_VIDEO_CALLS,
+  INITIAL_MEDICINE_ORDERS
 } from '../mockData';
 import { apiService } from '../services/api';
 import { telehealthBridge } from '../utils/telehealthSignaling';
@@ -68,6 +70,35 @@ export const AppProvider = ({ children }) => {
   const [bloodBank, setBloodBank] = useState(INITIAL_BLOOD_BANK);
   const [ambulanceFleet, setAmbulanceFleet] = useState(INITIAL_AMBULANCE_FLEET);
   const [auditLogs, setAuditLogs] = useState(INITIAL_AUDIT_LOGS);
+  const [videoCallLogs, setVideoCallLogs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('clinic_video_calls');
+      return saved ? JSON.parse(saved) : INITIAL_VIDEO_CALLS;
+    } catch {
+      return INITIAL_VIDEO_CALLS;
+    }
+  });
+  const [medicineOrders, setMedicineOrders] = useState(() => {
+    try {
+      const saved = localStorage.getItem('clinic_medicine_orders');
+      return saved ? JSON.parse(saved) : INITIAL_MEDICINE_ORDERS;
+    } catch {
+      return INITIAL_MEDICINE_ORDERS;
+    }
+  });
+
+  // Sync to local storage for persistence across reloads & multi-tabs
+  useEffect(() => {
+    try {
+      localStorage.setItem('clinic_video_calls', JSON.stringify(videoCallLogs));
+    } catch {}
+  }, [videoCallLogs]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('clinic_medicine_orders', JSON.stringify(medicineOrders));
+    } catch {}
+  }, [medicineOrders]);
 
   // Active Personas
   const activePatient = patients.find(p => p.id === currentUser?.id || p.email === currentUser?.email) || patients[0];
@@ -618,6 +649,98 @@ export const AppProvider = ({ children }) => {
     return newEntry;
   };
 
+  const recordVideoCall = (callData) => {
+    const newCall = {
+      id: callData.id || `VID-${Date.now()}`,
+      date: callData.date || new Date().toISOString().substring(0, 10),
+      time: callData.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      duration: callData.duration || 'Live Now',
+      status: callData.status || 'Live',
+      quality: callData.quality || '1080p FHD • 60fps • WebRTC P2P TLS 1.3',
+      bitrate: callData.bitrate || '2.6 Mbps',
+      latency: callData.latency || '14 ms',
+      packetLoss: callData.packetLoss || '0.01%',
+      fee: callData.fee || 1500,
+      invoiceId: callData.invoiceId || `TXN-TELE-${Math.floor(1000000 + Math.random() * 9000000)}`,
+      ...callData
+    };
+
+    setVideoCallLogs(prev => {
+      const idx = prev.findIndex(c => c.id === newCall.id);
+      if (idx !== -1) {
+        const copy = [...prev];
+        copy[idx] = { ...copy[idx], ...newCall };
+        return copy;
+      }
+      return [newCall, ...prev];
+    });
+
+    addAuditLog(
+      `Telemedicine Video Session ${newCall.status}: Patient ${newCall.patientName} with ${newCall.doctorName} (${newCall.symptoms || 'Consultation'})`,
+      newCall.patientName || 'Patient Portal',
+      'INFO'
+    );
+
+    return newCall;
+  };
+
+  const updateVideoCall = (callId, updates) => {
+    setVideoCallLogs(prev => prev.map(c => c.id === callId ? { ...c, ...updates } : c));
+  };
+
+  const createMedicineOrder = (orderData) => {
+    const newOrder = {
+      id: orderData.id || `ORD-PHARM-${Math.floor(100000 + Math.random() * 900000)}`,
+      patientId: orderData.patientId || activePatient?.id || 'pat-101',
+      patientName: orderData.patientName || activePatient?.name || 'Shreyansh Kumar',
+      patientPhone: orderData.patientPhone || activePatient?.phone || '+91 98201 55432',
+      deliveryAddress: orderData.deliveryAddress || 'Flat 402, Seawoods Grand Central, Sector 40, Navi Mumbai 400706',
+      date: new Date().toISOString().substring(0, 10),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      items: orderData.items || [],
+      subtotal: orderData.subtotal || orderData.totalAmount || 0,
+      deliveryFee: orderData.deliveryFee ?? 0,
+      totalAmount: orderData.totalAmount || 0,
+      paymentMethod: orderData.paymentMethod || 'UPI / Online Payment',
+      transactionId: orderData.transactionId || `UPI-TXN-${Math.floor(10000000 + Math.random() * 90000000)}`,
+      status: orderData.status || 'Preparing in Pharmacy',
+      courierName: orderData.courierName || 'ClinicOS Express Doorstep Delivery (Rider #14)',
+      estimatedDelivery: orderData.estimatedDelivery || '15-20 Mins',
+      ...orderData
+    };
+
+    setMedicineOrders(prev => [newOrder, ...prev]);
+
+    addAuditLog(
+      `Pharmacy Medicine Order Placed: #${newOrder.id} by ${newOrder.patientName} for ₹${newOrder.totalAmount} (${newOrder.items.length} items)`,
+      newOrder.patientName,
+      'SUCCESS'
+    );
+
+    return newOrder;
+  };
+
+  const updateMedicineOrderStatus = (orderId, newStatus, courierNotes = null) => {
+    setMedicineOrders(prev => prev.map(o => {
+      if (o.id === orderId) {
+        return {
+          ...o,
+          status: newStatus,
+          courierName: courierNotes || o.courierName
+        };
+      }
+      return o;
+    }));
+
+    addAuditLog(
+      `Admin updated Pharmacy Order #${orderId} status to "${newStatus}"`,
+      'Pharmacy Desk (ADMIN)',
+      'INFO'
+    );
+
+    showToast(`Order #${orderId} marked as "${newStatus}"!`);
+  };
+
 
   return (
     <AppContext.Provider
@@ -686,7 +809,15 @@ export const AppProvider = ({ children }) => {
         addToPharmacyCart,
         updatePharmacyCartQty,
         clearPharmacyCart,
-        registerVaccine
+        registerVaccine,
+        videoCallLogs,
+        setVideoCallLogs,
+        recordVideoCall,
+        updateVideoCall,
+        medicineOrders,
+        setMedicineOrders,
+        createMedicineOrder,
+        updateMedicineOrderStatus
       }}
     >
       {children}

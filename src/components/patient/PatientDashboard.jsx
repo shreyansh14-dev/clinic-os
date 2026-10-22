@@ -57,7 +57,7 @@ import { HealthInsurancePlansSection } from './HealthInsurancePlansSection';
 import confetti from 'canvas-confetti';
 
 export const PatientDashboard = () => {
-  const { currentUser, activePatient, appointments, vitals, doctors, showToast, addToPharmacyCart } = useApp();
+  const { currentUser, activePatient, appointments, vitals, doctors, showToast, addToPharmacyCart, createMedicineOrder } = useApp();
   const navigate = useNavigate();
   // Reference Video Brand Intro State (Opening animation from reference video)
   const [showBrandIntro, setShowBrandIntro] = useState(() => {
@@ -2265,6 +2265,24 @@ export const PatientDashboard = () => {
 
                 <button
                   onClick={() => {
+                    createMedicineOrder?.({
+                      patientId: activePatient?.id || 'pat-101',
+                      patientName: activePatient?.name || 'Shreyansh Kumar',
+                      items: [{
+                        id: selectedProduct.id,
+                        name: selectedProduct.title,
+                        packSize: selectedProduct.packSize || 'Standard Pack',
+                        qty: productQty,
+                        price: selectedProduct.price,
+                        mrp: selectedProduct.originalPrice
+                      }],
+                      subtotal: selectedProduct.price * productQty,
+                      deliveryFee: 0,
+                      totalAmount: selectedProduct.price * productQty,
+                      paymentMethod: 'Cash on Delivery (COD)',
+                      status: 'Preparing in Pharmacy',
+                      courierName: 'ClinicOS Express Doorstep Delivery (Rider #07)'
+                    });
                     showToast(`⚡ Order placed for "${selectedProduct.title}"! Express dispatch in 60 mins.`);
                     setSelectedProduct(null);
                   }}

@@ -37,7 +37,8 @@ export const PharmacyStore = () => {
     pharmacyCart: cart,
     addToPharmacyCart,
     updatePharmacyCartQty,
-    clearPharmacyCart
+    clearPharmacyCart,
+    createMedicineOrder
   } = useApp();
   const navigate = useNavigate();
 
@@ -104,13 +105,38 @@ export const PharmacyStore = () => {
 
   const handlePaymentDone = (paymentDetails) => {
     const orderId = `ORD-PHARM-${Math.floor(100000 + Math.random() * 900000)}`;
-    setConfirmedOrder({
+    const orderObj = {
       orderId,
       transactionId: paymentDetails?.transactionId,
       items: [...cartItems],
       totalAmount: finalTotal,
       paidAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setConfirmedOrder(orderObj);
+
+    createMedicineOrder?.({
+      id: orderId,
+      patientId: activePatient?.id || 'pat-101',
+      patientName: activePatient?.name || 'Shreyansh Kumar',
+      patientPhone: activePatient?.phone || '+91 98201 55432',
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        packSize: item.packSize || 'Standard Pack',
+        qty: item.qty,
+        price: item.price,
+        mrp: item.mrp
+      })),
+      subtotal: cartSubtotal,
+      deliveryFee,
+      totalAmount: finalTotal,
+      paymentMethod: paymentDetails?.method || 'Google Pay UPI',
+      transactionId: paymentDetails?.transactionId || `UPI-ORD-${Date.now()}`,
+      status: 'Preparing in Pharmacy',
+      courierName: 'ClinicOS Express Doorstep Delivery (Rider #14)',
+      estimatedDelivery: '15 Mins'
     });
+
     clearPharmacyCart();
     setIsPaymentModalOpen(false);
     setIsCartOpen(false);

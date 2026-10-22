@@ -35,7 +35,9 @@ export const DoctorConsole = () => {
     publishLabReport,
     updateBedStatus,
     createPrescription,
-    showToast
+    showToast,
+    updateVideoCall,
+    recordVideoCall
   } = useApp();
 
   const location = useLocation();
@@ -370,6 +372,14 @@ export const DoctorConsole = () => {
     scrollToSection('doctor-telehealth-section');
     showToast(`Connecting video consultation with ${callData.callerName || 'Patient'}...`);
 
+    if (callData.callId || callData.id) {
+      updateVideoCall?.(callData.callId || callData.id, {
+        status: 'Live',
+        doctorName: activeDoctor?.name || 'Dr. Souvik Sinha',
+        doctorSpecialty: activeDoctor?.specialty || 'Cardiology'
+      });
+    }
+
     // 0. Instantly mount patient examination stream so doctor screen is NEVER blank
     const patientName = callData.callerName || 'Patient Shreyansh Kumar';
     getTelehealthMediaStream({
@@ -560,6 +570,15 @@ export const DoctorConsole = () => {
     if (notify) {
       await telehealthBridge.endCall();
     }
+
+    if (activeCaller?.callId || activeCaller?.id) {
+      updateVideoCall?.(activeCaller.callId || activeCaller.id, {
+        status: 'Completed',
+        duration: formatDuration(callDuration) || '12 mins',
+        doctorNotes: 'Consultation concluded by doctor. Clinical recommendations and digital prescription provided.'
+      });
+    }
+
     setIsTelehealthModalOpen(false);
     setIsTelehealthMinimized(false);
     setCallState('idle');
