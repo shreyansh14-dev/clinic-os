@@ -1245,10 +1245,10 @@ export const PatientDashboard = () => {
           "Your health is our Top priority ↗"
           Active Background Video Motion + Tap to Watch Video Modal
           ───────────────────────────────────────────────────────────── */}
-      <section className="w-full px-6 sm:px-10 pb-14">
+      <section className="w-full px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-24 pb-14">
         <div
           onClick={() => setShowHeroVideoModal(true)}
-          className="group relative rounded-[32px] sm:rounded-[36px] overflow-hidden min-h-[300px] sm:min-h-[360px] flex items-center justify-center shadow-xl bg-[#0B1528] cursor-pointer transition-all duration-300 hover:shadow-[0_20px_50px_rgba(233,223,112,0.22)]"
+          className="group relative rounded-[28px] sm:rounded-[36px] overflow-hidden min-h-[380px] sm:min-h-[440px] md:min-h-[480px] lg:min-h-[540px] 2xl:min-h-[640px] w-full flex items-center justify-center shadow-2xl bg-[#0B1528] cursor-pointer transition-all duration-300 hover:shadow-[0_25px_60px_rgba(233,223,112,0.25)]"
         >
           {/* Active Background Motion Video */}
           <video
@@ -2384,189 +2384,160 @@ export const PatientDashboard = () => {
           </div>
         </div>
       )}
-      {/* ── Hero Video Modal ── */}
+      {/* ── Hero Video Modal (True Full-Screen Fluid Display for Smartboards, PCs & Laptops) ── */}
       {showHeroVideoModal && (
         <div
           onClick={() => setShowHeroVideoModal(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 99999,
-            background: 'rgba(6, 14, 29, 0.96)',
-            backdropFilter: 'blur(20px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 'min(1.5vw, 1rem)',
-            animation: 'fadeIn 0.25s ease-out',
+            background: 'rgba(0, 0, 0, 0.98)',
+            backdropFilter: 'blur(24px)',
+            display: 'flex', flexDirection: 'column',
+            width: '100vw', height: '100vh',
+            padding: 0, margin: 0,
+            animation: 'fadeIn 0.2s ease-out',
           }}
         >
+          {/* Top Bar Floating Header */}
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
               width: '100%',
-              maxWidth: 'min(98vw, 1920px)',
-              maxHeight: '96vh',
-              display: 'flex',
-              flexDirection: 'column',
-              borderRadius: '24px',
-              overflow: 'hidden',
-              boxShadow: '0 40px 120px rgba(0,0,0,0.85)',
-              background: '#000',
-              border: '1px solid rgba(255,255,255,0.12)',
-              position: 'relative',
+              background: 'linear-gradient(180deg, rgba(11,21,40,0.95) 0%, rgba(11,21,40,0.7) 70%, transparent 100%)',
+              padding: '1rem 2rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              zIndex: 10,
+              flexShrink: 0,
             }}
           >
-            {/* Header bar */}
-            <div style={{
-              background: 'linear-gradient(135deg, #0B1528, #16163B)',
-              padding: '0.85rem 1.5rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              borderBottom: '1px solid rgba(255,255,255,0.08)',
-              flexShrink: 0,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{
-                  width: 34, height: 34, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #E9DF70, #E7B8D1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(233,223,112,0.3)',
-                }}>
-                  <Play size={15} style={{ color: '#16163B', fill: '#16163B' }} />
-                </div>
-                <div>
-                  <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em' }}>
-                    ClinicOS — Healthcare Solutions & Clinic Overview
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem' }}>
-                    Fluid Ultra-HD Healthcare Experience • Smartboard, PC & Laptop Optimized
-                  </div>
-                </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #E9DF70, #E7B8D1)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 14px rgba(233,223,112,0.35)',
+              }}>
+                <Play size={16} style={{ color: '#16163B', fill: '#16163B' }} />
               </div>
-
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (heroVideoRef.current) {
-                      if (document.fullscreenElement) {
-                        document.exitFullscreen?.();
-                      } else {
-                        heroVideoRef.current.requestFullscreen?.();
-                      }
-                    }
-                  }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '0.4rem',
-                    padding: '0.45rem 0.9rem',
-                    borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    color: '#fff',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                  title="Fullscreen on Smartboard / PC"
-                >
-                  <Maximize2 size={14} />
-                  <span className="hidden sm:inline">Fullscreen</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowHeroVideoModal(false)}
-                  style={{
-                    width: '34px', height: '34px',
-                    borderRadius: '12px',
-                    background: 'rgba(239, 68, 68, 0.2)',
-                    border: '1px solid rgba(239, 68, 68, 0.4)',
-                    color: '#ff8a8a',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.4)';
-                    e.currentTarget.style.color = '#fff';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                    e.currentTarget.style.color = '#ff8a8a';
-                  }}
-                  title="Close Modal"
-                >
-                  <X size={16} />
-                </button>
+              <div>
+                <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.01em' }}>
+                  ClinicOS — Healthcare Overview & Solutions
+                </div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem' }}>
+                  True Fullscreen Fluid Mode • Smartboard, PC & Laptop
+                </div>
               </div>
             </div>
 
-            {/* Fluid Video Container: maintains 16:9 while fluidly scaling across laptops, desktop monitors & 4K smartboards */}
-            <div style={{
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (heroVideoRef.current) {
+                    if (document.fullscreenElement) {
+                      document.exitFullscreen?.();
+                    } else {
+                      heroVideoRef.current.requestFullscreen?.();
+                    }
+                  }
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.55rem 1.1rem',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.12)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#fff',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.22)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+                title="Toggle Native Browser Fullscreen"
+              >
+                <Maximize2 size={16} />
+                <span>Fullscreen</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowHeroVideoModal(false)}
+                style={{
+                  padding: '0.55rem 1.1rem',
+                  borderRadius: '12px',
+                  background: 'rgba(239, 68, 68, 0.25)',
+                  border: '1px solid rgba(239, 68, 68, 0.45)',
+                  color: '#fff',
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.5)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)'}
+                title="Close Video"
+              >
+                <X size={16} />
+                <span>Exit</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Full-Bleed 100% Fluid Video Screen Container */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
               position: 'relative',
-              width: '100%',
+              width: '100vw',
               flex: 1,
               background: '#000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
-              aspectRatio: '16/9',
-              maxHeight: 'calc(96vh - 110px)',
-            }}>
-              <video
-                ref={heroVideoRef}
-                src="/videos/healthcare-hero.mp4"
-                controls
-                autoPlay
-                playsInline
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  maxHeight: 'calc(96vh - 110px)',
-                  objectFit: 'contain',
-                  backgroundColor: '#000',
-                  outline: 'none',
-                }}
-              >
-                <source src="/videos/healthcare-hero.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
+            }}
+          >
+            <video
+              ref={heroVideoRef}
+              src="/videos/healthcare-hero.mp4"
+              controls
+              autoPlay
+              playsInline
+              style={{
+                width: '100vw',
+                height: '100%',
+                maxHeight: 'calc(100vh - 120px)',
+                objectFit: 'contain',
+                backgroundColor: '#000',
+                outline: 'none',
+              }}
+            >
+              <source src="/videos/healthcare-hero.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
 
-            {/* Footer */}
-            <div style={{
-              background: '#0B1528',
-              padding: '0.75rem 1.5rem',
+          {/* Bottom Bar Info */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'linear-gradient(0deg, rgba(11,21,40,0.95) 0%, rgba(11,21,40,0.6) 70%, transparent 100%)',
+              padding: '0.75rem 2rem',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              borderTop: '1px solid rgba(255,255,255,0.06)',
+              zIndex: 10,
               flexShrink: 0,
-            }}>
-              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 500 }}>
-                Your health is our top priority — ClinicOS 24/7 Smart Health Platform
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className="hidden md:inline" style={{ color: 'rgba(233,223,112,0.8)', fontSize: '0.72rem', fontWeight: 600 }}>
-                  Tip: Double-click or tap Fullscreen icon for cinema mode
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setShowHeroVideoModal(false)}
-                  style={{
-                    padding: '0.35rem 0.9rem',
-                    borderRadius: '999px',
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    color: '#fff',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Close ✕
-                </button>
-              </div>
-            </div>
+            }}
+          >
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.78rem', fontWeight: 500 }}>
+              Your health is our top priority — ClinicOS 24/7 Smart Health Platform
+            </span>
+            <span style={{ color: '#E9DF70', fontSize: '0.75rem', fontWeight: 600 }}>
+              Press Esc or tap Exit to return to dashboard
+            </span>
           </div>
         </div>
       )}

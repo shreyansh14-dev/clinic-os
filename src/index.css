@@ -163,36 +163,36 @@ body, body *, button, input, select, textarea, p, span, h1, h2, h3, h4, h5, h6, 
   }
 }
 
-/* ── Patient Portal Consumer Canvas (Matching Reference Frame 01 & 04) ── */
+/* ── Patient Portal Consumer Canvas ── */
 .patient-portal-layout {
   display: block;
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
+  min-width: 100vw;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #F3DCE8; /* Reference Pale Pink/Lilac canvas background */
-  padding: clamp(0.5rem, 1.5vh, 1.25rem) clamp(0.75rem, 2vw, 2.5rem) clamp(1.5rem, 4vh, 3.5rem);
+  background: #FFFFFF;
+  padding: 0;
+  margin: 0;
 }
 
 .patient-main-wrapper {
   width: 100%;
-  /* Fluid max-width: 1100px on laptops → 1400px on 1920p → 1800px on 4K smartboards */
-  max-width: clamp(900px, 85vw, 1800px);
-  margin: 0 auto;
-  height: auto;
-  min-height: calc(100vh - 3.5rem);
+  max-width: 100%;
+  margin: 0;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  /* Fluid border-radius */
-  border-radius: clamp(20px, 2.5vw, 40px);
-  box-shadow: 0 20px 60px rgba(36, 36, 84, 0.08);
-  overflow: hidden;
+  border-radius: 0;
+  box-shadow: none;
+  overflow-x: hidden;
 }
 .patient-main-wrapper .content-area {
   padding: 0;
   overflow: visible;
   background: transparent;
+  width: 100%;
 }
 
 
