@@ -2452,19 +2452,25 @@ export const PatientDashboard = () => {
               </div>
             </div>
 
-            {/* 16:9 Video embed */}
-            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, background: '#000' }}>
-              <iframe
-                src="https://www.youtube.com/embed/oFoHvpIUBKg?autoplay=1&rel=0&modestbranding=1&color=white"
-                title="ClinicOS Healthcare Video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+            {/* 16:9 Video Player */}
+            <div style={{ position: 'relative', width: '100%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: '16/9' }}>
+              <video
+                ref={heroVideoRef}
+                src="/videos/healthcare-hero.mp4"
+                controls
+                autoPlay
+                playsInline
                 style={{
-                  position: 'absolute', top: 0, left: 0,
-                  width: '100%', height: '100%',
-                  border: 'none',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  backgroundColor: '#000',
+                  outline: 'none',
                 }}
-              />
+              >
+                <source src="/videos/healthcare-hero.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
 
             {/* Footer */}
