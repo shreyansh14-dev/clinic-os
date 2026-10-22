@@ -55,6 +55,12 @@
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* ── Fluid Root Sizing ── */
+html {
+  /* Fluid base font: scales from 14px on 1024px screens → 16px on 1440px → 18px on 1920px+ */
+  font-size: clamp(13px, 0.6vw + 7px, 18px);
+}
+
 html, body, #root {
   height: 100%;
   width: 100%;
@@ -115,13 +121,47 @@ body, body *, button, input, select, textarea, p, span, h1, h2, h3, h4, h5, h6, 
 .content-area {
   flex: 1;
   overflow-y: auto;
-  padding: 1.75rem 2rem;
+  /* Fluid padding: less on smaller screens, more on large */
+  padding: clamp(0.85rem, 1.5vh, 1.75rem) clamp(0.85rem, 1.75vw, 2rem);
   background: #fafbfe;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
 .content-area::-webkit-scrollbar { width: 5px; }
 .content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS — All Devices
+   Smartboard: 2560px+  PC: 1920px  Laptop: 1024–1440px
+   ═══════════════════════════════════════════════════ */
+
+/* ── Large desktops & smartboards (1920px+) ── */
+@media (min-width: 1920px) {
+  .content-area {
+    padding: 2.25rem 2.75rem;
+  }
+}
+
+/* ── Ultra-wide smartboards (2560px+) ── */
+@media (min-width: 2560px) {
+  .content-area {
+    padding: 2.5rem 4rem;
+  }
+}
+
+/* ── Standard laptop screens (1024px–1280px) ── */
+@media (max-width: 1280px) {
+  .content-area {
+    padding: 1rem 1.25rem;
+  }
+}
+
+/* ── Small laptop / compact (below 1024px) ── */
+@media (max-width: 1024px) {
+  .content-area {
+    padding: 0.85rem 0.9rem;
+  }
+}
 
 /* ── Patient Portal Consumer Canvas (Matching Reference Frame 01 & 04) ── */
 .patient-portal-layout {
@@ -131,25 +171,21 @@ body, body *, button, input, select, textarea, p, span, h1, h2, h3, h4, h5, h6, 
   overflow-y: auto;
   overflow-x: hidden;
   background: #F3DCE8; /* Reference Pale Pink/Lilac canvas background */
-  padding: 0.75rem 1.25rem 2.5rem 1.25rem;
-}
-
-@media (min-width: 1440px) {
-  .patient-portal-layout {
-    padding: 1rem 2.5rem 3.5rem 2.5rem;
-  }
+  padding: clamp(0.5rem, 1.5vh, 1.25rem) clamp(0.75rem, 2vw, 2.5rem) clamp(1.5rem, 4vh, 3.5rem);
 }
 
 .patient-main-wrapper {
   width: 100%;
-  max-width: 1200px;
+  /* Fluid max-width: 1100px on laptops → 1400px on 1920p → 1800px on 4K smartboards */
+  max-width: clamp(900px, 85vw, 1800px);
   margin: 0 auto;
   height: auto;
   min-height: calc(100vh - 3.5rem);
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  border-radius: 36px;
+  /* Fluid border-radius */
+  border-radius: clamp(20px, 2.5vw, 40px);
   box-shadow: 0 20px 60px rgba(36, 36, 84, 0.08);
   overflow: hidden;
 }
@@ -1239,4 +1275,92 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius:
 }
 
 
+/* ══════════════════════════════════════════════════════════
+   MULTI-DEVICE RESPONSIVE SYSTEM
+   Covers: Smartboard (2560p+) | Large PC (1920p) |
+           Desktop (1440p) | Laptop (1280p) | Compact (1024p)
+   ══════════════════════════════════════════════════════════ */
 
+/* ── Fluid stat-card padding ── */
+.stat-card {
+  padding: clamp(0.85rem, 1.5vh, 1.5rem) clamp(1rem, 1.5vw, 1.5rem);
+}
+
+/* ── Fluid modal content max-width ── */
+.modal-content {
+  max-width: clamp(480px, 50vw, 800px);
+}
+
+/* ── Fluid badge font ── */
+.badge {
+  font-size: clamp(0.55rem, 0.7vw, 0.75rem);
+}
+
+/* ─────────────────────────────────────────
+   SMARTBOARD (2560px and above)
+   ───────────────────────────────────────── */
+@media (min-width: 2560px) {
+  html { font-size: 20px; }
+
+  .app-container aside,
+  aside[style] {
+    width: 320px !important;
+    min-width: 320px !important;
+  }
+
+  .stat-card { padding: 2rem 2.5rem; }
+  .badge { font-size: 0.8rem; }
+
+  /* Wider grids use more columns */
+  [class*="grid-cols-"] { --cols-boost: 2; }
+}
+
+/* ─────────────────────────────────────────
+   LARGE DESKTOP / WIDESCREEN (1920px)
+   ───────────────────────────────────────── */
+@media (min-width: 1920px) and (max-width: 2559px) {
+  html { font-size: 17px; }
+
+  .stat-card { padding: 1.6rem 2rem; }
+}
+
+/* ─────────────────────────────────────────
+   STANDARD DESKTOP (1440px)
+   ───────────────────────────────────────── */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  html { font-size: 15px; }
+}
+
+/* ─────────────────────────────────────────
+   LAPTOP (1280px)
+   ───────────────────────────────────────── */
+@media (max-width: 1280px) {
+  html { font-size: 13.5px; }
+
+  .stat-card { padding: 0.9rem 1.1rem; }
+
+  /* Ensure modals don't overflow */
+  .modal-content { max-width: 96vw; }
+  .modal-overlay { padding: 0.6rem; }
+}
+
+/* ─────────────────────────────────────────
+   COMPACT LAPTOP / SMALL SCREEN (1024px)
+   ───────────────────────────────────────── */
+@media (max-width: 1024px) {
+  html { font-size: 13px; }
+
+  .stat-card { padding: 0.75rem 0.9rem; }
+  .glass-card { border-radius: 16px; }
+
+  /* Ensure modal fits */
+  .modal-content { max-width: 98vw; max-height: 94vh; }
+  .modal-overlay { padding: 0.5rem; }
+
+  /* Shrink badge text further */
+  .badge { font-size: 0.6rem; padding: 0.15rem 0.5rem; }
+
+  /* Table cells tighter */
+  .custom-table th,
+  .custom-table td { padding: 0.65rem 0.75rem; }
+}

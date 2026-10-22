@@ -90,7 +90,9 @@ export const Sidebar = () => {
 
   return (
     <aside style={{
-      width: '230px', minWidth: '230px',
+      /* Fluid sidebar: 200px on 1024px → 230px on 1440px → 260px on 1920px → 300px on 2560px+ */
+      width: 'clamp(180px, 13vw, 300px)',
+      minWidth: 'clamp(180px, 13vw, 300px)',
       background: '#FFFFFF',
       borderRight: '1px solid #E2E8F0',
       display: 'flex', flexDirection: 'column',
